@@ -5,6 +5,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About Us - Online Gamer®</title>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 <style>
 * {
   box-sizing: border-box;
@@ -56,6 +60,10 @@ a:hover { color: greenyellow; }
   text-transform: uppercase;
 }
 
+.headline i {
+  margin-right: 8px;
+}
+
 nav { 
   background-color: rgba(0, 0, 0, 0.90); 
   display: flex; 
@@ -75,6 +83,9 @@ nav a {
   background: #1e1e1e; 
   border-radius: 4px;
   transition: all 0.2s ease-in-out; 
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 nav a:hover, nav a.active { 
@@ -119,6 +130,13 @@ nav a:hover, nav a.active {
   border-bottom: 1px solid #333;
   padding-bottom: 8px;
   margin-top: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-card h2 i {
+  color: greenyellow;
 }
 
 .page-card p {
@@ -150,6 +168,9 @@ nav a:hover, nav a.active {
   margin-top: 0;
   font-size: 110%;
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .feature-box p {
@@ -164,7 +185,9 @@ nav a:hover, nav a.active {
 }
 
 .cta-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background-color: greenyellow;
   color: #000;
   font-weight: 800;
@@ -204,19 +227,19 @@ footer a:hover { color: greenyellow; background: transparent; }
 
 <div id="app-content">
   <div class="main-body">
-    <div class="headline">Online Gamer®</div>
+    <div class="headline"><i class="fa-solid fa-gamepad"></i>Online Gamer®</div>
 
     <!-- Navigation Header -->
     <nav>
-      <a href="index.html">Home</a>
-      <a href="about.html" class="active">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="faq.html">FAQ</a>
-      <a href="terms.html">Terms</a>
-      <a href="profile.html" class="auth-only">Profile</a>
-      <a href="withdraw.html" class="auth-only">Withdraw</a>
-      <a href="login.html" class="guest-only">Login</a>
-      <a href="register.html" class="guest-only">Register</a>
+      <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="about.html" class="active"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+      <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
+      <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
     <!-- Main About Content Card -->
@@ -227,34 +250,34 @@ footer a:hover { color: greenyellow; background: transparent; }
         
         <p>Founded with a passion for retro web gaming, Online Gamer® turns casual gaming sessions into rewarding experiences. We host a curated selection of lightweight, high-performance web arcade games that run seamlessly across mobile and desktop browsers.</p>
 
-        <h2>Our Platform Model</h2>
+        <h2><i class="fa-solid fa-diagram-project"></i> Our Platform Model</h2>
         <p>We believe players should be rewarded for their time and skill. By tracking active gameplay and score achievements in real time, Online Gamer® allows registered users to accumulate balance directly into their account wallet while enjoying timeless arcade classics.</p>
 
         <!-- Features Grid -->
         <div class="features-grid">
           <div class="feature-box">
-            <h3>🎮 Retro Library</h3>
+            <h3><i class="fa-solid fa-gamepad"></i> Retro Library</h3>
             <p>Access classics ranging from strategy and puzzles like 2048 and Eight Queens to fast-paced action like Hextris and Clumsy Bird.</p>
           </div>
           <div class="feature-box">
-            <h3>⚡ Real-Time Tracking</h3>
+            <h3><i class="fa-solid fa-bolt"></i> Real-Time Tracking</h3>
             <p>Integrated Cloud Firestore infrastructure monitors active playtime and stats instantly as you play.</p>
           </div>
           <div class="feature-box">
-            <h3>📱 Cross-Platform</h3>
+            <h3><i class="fa-solid fa-mobile-screen-button"></i> Cross-Platform</h3>
             <p>Optimized for low bandwidth and full responsiveness across desktop keyboards and mobile touchscreens.</p>
           </div>
           <div class="feature-box">
-            <h3>💳 Instant Withdrawals</h3>
+            <h3><i class="fa-solid fa-money-bill-transfer"></i> Instant Withdrawals</h3>
             <p>Easily manage your earnings with low minimum thresholds and simple payout requests right from your profile.</p>
           </div>
         </div>
 
-        <h2>Security & Transparency</h2>
+        <h2><i class="fa-solid fa-shield-halved"></i> Security & Transparency</h2>
         <p>Our infrastructure utilizes industry-standard Firebase authentication and strict database security rules to safeguard player accounts, balances, and session history. Every payout request is reviewed to ensure fair play across our leaderboard community.</p>
 
         <div class="cta-container">
-          <a href="index.html" class="cta-btn">Start Playing Now</a>
+          <a href="index.html" class="cta-btn"><i class="fa-solid fa-play"></i> Start Playing Now</a>
         </div>
       </div>
     </div>
@@ -263,7 +286,7 @@ footer a:hover { color: greenyellow; background: transparent; }
   <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:40:00 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:47:09 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
