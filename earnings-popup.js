@@ -1,6 +1,6 @@
-import { auth, db } from '/firebase.js'; // Points to root firebase.js
+import { auth, db } from '/firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { doc, getDoc, setDoc, onSnapshot, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { doc, getDoc, getDocs, collection, setDoc, onSnapshot, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 let secondsPlayed = 0;
 let rate = 0; // rate per second
@@ -63,6 +63,17 @@ widget.innerHTML = `
 `;
 document.body.appendChild(widget);
 
+// Helper function to extract rate from any document snapshot
+function parseRateFromDoc(docData) {
+  if (!docData) return null;
+  const rawRate = docData.rate ?? docData.value ?? docData.amount;
+  if (rawRate !== undefined && rawRate !== null) {
+    const parsed = parseFloat(rawRate);
+    return isNaN(parsed) ? null : parsed;
+  }
+  return null;
+}
+
 // Auth & Realtime Sync Setup
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -72,37 +83,55 @@ onAuthStateChanged(auth, async (user) => {
 
   userDocRef = doc(db, 'users', user.uid);
 
-  // 1. Fetch earning rate from Firestore
+  // 1. Fetch earning rate from `games/settings/rate` collection or doc
   try {
-    // Try games/settings/rate/default
-    let rateSnap = await getDoc(doc(db, 'games', 'settings', 'rate', 'default'));
-    if (rateSnap.exists()) {
-      rate = rateSnap.data().rate || 0;
-    } else {
-      // Fallback 1: games/settings/rate
-      rateSnap = await getDoc(doc(db, 'games', 'settings', 'rate'));
-      if (rateSnap.exists()) {
-        rate = rateSnap.data().rate || 0;
-      } else {
-        // Fallback 2: games/settings
-        rateSnap = await getDoc(doc(db, 'games', 'settings'));
-        rate = rateSnap.exists() ? (rateSnap.data().rate || 0) : 0;
+    // Attempt A: Read as a collection `games/settings/rate`
+    const rateColRef = collection(db, 'games', 'settings', 'rate');
+    const rateColSnap = await getDocs(rateColRef);
+
+    if (!rateColSnap.empty) {
+      // Grab the first document in the rate collection
+      for (const docItem of rateColSnap.docs) {
+        const foundRate = parseRateFromDoc(docItem.data());
+        if (foundRate !== null) {
+          rate = foundRate;
+          console.log('Rate loaded from collection games/settings/rate:', rate);
+          break;
+        }
       }
     }
+
+    // Attempt B: Fallback if rate was created as a single document `games/settings`
+    if (rate === 0) {
+      const docSnap = await getDoc(doc(db, 'games', 'settings'));
+      if (docSnap.exists()) {
+        const foundRate = parseRateFromDoc(docSnap.data());
+        if (foundRate !== null) {
+          rate = foundRate;
+          console.log('Rate loaded from document games/settings:', rate);
+        }
+      }
+    }
+
+    // Attempt C: Hard fallback if Firestore returned 0 or missing document
+    if (rate <= 0) {
+      console.warn('Firestore rate returned 0 or empty. Using default rate: 0.001');
+      rate = 0.001; // Default fallback: $0.001 per second
+    }
   } catch (err) {
-    console.error('Error fetching rate:', err);
+    console.error('Error fetching rate from Firestore, applying fallback rate:', err);
+    rate = 0.001; // Default fallback on network/permission errors
   }
 
   // 2. Initial balance load & listener
   let isFirstLoad = true;
   onSnapshot(userDocRef, (docSnap) => {
     if (docSnap.exists()) {
-      const dbBalance = docSnap.data().balance || 0;
+      const dbBalance = parseFloat(docSnap.data().balance) || 0;
       if (isFirstLoad) {
         initialBalance = dbBalance;
         isFirstLoad = false;
       }
-      // Keep total balance display consistent (Initial DB Balance + Session Earned)
       document.getElementById('ew-balance').textContent = (initialBalance + sessionEarnings).toFixed(4);
     } else {
       setDoc(userDocRef, { balance: 0 }, { merge: true });
@@ -119,7 +148,6 @@ function startEarningTimer() {
   if (timerInterval) clearInterval(timerInterval);
 
   timerInterval = setInterval(() => {
-    // Stop tracking time if user switches tabs
     if (document.hidden) return;
 
     secondsPlayed++;
@@ -128,12 +156,12 @@ function startEarningTimer() {
     // Format & Update UI Elements
     const mins = String(Math.floor(secondsPlayed / 60)).padStart(2, '0');
     const secs = String(secondsPlayed % 60).padStart(2, '0');
-    
+
     document.getElementById('ew-time').textContent = `${mins}:${secs}`;
     document.getElementById('ew-earned').textContent = sessionEarnings.toFixed(4);
     document.getElementById('ew-balance').textContent = (initialBalance + sessionEarnings).toFixed(4);
 
-    // Sync to Firestore every 5 seconds to prevent rate-limit throttling
+    // Sync to Firestore every 5 seconds
     if (rate > 0 && userDocRef && secondsPlayed % 5 === 0) {
       setDoc(userDocRef, {
         balance: increment(rate * 5),
