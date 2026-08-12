@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Terms of Service - Online Gamer®</title>
+<title>Terms & Conditions - Online Gamer®</title>
 
 <!-- Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -38,7 +38,7 @@ a:hover { color: greenyellow; }
 
 /* Main Wrapper for Sticky Footer */
 #app-content { 
-  display: none; /* Controlled by Firebase Auth */
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
@@ -74,7 +74,7 @@ nav {
   border-bottom: 1px solid #333; 
 }
 
-nav a { 
+nav a, nav button { 
   color: #ccc; 
   padding: 8px 14px; 
   font-weight: 600; 
@@ -86,113 +86,155 @@ nav a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-nav a:hover, nav a.active { 
+nav a:hover, nav a.active, nav button:hover { 
   background-color: greenyellow; 
   color: black; 
   border-color: greenyellow; 
 }
 
-/* Content Container */
-.content-wrapper {
+.auth-only, .guest-only {
+  display: none; /* Controlled via JS Auth observer */
+}
+
+/* Terms Layout */
+.terms-container {
   max-width: 900px;
-  margin: 30px auto;
+  margin: 40px auto;
   padding: 0 20px;
 }
 
-.page-card {
-  background-color: rgba(0, 0, 0, 0.85);
+.page-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-title h1 {
+  font-size: 200%;
+  color: #fff;
+  margin: 0 0 10px 0;
+  letter-spacing: 1px;
+}
+
+.page-title p {
+  color: #aaa;
+  font-size: 100%;
+  margin: 0;
+}
+
+/* Terms Cards Container */
+.terms-card {
+  background-color: rgba(0, 0, 0, 0.75);
   border: 1px solid #333;
   border-radius: 8px;
-  padding: 35px;
+  padding: 30px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  margin-bottom: 30px;
 }
 
-.page-card h1 {
-  color: #ffffff;
-  font-size: 200%;
+.terms-card h2 {
+  color: greenyellow;
+  font-size: 130%;
   margin-top: 0;
-  margin-bottom: 10px;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.page-card h1 i {
-  color: greenyellow;
-}
-
-.page-card .subtitle {
-  color: greenyellow;
-  font-weight: 600;
-  font-size: 110%;
-  margin-bottom: 25px;
-}
-
-.page-card h2 {
-  color: #fff;
-  font-size: 125%;
+  margin-bottom: 15px;
   border-bottom: 1px solid #333;
-  padding-bottom: 8px;
-  margin-top: 30px;
+  padding-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.page-card h2 i {
-  color: greenyellow;
-}
-
-.page-card p, .page-card ul {
+.terms-card p {
   color: #bbb;
+  font-size: 14px;
   line-height: 1.7;
-  font-size: 95%;
   margin-bottom: 15px;
 }
 
-.page-card ul {
+.terms-card ul {
+  color: #bbb;
+  font-size: 14px;
+  line-height: 1.7;
   padding-left: 20px;
+  margin-bottom: 15px;
 }
 
-.page-card li {
+.terms-card li {
   margin-bottom: 8px;
 }
 
-.cta-box {
-  text-align: center;
-  margin-top: 35px;
-  padding-top: 25px;
-  border-top: 1px solid #333;
+/* Floating Support Button & Widget */
+.floating-support-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
 }
 
-.cta-box p {
-  color: #aaa;
-  margin-bottom: 15px;
-}
-
-.cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.support-toggle-btn {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
   background-color: greenyellow;
   color: #000;
-  font-weight: 800;
-  font-size: 14px;
-  padding: 12px 25px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.support-toggle-btn:hover {
+  transform: scale(1.08);
+  background-color: #9eff1a;
+}
+
+.support-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.support-options.active {
+  display: flex;
+}
+
+.support-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #222;
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
   transition: all 0.2s ease;
 }
 
-.cta-btn:hover {
-  background-color: #bfff42;
-  color: #000;
-  transform: translateY(-2px);
+.support-link:hover {
+  border-color: greenyellow;
+  background-color: #2a2a2a;
 }
+
+.support-link.whatsapp i { color: #25D366; font-size: 16px; }
+.support-link.email i { color: #ea4335; font-size: 16px; }
 
 /* Footer Section Locked to Bottom */
 footer { 
@@ -223,72 +265,162 @@ footer a:hover { color: greenyellow; background: transparent; }
       <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
       <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
       <a href="terms.html" class="active"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      
+      <!-- Authenticated User Links -->
       <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
       <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <!-- Guest Links -->
       <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
       <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <!-- Main Content Container -->
-    <div class="content-wrapper">
-      <div class="page-card">
-        <h1><i class="fa-solid fa-file-contract"></i> Terms of Service</h1>
-        <div class="subtitle">Please read these rules and guidelines carefully before using Online Gamer®.</div>
-
-        <h2><i class="fa-solid fa-user-check"></i> 1. Acceptance of Terms</h2>
-        <p>By accessing or using Online Gamer®, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not access or use our gaming platform services.</p>
-
-        <h2><i class="fa-solid fa-id-card"></i> 2. User Accounts & Eligibility</h2>
-        <p>To participate in games and earn reward balance, users must register for a valid account. You are responsible for maintaining the confidentiality of your login credentials and for all activities under your account.</p>
-
-        <h2><i class="fa-solid fa-shield-cat"></i> 3. Fair Play & Anti-Cheat Policy</h2>
-        <p>We enforce a strict fair-play policy across all hosted arcade games. The following actions are strictly prohibited and will result in immediate account termination and forfeiture of wallet balance:</p>
-        <ul>
-          <li>Using automated bots, scripts, or macros to manipulate gameplay scores or active hours.</li>
-          <li>Exploiting platform bugs, browser vulnerabilities, or network requests.</li>
-          <li>Creating multiple accounts per individual to bypass subscription caps or referral limits.</li>
-        </ul>
-
-        <h2><i class="fa-solid fa-coins"></i> 4. Wallet Balances & Withdrawals</h2>
-        <p>Account balances accumulate through verified gameplay session stats tracked via Cloud Firestore. Minimum payout thresholds apply for withdrawal requests. Online Gamer® reserves the right to review and verify all payout requests prior to processing.</p>
-
-        <h2><i class="fa-solid fa-layer-group"></i> 5. Subscription Plans</h2>
-        <p>Subscription tier upgrades (e.g., Basic Plan, Silver Plan) grant specified multiplier rates and daily limit caps. Subscriptions are non-refundable once activated unless otherwise stated in writing.</p>
-
-        <h2><i class="fa-solid fa-gavel"></i> 6. Termination & Modifications</h2>
-        <p>Online Gamer® reserves the right to modify or discontinue services, adjust platform reward rates, or suspend accounts violating these terms at any time without prior notice.</p>
-
-        <div class="cta-box">
-          <p>Have questions regarding our terms or compliance policies?</p>
-          <a href="contact.html" class="cta-btn"><i class="fa-solid fa-headset"></i> Contact Legal Support</a>
-        </div>
-
+    <!-- Terms Content Container -->
+    <div class="terms-container">
+      <div class="page-title">
+        <h1>Terms of Service</h1>
+        <p>Please read these rules and guidelines carefully before using Online Gamer®.</p>
       </div>
+
+      <!-- Section 1 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-shield-halved"></i> 1. Acceptance of Terms</h2>
+        <p>By creating an account or using Online Gamer®, you agree to follow these Terms of Service. If you do not agree to all terms outlined here, please do not access or use our platform services.</p>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-user-gear"></i> 2. Account Registration & Eligibility</h2>
+        <p>Users must provide accurate registration details. You are responsible for keeping your credentials confidential and for all activity under your profile.</p>
+        <ul>
+          <li>Each individual player is permitted to operate only <strong>one</strong> account.</li>
+          <li>Multiple accounts created by a single user are subject to immediate suspension.</li>
+          <li>Account ownership transfers are strictly prohibited.</li>
+        </ul>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-gem"></i> 3. Subscription Plans & Features</h2>
+        <p>Online Gamer® offers membership subscription plans (such as <strong>Basic Plan</strong>, <strong>Silver Plan</strong>, and other designated tiers) inside your profile settings.</p>
+        <ul>
+          <li>Subscription tiers govern maximum daily gameplay limits and payout eligibility parameters.</li>
+          <li>Plan benefits and fees are non-transferable once activated.</li>
+          <li>Plan terms are subject to adjustment with advance notice on the platform.</li>
+        </ul>
+      </div>
+
+      <!-- Section 4 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-money-bill-transfer"></i> 4. Earnings & Withdrawal Policies</h2>
+        <p>Rewards and account balances accumulated via eligible gameplay can be withdrawn according to system rules and thresholds.</p>
+        <ul>
+          <li>Withdrawals must be submitted through the designated Withdraw page.</li>
+          <li>Withdrawal requests undergo routine verification before disbursement.</li>
+          <li>Accounts flagged for fraudulent activities or exploit usage will forfeit pending payouts.</li>
+        </ul>
+      </div>
+
+      <!-- Section 5 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-ban"></i> 5. Prohibited Conduct</h2>
+        <p>To preserve fair play, the following actions are strictly banned on Online Gamer®:</p>
+        <ul>
+          <li>Using automated scripts, bots, or third-party exploits to gain scores or rewards.</li>
+          <li>Reverse-engineering or attempting to exploit platform backend systems.</li>
+          <li>Submitting fraudulent payment details or impersonating other players.</li>
+        </ul>
+      </div>
+
+      <!-- Section 6 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-gavel"></i> 6. Account Termination & Changes</h2>
+        <p>We reserve the right to modify these terms, suspend accounts violating community standards, or update service features at any time to guarantee security and platform stability.</p>
+      </div>
+
     </div>
+  </div>
+
+  <!-- Floating Support Button -->
+  <div class="floating-support-container">
+    <div id="supportOptions" class="support-options">
+      <a id="whatsappLink" href="#" target="_blank" class="support-link whatsapp">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
+      </a>
+      <a id="emailLink" href="#" target="_blank" class="support-link email">
+        <i class="fa-solid fa-envelope"></i> Email Support
+      </a>
+    </div>
+    <button id="supportToggleBtn" class="support-toggle-btn" title="Contact Support">
+      <i class="fa-solid fa-headset"></i>
+    </button>
   </div>
 
   <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:49:42 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:42:00 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
 <script type="module">
-  import { auth } from './firebase.js';
-  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { auth, db } from './firebase.js';
+  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const appContent = document.getElementById('app-content');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const supportToggleBtn = document.getElementById('supportToggleBtn');
+  const supportOptions = document.getElementById('supportOptions');
+  const whatsappLink = document.getElementById('whatsappLink');
+  const emailLink = document.getElementById('emailLink');
 
-  // Check auth state
+  // Dynamic Auth State UI
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      appContent.style.display = 'flex';
       document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
     } else {
-      window.location.href = 'login.html'; 
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'inline-flex');
+    }
+  });
+
+  // Logout Action
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
+
+  // Floating Support Button Handler
+  let supportFetched = false;
+  supportToggleBtn.addEventListener('click', async () => {
+    supportOptions.classList.toggle('active');
+
+    if (!supportFetched) {
+      try {
+        const docRef = doc(db, 'settings', 'payment');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.whatsappNumber) {
+            const cleanNum = data.whatsappNumber.replace(/[^\d+]/g, '');
+            whatsappLink.href = `https://wa.me/${cleanNum}`;
+          }
+          if (data.email) {
+            emailLink.href = `mailto:${data.email}`;
+          }
+        }
+        supportFetched = true;
+      } catch (err) {
+        console.error('Error fetching support contact details:', err);
+      }
     }
   });
 </script>
