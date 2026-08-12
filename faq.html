@@ -477,20 +477,20 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   });
 
-  // Floating Support Button Handler
+  // Floating Support Button Handler (Fetches from settings/contact document)
   let supportFetched = false;
   supportToggleBtn.addEventListener('click', async () => {
     supportOptions.classList.toggle('active');
 
     if (!supportFetched) {
       try {
-        const docRef = doc(db, 'settings', 'payment');
+        const docRef = doc(db, 'settings', 'contact');
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          if (data.whatsappNumber) {
-            const cleanNum = data.whatsappNumber.replace(/[^\d+]/g, '');
+          if (data.whatsapp) {
+            const cleanNum = data.whatsapp.replace(/[^\d+]/g, '');
             whatsappLink.href = `https://wa.me/${cleanNum}`;
           }
           if (data.email) {
