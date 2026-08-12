@@ -5,42 +5,142 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Register - Online Gamer®</title>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 <style>
-body { font-family: sans-serif; margin: 0; background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, linear-gradient(90deg, #1b1b1b 10px, transparent 10px), linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); background-color: #131313; background-size: 20px 20px; }
+* {
+  box-sizing: border-box;
+}
+
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+  margin: 0; 
+  background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
+              linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, 
+              linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, 
+              linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, 
+              linear-gradient(90deg, #1b1b1b 10px, transparent 10px), 
+              linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); 
+  background-color: #131313; 
+  background-size: 20px 20px; 
+  color: #e0e0e0;
+}
+
 a, a:visited { color: greenyellow; text-decoration: none; }
 a:hover { text-decoration: underline; }
-.headline { background-color: rgba(0, 0, 0, 0.60); color: honeydew; font-size: 120%; font-weight: bold; margin: 0; text-align: center; }
+
+.headline { 
+  background-color: rgba(0, 0, 0, 0.85); 
+  color: greenyellow; 
+  font-size: 140%; 
+  font-weight: 800; 
+  padding: 15px 0; 
+  text-align: center; 
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid #222;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
 .auth-container { display: flex; justify-content: center; margin: 40px 10px; }
-.auth-card { background-color: white; border: 1px solid black; padding: 20px; text-align: center; width: 280px; box-sizing: border-box; }
+.auth-card { 
+  background-color: #1a1a1a; 
+  border: 1px solid #333; 
+  border-radius: 6px;
+  padding: 24px; 
+  text-align: center; 
+  width: 320px; 
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.auth-card h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
 .input-group { margin-bottom: 15px; text-align: left; }
-.input-group label { font-size: small; font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
-.input-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid darkgrey; font-size: 14px; }
-.btn { background-color: #1a1a1a; color: white; border: 1px solid black; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; }
-.btn:hover { background-color: greenyellow; color: black; }
-.error-msg { color: red; font-size: small; margin-top: 10px; display: none; }
-.switch-link { margin-top: 15px; font-size: small; color: #555; }
-footer { background-color: rgba(0, 0, 0, 0.70); color: slategrey; font-family: monospace; font-size: small; font-style: italic; padding: 20px; margin-top: 50px; }
-footer a, footer a:visited { color: lightblue; }
-footer a:hover { background-color: darkblue; }
+.input-group label { font-size: 12px; font-weight: bold; color: #aaa; display: block; margin-bottom: 5px; text-transform: uppercase; }
+.input-group input { 
+  width: 100%; 
+  padding: 10px; 
+  background-color: #222;
+  border: 1px solid #444; 
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px; 
+  outline: none;
+}
+.input-group input:focus {
+  border-color: greenyellow;
+}
+
+.btn { 
+  background-color: greenyellow; 
+  color: black; 
+  border: none; 
+  border-radius: 4px;
+  padding: 12px; 
+  width: 100%; 
+  cursor: pointer; 
+  font-weight: 800; 
+  margin-top: 10px; 
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+.btn:hover { 
+  background-color: #9eff1a; 
+  box-shadow: 0 4px 12px rgba(173, 255, 47, 0.3);
+}
+
+.error-msg { color: #ff5555; font-size: 13px; margin-top: 12px; display: none; line-height: 1.4; }
+.switch-link { margin-top: 20px; font-size: 13px; color: #888; }
+
+footer { 
+  background-color: rgba(0, 0, 0, 0.90); 
+  color: #777; 
+  font-family: monospace; 
+  font-size: 12px; 
+  padding: 20px; 
+  margin-top: 50px; 
+  text-align: center;
+  border-top: 1px solid #222;
+}
+footer a, footer a:visited { color: #aaa; }
+footer a:hover { color: greenyellow; background: transparent; }
 </style>
 </head>
 <body>
 
-<div class="headline">Online Gamer®</div>
+<div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
 
 <div class="auth-container">
   <div class="auth-card">
-    <h3 style="margin-top:0;">Create Account</h3>
+    <h3>Create Account</h3>
     <form id="registerForm">
+      <div class="input-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" required placeholder="John Doe">
+      </div>
       <div class="input-group">
         <label for="email">Email</label>
         <input type="email" id="email" required placeholder="gamer@example.com">
       </div>
       <div class="input-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" required placeholder="+1234567890">
+      </div>
+      <div class="input-group">
         <label for="password">Password</label>
         <input type="password" id="password" required placeholder="••••••••">
       </div>
-      <button type="submit" class="btn">REGISTER</button>
+      <button type="submit" class="btn"><i class="fa-solid fa-user-plus"></i> REGISTER</button>
       <div id="errorMsg" class="error-msg"></div>
     </form>
     <div class="switch-link">
@@ -51,13 +151,14 @@ footer a:hover { background-color: darkblue; }
 
 <footer>
   <p>Online Gamer®</p>
-  <p>last updated: <span style="white-space: nowrap;">2026-08-11 23:35:37 UTC</span></p>
+  <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:11:19 UTC</span></p>
   <p>powered by Online Gamer® v4.0.8</p>
 </footer>
 
 <script type="module">
-  import { auth } from './firebase.js';
-  import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { auth, db } from './firebase.js';
+  import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const registerForm = document.getElementById('registerForm');
   const errorMsg = document.getElementById('errorMsg');
@@ -66,11 +167,33 @@ footer a:hover { background-color: darkblue; }
     e.preventDefault();
     errorMsg.style.display = 'none';
 
-    const email = document.getElementById('email').value;
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
     const password = document.getElementById('password').value;
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      // 1. Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // 2. Update display name in Firebase Auth profile
+      await updateProfile(user, {
+        displayName: fullName
+      });
+
+      // 3. Save details to 'users' collection in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        plan: 'Basic Plan',
+        balance: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      // 4. Redirect to home page
       window.location.href = 'index.html';
     } catch (error) {
       errorMsg.textContent = error.message;
