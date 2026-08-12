@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Portal - Online Gamer®</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+  background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
+              linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, 
+              linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, 
+              linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, 
+              linear-gradient(90deg, #1b1b1b 10px, transparent 10px), 
+              linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); 
+  background-color: #131313; 
+  background-size: 20px 20px; 
+  color: #e0e0e0;
+}
+
+a, a:visited { color: #888; text-decoration: none; }
+a:hover { color: greenyellow; }
+
+#app-content { display: flex; flex-direction: column; min-height: 100vh; }
+.main-body { flex: 1 0 auto; }
+
+.headline { 
+  background-color: rgba(0, 0, 0, 0.85); 
+  color: greenyellow; 
+  font-size: 140%; 
+  font-weight: 800; 
+  padding: 15px 0; 
+  text-align: center; 
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid #222;
+  text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+
+nav { 
+  background-color: rgba(0, 0, 0, 0.90); 
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; 
+  padding: 12px; border-bottom: 1px solid #333; 
+}
+
+nav button { 
+  color: #ccc; padding: 10px 16px; font-weight: 600; font-size: 13px; 
+  border: 1px solid #333; background: #1e1e1e; border-radius: 4px;
+  transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; gap: 8px;
+  cursor: pointer; font-family: inherit;
+}
+
+nav button:hover, nav button.active { 
+  background-color: greenyellow; color: black; border-color: greenyellow; 
+}
+
+.admin-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+
+.card {
+  background-color: rgba(0, 0, 0, 0.75);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  margin-bottom: 25px;
+}
+
+.card h2 {
+  color: greenyellow; font-size: 130%; margin-top: 0; margin-bottom: 15px;
+  border-bottom: 1px solid #333; padding-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.login-card { max-width: 420px; margin: 60px auto; }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; margin-bottom: 6px; color: #ccc; font-size: 13px; font-weight: 600; }
+.form-group input, .form-group select {
+  width: 100%; padding: 12px; background-color: #1a1a1a; border: 1px solid #333;
+  border-radius: 4px; color: #fff; font-family: inherit; font-size: 14px;
+}
+.form-group input:focus, .form-group select:focus { outline: none; border-color: greenyellow; }
+
+.action-btn {
+  width: 100%; background-color: greenyellow; color: #000; font-weight: 800;
+  font-size: 14px; padding: 12px; border: none; border-radius: 4px; cursor: pointer;
+  text-transform: uppercase; letter-spacing: 1px;
+  transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.action-btn:hover { background-color: #9eff1a; }
+
+.btn-danger { background-color: #ff4d4d; color: #fff; }
+.btn-danger:hover { background-color: #ff6666; }
+
+.btn-small { width: auto; padding: 6px 12px; font-size: 11px; text-transform: none; }
+
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+th, td { padding: 12px; border-bottom: 1px solid #282828; }
+th { background-color: #1a1a1a; color: greenyellow; font-weight: 600; }
+tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+
+.badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+.badge-pending { background: #554400; color: #ffcc00; }
+.badge-approved { background: #004400; color: greenyellow; }
+.badge-rejected { background: #440000; color: #ff6666; }
+
+.status-msg {
+  display: none; padding: 12px; margin-top: 15px; border-radius: 4px; font-size: 13px; text-align: center;
+}
+.status-msg.success { display: block; background-color: rgba(173, 255, 47, 0.1); color: greenyellow; border: 1px solid greenyellow; }
+.status-msg.error { display: block; background-color: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid #ff4d4d; }
+
+#loader { text-align: center; padding: 40px 0; color: greenyellow; }
+
+footer { 
+  flex-shrink: 0; background-color: rgba(0, 0, 0, 0.90); color: #777; font-family: monospace; 
+  font-size: 12px; padding: 20px; text-align: center; border-top: 1px solid #222;
+}
+</style>
+</head>
+<body>
+
+<div id="app-content">
+  <div class="main-body">
+    <div class="headline"><i class="fa-solid fa-user-shield"></i> Online Gamer® Admin</div>
+
+    <!-- ADMIN NAVIGATION (Hidden until logged in) -->
+    <nav id="adminNav" style="display: none;">
+      <button class="nav-btn active" data-tab="usersSection"><i class="fa-solid fa-users"></i> Users</button>
+      <button class="nav-btn" data-tab="requestsSection"><i class="fa-solid fa-file-invoice-dollar"></i> Connection Requests</button>
+      <button class="nav-btn" data-tab="withdrawalsSection"><i class="fa-solid fa-money-bill-transfer"></i> Withdrawals</button>
+      <button class="nav-btn" data-tab="settingsSection"><i class="fa-solid fa-sliders"></i> Site Settings</button>
+      <button id="adminLogoutBtn" class="btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </nav>
+
+    <div class="admin-container">
+      <div id="loader">
+        <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+        <p>Checking admin authorization...</p>
+      </div>
+
+      <!-- LOGIN FORM SECTION -->
+      <div id="loginSection" class="card login-card" style="display: none;">
+        <h2><i class="fa-solid fa-lock"></i> Admin Authentication</h2>
+        <form id="adminLoginForm">
+          <div class="form-group">
+            <label for="adminEmail">Email Address</label>
+            <input type="email" id="adminEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" required>
+          </div>
+          <button type="submit" class="action-btn" id="loginBtn">Login to Panel</button>
+          <div id="loginStatus" class="status-msg"></div>
+        </form>
+      </div>
+
+      <!-- DASHBOARD MAIN PANEL (Hidden until logged in) -->
+      <div id="dashboardSection" style="display: none;">
+
+        <!-- TAB 1: USERS OVERVIEW -->
+        <div id="usersSection" class="tab-content card">
+          <h2><span><i class="fa-solid fa-users"></i> Registered Users</span></h2>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>UID</th>
+                  <th>Name</th>
+                  <th>MoMo Number</th>
+                  <th>Provider</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <tr><td colspan="5">Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: CONNECTION REQUESTS -->
+        <div id="requestsSection" class="tab-content card" style="display: none;">
+          <h2><span><i class="fa-solid fa-file-invoice-dollar"></i> Connection Requests</span></h2>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Account Details</th>
+                  <th>Receipt Proof</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="requestsTableBody">
+                <tr><td colspan="5">Loading requests...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: WITHDRAWALS -->
+        <div id="withdrawalsSection" class="tab-content card" style="display: none;">
+          <h2><span><i class="fa-solid fa-money-bill-transfer"></i> Payout Withdrawals</span></h2>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Amount</th>
+                  <th>Destination</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="withdrawalsTableBody">
+                <tr><td colspan="5">Loading withdrawals...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 4: SITE SETTINGS -->
+        <div id="settingsSection" class="tab-content card" style="display: none;">
+          <h2><span><i class="fa-solid fa-sliders"></i> Global Platform Settings</span></h2>
+          <form id="settingsForm">
+            <div class="form-group">
+              <label for="connectionFee">Connection Fee (GHS)</label>
+              <input type="number" step="0.01" id="connectionFee" required>
+            </div>
+            <div class="form-group">
+              <label for="payProvider">Payment Receiver Provider</label>
+              <input type="text" id="payProvider" required>
+            </div>
+            <div class="form-group">
+              <label for="payName">Payment Receiver Account Name</label>
+              <input type="text" id="payName" required>
+            </div>
+            <div class="form-group">
+              <label for="payNumber">Payment Receiver MoMo Number</label>
+              <input type="text" id="payNumber" required>
+            </div>
+            <button type="submit" class="action-btn">Save Settings</button>
+            <div id="settingsStatus" class="status-msg"></div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Online Gamer® Control Panel</p>
+    <p>powered by Online Gamer® v4.0.8</p>
+  </footer>
+</div>
+
+<script type="module">
+  import { auth, db } from './firebase.js';
+  import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc, setDoc, collection, getDocs, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const loader = document.getElementById('loader');
+  const loginSection = document.getElementById('loginSection');
+  const dashboardSection = document.getElementById('dashboardSection');
+  const adminNav = document.getElementById('adminNav');
+  const adminLoginForm = document.getElementById('adminLoginForm');
+  const loginStatus = document.getElementById('loginStatus');
+  const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+
+  // Authentication Observer
+  onAuthStateChanged(auth, async (user) => {
+    loader.style.display = 'none';
+    if (user) {
+      // Show Dashboard Panel
+      loginSection.style.display = 'none';
+      adminNav.style.display = 'flex';
+      dashboardSection.style.display = 'block';
+
+      loadUsers();
+      loadRequests();
+      loadWithdrawals();
+      loadSettings();
+    } else {
+      // Show Login Interface
+      adminNav.style.display = 'none';
+      dashboardSection.style.display = 'none';
+      loginSection.style.display = 'block';
+    }
+  });
+
+  // Admin Login Handler
+  adminLoginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginStatus.className = 'status-msg';
+    const email = document.getElementById('adminEmail').value.trim();
+    const pass = document.getElementById('adminPassword').value.trim();
+
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (err) {
+      loginStatus.textContent = err.message;
+      loginStatus.classList.add('error');
+    }
+  });
+
+  // Logout Handler
+  adminLogoutBtn.addEventListener('click', () => signOut(auth));
+
+  // Navigation Tab Switcher
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
+      
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).style.display = 'block';
+    });
+  });
+
+  // Load Users
+  async function loadUsers() {
+    const tbody = document.getElementById('usersTableBody');
+    try {
+      const snap = await getDocs(collection(db, 'users'));
+      tbody.innerHTML = '';
+      snap.forEach(doc => {
+        const d = doc.data();
+        tbody.innerHTML += `
+          <tr>
+            <td>${doc.id}</td>
+            <td>${d.momoName || 'N/A'}</td>
+            <td>${d.momoNumber || 'N/A'}</td>
+            <td>${d.momoProvider || 'N/A'}</td>
+            <td><button class="action-btn btn-small">View</button></td>
+          </tr>`;
+      });
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
+  }
+
+  // Load Connection Requests
+  async function loadRequests() {
+    const tbody = document.getElementById('requestsTableBody');
+    try {
+      const snap = await getDocs(collection(db, 'connectionRequests'));
+      tbody.innerHTML = '';
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        tbody.innerHTML += `
+          <tr>
+            <td>${d.userId}</td>
+            <td>${d.momoProvider} - ${d.momoNumber} (${d.momoName})</td>
+            <td><a href="${d.receiptPath}" target="_blank">View File</a></td>
+            <td><span class="badge badge-${d.status}">${d.status}</span></td>
+            <td>
+              <button class="action-btn btn-small" onclick="updateStatus('connectionRequests', '${docSnap.id}', 'approved')">Approve</button>
+            </td>
+          </tr>`;
+      });
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
+  }
+
+  // Load Withdrawals
+  async function loadWithdrawals() {
+    const tbody = document.getElementById('withdrawalsTableBody');
+    try {
+      const snap = await getDocs(collection(db, 'withdrawals'));
+      tbody.innerHTML = '';
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        tbody.innerHTML += `
+          <tr>
+            <td>${d.userId}</td>
+            <td>GHS ${d.amount}</td>
+            <td>${d.accountNumber || 'N/A'}</td>
+            <td><span class="badge badge-${d.status}">${d.status}</span></td>
+            <td>
+              <button class="action-btn btn-small" onclick="updateStatus('withdrawals', '${docSnap.id}', 'approved')">Complete</button>
+            </td>
+          </tr>`;
+      });
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
+  }
+
+  // Load Settings
+  async function loadSettings() {
+    try {
+      const docSnap = await getDoc(doc(db, 'settings', 'connection'));
+      if (docSnap.exists()) {
+        const d = docSnap.data();
+        document.getElementById('connectionFee').value = d.fee || 0;
+        document.getElementById('payProvider').value = d.provider || '';
+        document.getElementById('payName').value = d.accountName || '';
+        document.getElementById('payNumber').value = d.accountNumber || '';
+      }
+    } catch (err) { console.error(err); }
+  }
+
+  // Save Settings
+  document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('settingsStatus');
+    try {
+      await setDoc(doc(db, 'settings', 'connection'), {
+        fee: parseFloat(document.getElementById('connectionFee').value),
+        provider: document.getElementById('payProvider').value,
+        accountName: document.getElementById('payName').value,
+        accountNumber: document.getElementById('payNumber').value
+      }, { merge: true });
+      status.textContent = 'Settings saved successfully!';
+      status.className = 'status-msg success';
+    } catch (err) {
+      status.textContent = err.message;
+      status.className = 'status-msg error';
+    }
+  });
+
+  // Global Document Status Helper
+  window.updateStatus = async (col, id, newStatus) => {
+    await updateDoc(doc(db, col, id), { status: newStatus });
+    if (col === 'connectionRequests') loadRequests();
+    if (col === 'withdrawals') loadWithdrawals();
+  };
+</script>
+
+</body>
+</html>
