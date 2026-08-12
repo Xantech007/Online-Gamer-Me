@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of Service - Online Gamer®</title>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+/* Sticky Footer Layout Structure */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+  background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
+              linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, 
+              linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, 
+              linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, 
+              linear-gradient(90deg, #1b1b1b 10px, transparent 10px), 
+              linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); 
+  background-color: #131313; 
+  background-size: 20px 20px; 
+  color: #e0e0e0;
+}
+
+a, a:visited { color: #888; text-decoration: none; }
+a:hover { color: greenyellow; }
+
+/* Main Wrapper for Sticky Footer */
+#app-content { 
+  display: none; /* Controlled by Firebase Auth */
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-body {
+  flex: 1 0 auto;
+}
+
+/* Header & Navigation */
+.headline { 
+  background-color: rgba(0, 0, 0, 0.85); 
+  color: greenyellow; 
+  font-size: 140%; 
+  font-weight: 800; 
+  padding: 15px 0; 
+  text-align: center; 
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid #222;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+nav { 
+  background-color: rgba(0, 0, 0, 0.90); 
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  gap: 8px; 
+  padding: 12px; 
+  border-bottom: 1px solid #333; 
+}
+
+nav a { 
+  color: #ccc; 
+  padding: 8px 14px; 
+  font-weight: 600; 
+  font-size: 13px; 
+  border: 1px solid #333; 
+  background: #1e1e1e; 
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out; 
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+nav a:hover, nav a.active { 
+  background-color: greenyellow; 
+  color: black; 
+  border-color: greenyellow; 
+}
+
+/* Content Container */
+.content-wrapper {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.page-card {
+  background-color: rgba(0, 0, 0, 0.85);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 35px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.page-card h1 {
+  color: #ffffff;
+  font-size: 200%;
+  margin-top: 0;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-card h1 i {
+  color: greenyellow;
+}
+
+.page-card .subtitle {
+  color: greenyellow;
+  font-weight: 600;
+  font-size: 110%;
+  margin-bottom: 25px;
+}
+
+.page-card h2 {
+  color: #fff;
+  font-size: 125%;
+  border-bottom: 1px solid #333;
+  padding-bottom: 8px;
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-card h2 i {
+  color: greenyellow;
+}
+
+.page-card p, .page-card ul {
+  color: #bbb;
+  line-height: 1.7;
+  font-size: 95%;
+  margin-bottom: 15px;
+}
+
+.page-card ul {
+  padding-left: 20px;
+}
+
+.page-card li {
+  margin-bottom: 8px;
+}
+
+.cta-box {
+  text-align: center;
+  margin-top: 35px;
+  padding-top: 25px;
+  border-top: 1px solid #333;
+}
+
+.cta-box p {
+  color: #aaa;
+  margin-bottom: 15px;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: greenyellow;
+  color: #000;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 12px 25px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.cta-btn:hover {
+  background-color: #bfff42;
+  color: #000;
+  transform: translateY(-2px);
+}
+
+/* Footer Section Locked to Bottom */
+footer { 
+  flex-shrink: 0;
+  background-color: rgba(0, 0, 0, 0.90); 
+  color: #777; 
+  font-family: monospace; 
+  font-size: 12px; 
+  padding: 20px; 
+  text-align: center;
+  border-top: 1px solid #222;
+}
+
+footer a, footer a:visited { color: #aaa; }
+footer a:hover { color: greenyellow; background: transparent; }
+</style>
+</head>
+<body>
+
+<div id="app-content">
+  <div class="main-body">
+    <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
+
+    <!-- Navigation Header -->
+    <nav>
+      <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+      <a href="terms.html" class="active"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
+      <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="content-wrapper">
+      <div class="page-card">
+        <h1><i class="fa-solid fa-file-contract"></i> Terms of Service</h1>
+        <div class="subtitle">Please read these rules and guidelines carefully before using Online Gamer®.</div>
+
+        <h2><i class="fa-solid fa-user-check"></i> 1. Acceptance of Terms</h2>
+        <p>By accessing or using Online Gamer®, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not access or use our gaming platform services.</p>
+
+        <h2><i class="fa-solid fa-id-card"></i> 2. User Accounts & Eligibility</h2>
+        <p>To participate in games and earn reward balance, users must register for a valid account. You are responsible for maintaining the confidentiality of your login credentials and for all activities under your account.</p>
+
+        <h2><i class="fa-solid fa-shield-cat"></i> 3. Fair Play & Anti-Cheat Policy</h2>
+        <p>We enforce a strict fair-play policy across all hosted arcade games. The following actions are strictly prohibited and will result in immediate account termination and forfeiture of wallet balance:</p>
+        <ul>
+          <li>Using automated bots, scripts, or macros to manipulate gameplay scores or active hours.</li>
+          <li>Exploiting platform bugs, browser vulnerabilities, or network requests.</li>
+          <li>Creating multiple accounts per individual to bypass subscription caps or referral limits.</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-coins"></i> 4. Wallet Balances & Withdrawals</h2>
+        <p>Account balances accumulate through verified gameplay session stats tracked via Cloud Firestore. Minimum payout thresholds apply for withdrawal requests. Online Gamer® reserves the right to review and verify all payout requests prior to processing.</p>
+
+        <h2><i class="fa-solid fa-layer-group"></i> 5. Subscription Plans</h2>
+        <p>Subscription tier upgrades (e.g., Basic Plan, Silver Plan) grant specified multiplier rates and daily limit caps. Subscriptions are non-refundable once activated unless otherwise stated in writing.</p>
+
+        <h2><i class="fa-solid fa-gavel"></i> 6. Termination & Modifications</h2>
+        <p>Online Gamer® reserves the right to modify or discontinue services, adjust platform reward rates, or suspend accounts violating these terms at any time without prior notice.</p>
+
+        <div class="cta-box">
+          <p>Have questions regarding our terms or compliance policies?</p>
+          <a href="contact.html" class="cta-btn"><i class="fa-solid fa-headset"></i> Contact Legal Support</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Aligned to Bottom -->
+  <footer>
+    <p>Online Gamer®</p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:49:42 UTC</span></p>
+    <p>powered by Online Gamer® v4.0.8</p>
+  </footer>
+</div>
+
+<script type="module">
+  import { auth } from './firebase.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+  const appContent = document.getElementById('app-content');
+
+  // Check auth state
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      appContent.style.display = 'flex';
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
+    } else {
+      window.location.href = 'login.html'; 
+    }
+  });
+</script>
+
+</body>
+</html>
