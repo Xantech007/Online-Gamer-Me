@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ - Online Gamer®</title>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+/* Sticky Footer Layout Structure */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+  background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
+              linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, 
+              linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, 
+              linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, 
+              linear-gradient(90deg, #1b1b1b 10px, transparent 10px), 
+              linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); 
+  background-color: #131313; 
+  background-size: 20px 20px; 
+  color: #e0e0e0;
+}
+
+a, a:visited { color: #888; text-decoration: none; }
+a:hover { color: greenyellow; }
+
+/* Main Wrapper for Sticky Footer */
+#app-content { 
+  display: none; /* Controlled by Firebase Auth */
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-body {
+  flex: 1 0 auto;
+}
+
+/* Header & Navigation */
+.headline { 
+  background-color: rgba(0, 0, 0, 0.85); 
+  color: greenyellow; 
+  font-size: 140%; 
+  font-weight: 800; 
+  padding: 15px 0; 
+  text-align: center; 
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid #222;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+nav { 
+  background-color: rgba(0, 0, 0, 0.90); 
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  gap: 8px; 
+  padding: 12px; 
+  border-bottom: 1px solid #333; 
+}
+
+nav a { 
+  color: #ccc; 
+  padding: 8px 14px; 
+  font-weight: 600; 
+  font-size: 13px; 
+  border: 1px solid #333; 
+  background: #1e1e1e; 
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out; 
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+nav a:hover, nav a.active { 
+  background-color: greenyellow; 
+  color: black; 
+  border-color: greenyellow; 
+}
+
+/* Content Container */
+.content-wrapper {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.page-card {
+  background-color: rgba(0, 0, 0, 0.85);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 35px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.page-card h1 {
+  color: #ffffff;
+  font-size: 200%;
+  margin-top: 0;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-card h1 i {
+  color: greenyellow;
+}
+
+.page-card .subtitle {
+  color: greenyellow;
+  font-weight: 600;
+  font-size: 110%;
+  margin-bottom: 25px;
+}
+
+/* Accordion FAQ Items */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.faq-item {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.faq-item:hover {
+  border-color: #555;
+}
+
+.faq-question {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 18px 20px;
+  text-align: left;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 105%;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.faq-question i.toggle-icon {
+  color: greenyellow;
+  transition: transform 0.3s ease;
+}
+
+.faq-item.open .faq-question i.toggle-icon {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  background-color: #121212;
+  color: #bbb;
+  font-size: 95%;
+  line-height: 1.6;
+  padding: 0 20px;
+  border-top: 1px solid transparent;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 300px;
+  padding: 15px 20px;
+  border-top-color: #222;
+}
+
+.cta-box {
+  text-align: center;
+  margin-top: 35px;
+  padding-top: 25px;
+  border-top: 1px solid #333;
+}
+
+.cta-box p {
+  color: #aaa;
+  margin-bottom: 15px;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: greenyellow;
+  color: #000;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 12px 25px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.cta-btn:hover {
+  background-color: #bfff42;
+  color: #000;
+  transform: translateY(-2px);
+}
+
+/* Footer Section Locked to Bottom */
+footer { 
+  flex-shrink: 0;
+  background-color: rgba(0, 0, 0, 0.90); 
+  color: #777; 
+  font-family: monospace; 
+  font-size: 12px; 
+  padding: 20px; 
+  text-align: center;
+  border-top: 1px solid #222;
+}
+
+footer a, footer a:visited { color: #aaa; }
+footer a:hover { color: greenyellow; background: transparent; }
+</style>
+</head>
+<body>
+
+<div id="app-content">
+  <div class="main-body">
+    <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
+
+    <!-- Navigation Header -->
+    <nav>
+      <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="faq.html" class="active"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+      <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
+      <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="content-wrapper">
+      <div class="page-card">
+        <h1><i class="fa-solid fa-circle-question"></i> Frequently Asked Questions</h1>
+        <div class="subtitle">Quick answers to common questions about accounts, gameplay, and withdrawals.</div>
+
+        <div class="faq-list">
+          <div class="faq-item open">
+            <button class="faq-question">
+              <span><i class="fa-solid fa-coins"></i> How do I earn rewards playing games?</span>
+              <i class="fa-solid fa-chevron-down toggle-icon"></i>
+            </button>
+            <div class="faq-answer">
+              Our system dynamically tracks your active gameplay and high scores in real time via Cloud Firestore. As you reach new achievements or maintain active playtime, your account wallet balance is updated automatically.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span><i class="fa-solid fa-wallet"></i> How do I request a withdrawal?</span>
+              <i class="fa-solid fa-chevron-down toggle-icon"></i>
+            </button>
+            <div class="faq-answer">
+              Navigate to the <strong>Withdraw</strong> page from the top menu once logged in. Once your balance meets the minimum payout threshold, submit your request, and our system will process it according to your selected payment method.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span><i class="fa-solid fa-layer-group"></i> What subscription plans are available?</span>
+              <i class="fa-solid fa-chevron-down toggle-icon"></i>
+            </button>
+            <div class="faq-answer">
+              We offer multiple tiers tailored to your play style, including Basic Plan, Silver Plan, and higher tiers. Each plan unlocks different earning multiplier rates and daily limit caps visible on your Profile page.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span><i class="fa-solid fa-mobile-screen"></i> Can I play on mobile devices?</span>
+              <i class="fa-solid fa-chevron-down toggle-icon"></i>
+            </button>
+            <div class="faq-answer">
+              Yes! All games hosted on Online Gamer® are optimized for mobile touch controls and low bandwidth connections, allowing smooth gameplay on any smartphone, tablet, or desktop browser.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span><i class="fa-solid fa-shield-halved"></i> Why is my payout request pending?</span>
+              <i class="fa-solid fa-chevron-down toggle-icon"></i>
+            </button>
+            <div class="faq-answer">
+              All withdrawal requests undergo a standard security check to prevent automated abuse and verify active game stats. Standard processing usually completes within 12 to 24 hours.
+            </div>
+          </div>
+        </div>
+
+        <div class="cta-box">
+          <p>Still have questions that aren't answered here?</p>
+          <a href="contact.html" class="cta-btn"><i class="fa-solid fa-headset"></i> Contact Support</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Aligned to Bottom -->
+  <footer>
+    <p>Online Gamer®</p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:48:46 UTC</span></p>
+    <p>powered by Online Gamer® v4.0.8</p>
+  </footer>
+</div>
+
+<script type="module">
+  import { auth } from './firebase.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+  const appContent = document.getElementById('app-content');
+
+  // Check auth state
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      appContent.style.display = 'flex';
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
+    } else {
+      window.location.href = 'login.html'; 
+    }
+  });
+
+  // Accordion Toggle Script
+  document.querySelectorAll('.faq-question').forEach(button => {
+    button.addEventListener('click', () => {
+      const faqItem = button.parentElement;
+      faqItem.classList.toggle('open');
+    });
+  });
+</script>
+
+</body>
+</html>
