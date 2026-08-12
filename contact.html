@@ -5,6 +5,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Contact Us - Online Gamer®</title>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 <style>
 * {
   box-sizing: border-box;
@@ -54,6 +58,10 @@ a:hover { color: greenyellow; }
   letter-spacing: 1.5px;
   border-bottom: 2px solid #222;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 nav { 
@@ -75,6 +83,9 @@ nav a {
   background: #1e1e1e; 
   border-radius: 4px;
   transition: all 0.2s ease-in-out; 
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 nav a:hover, nav a.active { 
@@ -104,6 +115,13 @@ nav a:hover, nav a.active {
   margin-top: 0;
   margin-bottom: 10px;
   letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-card h1 i {
+  color: greenyellow;
 }
 
 .page-card .subtitle {
@@ -142,6 +160,9 @@ nav a:hover, nav a.active {
   margin-top: 0;
   font-size: 105%;
   margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .info-card p {
@@ -164,6 +185,13 @@ nav a:hover, nav a.active {
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group label i {
+  color: greenyellow;
 }
 
 .form-group input, 
@@ -201,6 +229,10 @@ nav a:hover, nav a.active {
   width: 100%;
   box-shadow: 0 4px 15px rgba(173, 255, 47, 0.2);
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .submit-btn:hover {
@@ -236,42 +268,42 @@ footer a:hover { color: greenyellow; background: transparent; }
 
 <div id="app-content">
   <div class="main-body">
-    <div class="headline">Online Gamer®</div>
+    <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
 
     <!-- Navigation Header -->
     <nav>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="contact.html" class="active">Contact</a>
-      <a href="faq.html">FAQ</a>
-      <a href="terms.html">Terms</a>
-      <a href="profile.html" class="auth-only">Profile</a>
-      <a href="withdraw.html" class="auth-only">Withdraw</a>
-      <a href="login.html" class="guest-only">Login</a>
-      <a href="register.html" class="guest-only">Register</a>
+      <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="contact.html" class="active"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+      <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
+      <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
     <!-- Main Contact Content Card -->
     <div class="content-wrapper">
       <div class="page-card">
-        <h1>Contact Support</h1>
+        <h1><i class="fa-solid fa-headset"></i> Contact Support</h1>
         <div class="subtitle">Have questions or need help with your account? Get in touch with us.</div>
 
         <div class="contact-grid">
           <!-- Direct Channel Info -->
           <div class="contact-info">
             <div class="info-card">
-              <h3>💬 Live Support</h3>
+              <h3><i class="fa-brands fa-whatsapp"></i> Live Support</h3>
               <p>For urgent payment and account issues, reach out to our dedicated support agent via WhatsApp or live chat.</p>
             </div>
 
             <div class="info-card">
-              <h3>📧 Email Us</h3>
+              <h3><i class="fa-solid fa-envelope-open-text"></i> Email Us</h3>
               <p>Send non-urgent inquiries and platform feedback directly to <strong>support@onlinegamer.com</strong>.</p>
             </div>
 
             <div class="info-card">
-              <h3>⏱ Response Hours</h3>
+              <h3><i class="fa-solid fa-clock"></i> Response Hours</h3>
               <p>Our team reviews inquiries daily. Expect responses within 12 to 24 hours.</p>
             </div>
           </div>
@@ -280,7 +312,7 @@ footer a:hover { color: greenyellow; background: transparent; }
           <div class="contact-form-container">
             <form id="contactForm">
               <div class="form-group">
-                <label for="subject">Issue Category</label>
+                <label for="subject"><i class="fa-solid fa-list-check"></i> Issue Category</label>
                 <select id="subject" required>
                   <option value="general">General Inquiry</option>
                   <option value="withdrawal">Withdrawal / Payment Issue</option>
@@ -290,11 +322,11 @@ footer a:hover { color: greenyellow; background: transparent; }
               </div>
 
               <div class="form-group">
-                <label for="message">Message</label>
+                <label for="message"><i class="fa-solid fa-comment-dots"></i> Message</label>
                 <textarea id="message" rows="6" placeholder="Describe your issue in detail..." required></textarea>
               </div>
 
-              <button type="submit" class="submit-btn">Send Message</button>
+              <button type="submit" class="submit-btn"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
               <div id="form-status"></div>
             </form>
           </div>
@@ -307,7 +339,7 @@ footer a:hover { color: greenyellow; background: transparent; }
   <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:42:38 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:48:06 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
@@ -331,7 +363,7 @@ footer a:hover { color: greenyellow; background: transparent; }
       document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
 
-      // Fetch dynamic WhatsApp support number configured under settings/payment if needed
+      // Fetch dynamic WhatsApp support number configured under settings/payment
       try {
         const paymentDoc = await getDoc(doc(db, 'settings', 'payment'));
         if (paymentDoc.exists() && paymentDoc.data().whatsappNumber) {
@@ -351,7 +383,7 @@ footer a:hover { color: greenyellow; background: transparent; }
   contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
     formStatus.style.color = 'greenyellow';
-    formStatus.textContent = 'Thank you! Your message has been sent successfully.';
+    formStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> Thank you! Your message has been sent successfully.';
     contactForm.reset();
   });
 </script>
