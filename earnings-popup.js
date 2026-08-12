@@ -1,8 +1,8 @@
 import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, onSnapshot, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, onSnapshot, updateDoc, increment, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// --- 1. FIREBASE INITIALIZATION ---
+// Replace with your Firebase config credentials
 const firebaseConfig = {
   apiKey: "AIzaSyDVK9uMHRCbxOkO7U696v7runiRB0MNXi0",
   authDomain: "gameware-emma.firebaseapp.com",
@@ -12,14 +12,12 @@ const firebaseConfig = {
   appId: "1:476632021558:web:d27c0bfe7ad590e9ca7697",
 };
 
-// Prevent re-initializing if Firebase is already initialized elsewhere
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- 2. EARNINGS POPUP ENGINE ---
 (function () {
-  console.log("Earnings Popup Script Loaded");
+  console.log("Earnings Popup Initializing...");
 
   // Inject UI Styles directly into page
   const style = document.createElement('style');
@@ -77,7 +75,7 @@ const db = getFirestore(app);
   `;
   document.head.appendChild(style);
 
-  // Inject Widget DOM Structure
+  // Inject Widget DOM Elements
   const widget = document.createElement('div');
   widget.id = 'earnings-widget';
   widget.innerHTML = `
@@ -100,9 +98,9 @@ const db = getFirestore(app);
   `;
   document.body.appendChild(widget);
 
-  // Core State Variables
+  // State Variables
   let currentUser = null;
-  let ratePerSecond = 0;
+  let ratePerSecond = 0.001; // Default fallback ($0.001/sec) to ensure timer starts
   let activeSeconds = 0;
   let sessionEarnings = 0;
   let baseBalance = 0;
@@ -115,92 +113,102 @@ const db = getFirestore(app);
   const timeEl = document.getElementById('played-time');
   const statusDot = document.getElementById('status-indicator');
 
-  // Fetch Rate from Firestore Document: games/settings/rate
+  // Try multiple Firestore paths for the rate to ensure compatibility
   async function fetchEarningRate() {
     try {
-      const rateDocRef = doc(db, 'games', 'settings', 'rate');
-      const rateSnap = await getDoc(rateDocRef);
-      if (rateSnap.exists() && rateSnap.data().rate) {
-        ratePerSecond = parseFloat(rateSnap.data().rate) || 0;
-        console.log("Earning rate updated:", ratePerSecond);
-      } else {
-        console.warn('Document games/settings/rate not found or missing "rate" field.');
+      // Check Path 1: games/settings/rate
+      let rateDocRef = doc(db, 'games', 'settings', 'rate');
+      let rateSnap = await getDoc(rateDocRef);
+
+      if (rateSnap.exists() && rateSnap.data().rate !== undefined) {
+        ratePerSecond = parseFloat(rateSnap.data().rate) || ratePerSecond;
+        console.log("Rate loaded from games/settings/rate:", ratePerSecond);
+        return;
       }
+
+      // Check Path 2: games/settings (where 'rate' is a field inside 'settings')
+      rateDocRef = doc(db, 'games', 'settings');
+      rateSnap = await getDoc(rateDocRef);
+
+      if (rateSnap.exists() && rateSnap.data().rate !== undefined) {
+        ratePerSecond = parseFloat(rateSnap.data().rate) || ratePerSecond;
+        console.log("Rate loaded from games/settings:", ratePerSecond);
+        return;
+      }
+
+      console.warn("Could not locate rate in Firestore. Using fallback rate:", ratePerSecond);
     } catch (err) {
-      console.error('Error reading earning rate:', err);
+      console.error("Error fetching rate, defaulting to fallback:", err);
     }
   }
 
-  // Handle Tab Focus & Unfocus Events
+  // Monitor Window Focus
   document.addEventListener('visibilitychange', () => {
     isTabActive = !document.hidden;
     if (statusDot) statusDot.classList.toggle('paused', !isTabActive);
   });
-  window.addEventListener('blur', () => {
-    isTabActive = false;
-    if (statusDot) statusDot.classList.add('paused');
-  });
-  window.addEventListener('focus', () => {
-    isTabActive = true;
-    if (statusDot) statusDot.classList.remove('paused');
-  });
 
-  // Increment Local Counter
+  // Start Realtime Counter
   function startTracking() {
     if (timerInterval) clearInterval(timerInterval);
 
     timerInterval = setInterval(() => {
-      if (!isTabActive || !currentUser || ratePerSecond <= 0) return;
+      if (!isTabActive || !currentUser) return;
 
       activeSeconds++;
       sessionEarnings += ratePerSecond;
 
-      sessionEarnedEl.textContent = `$${sessionEarnings.toFixed(4)}`;
-      totalBalanceEl.textContent = `$${(baseBalance + sessionEarnings).toFixed(4)}`;
-      timeEl.textContent = `${activeSeconds}s`;
+      // Update UI
+      if (timeEl) timeEl.textContent = `${activeSeconds}s`;
+      if (sessionEarnedEl) sessionEarnedEl.textContent = `$${sessionEarnings.toFixed(4)}`;
+      if (totalBalanceEl) totalBalanceEl.textContent = `$${(baseBalance + sessionEarnings).toFixed(4)}`;
 
-      // Sync to Database every 5 seconds
+      // Sync with Firestore every 5 seconds
       if (activeSeconds % 5 === 0) {
         syncToDatabase(ratePerSecond * 5);
       }
     }, 1000);
   }
 
-  // Write Updates to Users Collection in Firestore
+  // Safe Database Update
   async function syncToDatabase(amountToIncrement) {
     if (!currentUser) return;
     try {
       const userRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userRef, {
+      // Use setDoc with merge: true so it creates fields if they don't exist yet
+      await setDoc(userRef, {
         balance: increment(amountToIncrement),
         timeSpent: increment(5)
-      });
+      }, { merge: true });
     } catch (err) {
-      console.error('Failed to sync earnings to database:', err);
+      console.error('Failed to sync live earnings:', err);
     }
   }
 
-  // Listen to Auth State
+  // Auth Listener
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      console.log("User logged in:", user.uid);
+      console.log("Auth user confirmed:", user.uid);
       currentUser = user;
       widget.style.display = 'block';
 
       await fetchEarningRate();
 
-      // Realtime Listener for Balance Changes
+      // Realtime User Balance Listener
       const userRef = doc(db, 'users', currentUser.uid);
       unsubscribeUser = onSnapshot(userRef, (docSnap) => {
         if (docSnap.exists()) {
-          baseBalance = parseFloat(docSnap.data().balance) || 0;
-          totalBalanceEl.textContent = `$${(baseBalance + sessionEarnings).toFixed(4)}`;
+          const data = docSnap.data();
+          baseBalance = parseFloat(data.balance) || 0;
+          if (totalBalanceEl) {
+            totalBalanceEl.textContent = `$${(baseBalance + sessionEarnings).toFixed(4)}`;
+          }
         }
       });
 
       startTracking();
     } else {
-      console.warn("No user logged in. Hiding earnings widget.");
+      console.warn("User logged out. Hiding popup.");
       widget.style.display = 'none';
       if (timerInterval) clearInterval(timerInterval);
       if (unsubscribeUser) unsubscribeUser();
