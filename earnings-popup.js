@@ -1,4 +1,4 @@
-import { auth, db } from 'firebase.js';
+import { auth, db } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { doc, getDoc, setDoc, onSnapshot, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
@@ -62,7 +62,7 @@ widget.innerHTML = `
 `;
 document.body.appendChild(widget);
 
-// Auth & Realtime Sync Setup
+// Auth & Realtime Sync Setup (Observes the active shared login session)
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = '../login.html';
