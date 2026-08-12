@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FAQ - Online Gamer®</title>
+<title>Terms & Conditions - Online Gamer®</title>
 
 <!-- Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -100,8 +100,8 @@ nav a:hover, nav a.active, nav button:hover {
   display: none; /* Controlled via JS Auth observer */
 }
 
-/* FAQ Container */
-.faq-container {
+/* Terms Layout */
+.terms-container {
   max-width: 900px;
   margin: 40px auto;
   padding: 0 20px;
@@ -125,102 +125,45 @@ nav a:hover, nav a.active, nav button:hover {
   margin: 0;
 }
 
-/* Category Filter Tags */
-.faq-categories {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 30px;
-}
-
-.category-btn {
-  background-color: rgba(0, 0, 0, 0.75);
-  border: 1px solid #333;
-  color: #ccc;
-  padding: 10px 18px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.category-btn:hover, .category-btn.active {
-  background-color: greenyellow;
-  color: #000;
-  border-color: greenyellow;
-}
-
-/* FAQ Accordion Styling */
-.faq-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.faq-item {
+/* Terms Cards Container */
+.terms-card {
   background-color: rgba(0, 0, 0, 0.75);
   border: 1px solid #333;
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  transition: border-color 0.2s ease;
+  padding: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  margin-bottom: 30px;
 }
 
-.faq-item:hover {
-  border-color: #444;
-}
-
-.faq-question {
-  width: 100%;
-  padding: 20px;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  text-align: left;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  gap: 15px;
-  font-family: inherit;
-}
-
-.faq-question i.icon-chevron {
+.terms-card h2 {
   color: greenyellow;
+  font-size: 130%;
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.terms-card p {
+  color: #bbb;
   font-size: 14px;
-  transition: transform 0.3s ease;
+  line-height: 1.7;
+  margin-bottom: 15px;
 }
 
-.faq-item.active .faq-question i.icon-chevron {
-  transform: rotate(180deg);
-}
-
-.faq-answer {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
-  background-color: rgba(20, 20, 20, 0.6);
-  border-top: 0px solid transparent;
-}
-
-.faq-item.active .faq-answer {
-  max-height: 300px;
-  padding: 20px;
-  border-top: 1px solid #222;
-}
-
-.faq-answer p {
-  margin: 0;
-  color: #aaa;
+.terms-card ul {
+  color: #bbb;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+
+.terms-card li {
+  margin-bottom: 8px;
 }
 
 /* Floating Support Button & Widget */
@@ -320,8 +263,8 @@ footer a:hover { color: greenyellow; background: transparent; }
       <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
       <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
       <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
-      <a href="faq.html" class="active"><i class="fa-solid fa-circle-question"></i> FAQ</a>
-      <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+      <a href="terms.html" class="active"><i class="fa-solid fa-file-contract"></i> Terms</a>
       
       <!-- Authenticated User Links -->
       <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
@@ -333,92 +276,69 @@ footer a:hover { color: greenyellow; background: transparent; }
       <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <!-- FAQ Content Container -->
-    <div class="faq-container">
+    <!-- Terms Content Container -->
+    <div class="terms-container">
       <div class="page-title">
-        <h1>Frequently Asked Questions</h1>
-        <p>Find answers to common questions about your account, plans, gameplay, and payout requests.</p>
+        <h1>Terms of Service</h1>
+        <p>Please read these rules and guidelines carefully before using Online Gamer®.</p>
       </div>
 
-      <!-- Category Filters -->
-      <div class="faq-categories">
-        <button class="category-btn active" data-category="all"><i class="fa-solid fa-layer-group"></i> All Questions</button>
-        <button class="category-btn" data-category="account"><i class="fa-solid fa-user-shield"></i> Account & Plans</button>
-        <button class="category-btn" data-category="earnings"><i class="fa-solid fa-coins"></i> Earnings & Rewards</button>
-        <button class="category-btn" data-category="withdrawals"><i class="fa-solid fa-wallet"></i> Withdrawals</button>
-        <button class="category-btn" data-category="technical"><i class="fa-solid fa-wrench"></i> Gameplay & Tech</button>
+      <!-- Section 1 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-shield-halved"></i> 1. Acceptance of Terms</h2>
+        <p>By creating an account or using Online Gamer®, you agree to follow these Terms of Service. If you do not agree to all terms outlined here, please do not access or use our platform services.</p>
       </div>
 
-      <!-- FAQ Accordions List -->
-      <div class="faq-section">
-        
-        <!-- Question 1 -->
-        <div class="faq-item" data-category="account">
-          <button class="faq-question">
-            <span>How do subscription plans work on Online Gamer®?</span>
-            <i class="fa-solid fa-chevron-down icon-chevron"></i>
-          </button>
-          <div class="faq-answer">
-            <p>We offer subscription plan options that unlock higher daily earning caps, exclusive mini-games, and faster payout speeds. You can view or upgrade your active plan anytime inside your Profile dashboard.</p>
-          </div>
-        </div>
-
-        <!-- Question 2 -->
-        <div class="faq-item" data-category="withdrawals">
-          <button class="faq-question">
-            <span>How do I request a withdrawal of my earnings?</span>
-            <i class="fa-solid fa-chevron-down icon-chevron"></i>
-          </button>
-          <div class="faq-answer">
-            <p>Once you reach the minimum GHS balance threshold for your account tier, navigate to the Withdraw page via the main navigation bar. Enter your payout credentials and submit the form. Processing times depend on your plan level.</p>
-          </div>
-        </div>
-
-        <!-- Question 3 -->
-        <div class="faq-item" data-category="earnings">
-          <button class="faq-question">
-            <span>How are gaming rewards calculated?</span>
-            <i class="fa-solid fa-chevron-down icon-chevron"></i>
-          </button>
-          <div class="faq-answer">
-            <p>Rewards in GHS are accrued based on active playtime, achievements unlocked, and match victories. Active plan multipliers boost your base earning rate during special daily match events.</p>
-          </div>
-        </div>
-
-        <!-- Question 4 -->
-        <div class="faq-item" data-category="account">
-          <button class="faq-question">
-            <span>Can I maintain multiple accounts on the platform?</span>
-            <i class="fa-solid fa-chevron-down icon-chevron"></i>
-          </button>
-          <div class="faq-answer">
-            <p>To ensure fair gameplay and payout security, each player is strictly limited to one primary account. Creating duplicate accounts may result in an automated hold on payout processing.</p>
-          </div>
-        </div>
-
-        <!-- Question 5 -->
-        <div class="faq-item" data-category="technical">
-          <button class="faq-question">
-            <span>What should I do if a game freezes or fails to record points?</span>
-            <i class="fa-solid fa-chevron-down icon-chevron"></i>
-          </button>
-          <div class="faq-answer">
-            <p>Ensure you have a stable network connection and clear your browser cache. If score recording fails due to a network glitch, contact support with a screenshot or details via the Contact page or floating support widget.</p>
-          </div>
-        </div>
-
-        <!-- Question 6 -->
-        <div class="faq-item" data-category="withdrawals">
-          <button class="faq-question">
-            <span>Are there any transaction fees on withdrawals?</span>
-            <i class="fa-solid fa-chevron-down icon-chevron"></i>
-          </button>
-          <div class="faq-answer">
-            <p>Standard processing fees vary according to your designated payment gateway. Selected plan tiers receive discounted or waived transaction processing fees.</p>
-          </div>
-        </div>
-
+      <!-- Section 2 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-user-gear"></i> 2. Account Registration & Eligibility</h2>
+        <p>Users must provide accurate registration details. You are responsible for keeping your credentials confidential and for all activity under your profile.</p>
+        <ul>
+          <li>Each individual player is permitted to operate only <strong>one</strong> account.</li>
+          <li>Multiple accounts created by a single user are subject to immediate suspension.</li>
+          <li>Account ownership transfers are strictly prohibited.</li>
+        </ul>
       </div>
+
+      <!-- Section 3 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-gem"></i> 3. Subscription Plans & Features</h2>
+        <p>Online Gamer® offers membership subscription plans inside your profile settings.</p>
+        <ul>
+          <li>Subscription tiers govern maximum daily gameplay limits and payout eligibility parameters.</li>
+          <li>Plan benefits and fees are non-transferable once activated.</li>
+          <li>Plan terms are subject to adjustment with advance notice on the platform.</li>
+        </ul>
+      </div>
+
+      <!-- Section 4 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-money-bill-transfer"></i> 4. Earnings & Withdrawal Policies</h2>
+        <p>Rewards and account balances accumulated in GHS via eligible gameplay can be withdrawn according to system rules and threshold minimums.</p>
+        <ul>
+          <li>Withdrawals must be submitted through the designated Withdraw page in GHS.</li>
+          <li>Withdrawal requests undergo routine verification before disbursement.</li>
+          <li>Accounts flagged for fraudulent activities or exploit usage will forfeit pending payouts.</li>
+        </ul>
+      </div>
+
+      <!-- Section 5 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-ban"></i> 5. Prohibited Conduct</h2>
+        <p>To preserve fair play, the following actions are strictly banned on Online Gamer®:</p>
+        <ul>
+          <li>Using automated scripts, bots, or third-party exploits to gain scores or rewards.</li>
+          <li>Reverse-engineering or attempting to exploit platform backend systems.</li>
+          <li>Submitting fraudulent payment details or impersonating other players.</li>
+        </ul>
+      </div>
+
+      <!-- Section 6 -->
+      <div class="terms-card">
+        <h2><i class="fa-solid fa-gavel"></i> 6. Account Termination & Changes</h2>
+        <p>We reserve the right to modify these terms, suspend accounts violating community standards, or update service features at any time to guarantee security and platform stability.</p>
+      </div>
+
     </div>
   </div>
 
@@ -502,43 +422,6 @@ footer a:hover { color: greenyellow; background: transparent; }
         console.error('Error fetching support contact details:', err);
       }
     }
-  });
-
-  // FAQ Accordion Toggle Interaction
-  const faqItems = document.querySelectorAll('.faq-item');
-  faqItems.forEach(item => {
-    const questionBtn = item.querySelector('.faq-question');
-    questionBtn.addEventListener('click', () => {
-      const isActive = item.classList.contains('active');
-      
-      // Close open items
-      faqItems.forEach(i => i.classList.remove('active'));
-      
-      // Toggle clicked item
-      if (!isActive) {
-        item.classList.add('active');
-      }
-    });
-  });
-
-  // Category Filtering
-  const categoryBtns = document.querySelectorAll('.category-btn');
-  categoryBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      categoryBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const selectedCategory = btn.getAttribute('data-category');
-
-      faqItems.forEach(item => {
-        const itemCategory = item.getAttribute('data-category');
-        if (selectedCategory === 'all' || itemCategory === selectedCategory) {
-          item.style.display = 'block';
-        } else {
-          item.style.display = 'none';
-        }
-      });
-    });
   });
 </script>
 
