@@ -6,19 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Connect MoMo Account - Online Gamer®</title>
 
-<!-- Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
 body { 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
   background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
@@ -35,17 +27,9 @@ body {
 a, a:visited { color: #888; text-decoration: none; }
 a:hover { color: greenyellow; }
 
-#app-content { 
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+#app-content { display: flex; flex-direction: column; min-height: 100vh; }
+.main-body { flex: 1 0 auto; }
 
-.main-body {
-  flex: 1 0 auto;
-}
-
-/* Header & Navigation */
 .headline { 
   background-color: rgba(0, 0, 0, 0.85); 
   color: greenyellow; 
@@ -56,54 +40,29 @@ a:hover { color: greenyellow; }
   letter-spacing: 1.5px;
   border-bottom: 2px solid #222;
   text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 
 nav { 
   background-color: rgba(0, 0, 0, 0.90); 
-  display: flex; 
-  flex-wrap: wrap; 
-  justify-content: center; 
-  gap: 8px; 
-  padding: 12px; 
-  border-bottom: 1px solid #333; 
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; 
+  padding: 12px; border-bottom: 1px solid #333; 
 }
 
 nav a, nav button { 
-  color: #ccc; 
-  padding: 8px 14px; 
-  font-weight: 600; 
-  font-size: 13px; 
-  border: 1px solid #333; 
-  background: #1e1e1e; 
-  border-radius: 4px;
-  transition: all 0.2s ease-in-out; 
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-family: inherit;
+  color: #ccc; padding: 8px 14px; font-weight: 600; font-size: 13px; 
+  border: 1px solid #333; background: #1e1e1e; border-radius: 4px;
+  transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer; font-family: inherit;
 }
 
 nav a:hover, nav a.active, nav button:hover { 
-  background-color: greenyellow; 
-  color: black; 
-  border-color: greenyellow; 
+  background-color: greenyellow; color: black; border-color: greenyellow; 
 }
 
-.auth-only, .guest-only {
-  display: none;
-}
+.auth-only, .guest-only { display: none; }
 
-/* Form Container */
-.connect-container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 0 20px;
-}
+.connect-container { max-width: 550px; margin: 40px auto; padding: 0 20px; }
 
 .form-card {
   background-color: rgba(0, 0, 0, 0.75);
@@ -114,116 +73,63 @@ nav a:hover, nav a.active, nav button:hover {
 }
 
 .form-card h2 {
-  color: greenyellow;
-  font-size: 140%;
-  margin-top: 0;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #333;
-  padding-bottom: 10px;
+  color: greenyellow; font-size: 140%; margin-top: 0; margin-bottom: 10px;
+  border-bottom: 1px solid #333; padding-bottom: 10px;
 }
 
-.form-card p {
-  color: #aaa;
-  font-size: 13px;
+.form-card p { color: #aaa; font-size: 13px; margin-bottom: 20px; }
+
+.payment-instructions-box {
+  background-color: #1a1a1a;
+  border: 1px solid greenyellow;
+  border-radius: 6px;
+  padding: 15px;
   margin-bottom: 20px;
 }
 
-.form-group {
-  margin-bottom: 18px;
+.payment-instructions-box h3 {
+  margin: 0 0 10px 0;
+  color: greenyellow;
+  font-size: 15px;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  color: #ccc;
-  font-size: 13px;
-  font-weight: 600;
+.fee-row {
+  display: flex; justify-content: space-between; padding: 6px 0;
+  border-bottom: 1px solid #282828; font-size: 13px;
 }
+.fee-row:last-child { border-bottom: none; }
+.fee-row span:first-child { color: #888; }
+.fee-row span:last-child { color: #fff; font-weight: 600; }
 
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 12px;
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 4px;
-  color: #fff;
-  font-family: inherit;
-  font-size: 14px;
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; margin-bottom: 6px; color: #ccc; font-size: 13px; font-weight: 600; }
+.form-group input, .form-group select {
+  width: 100%; padding: 12px; background-color: #1a1a1a; border: 1px solid #333;
+  border-radius: 4px; color: #fff; font-family: inherit; font-size: 14px;
   transition: border-color 0.2s;
 }
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: greenyellow;
-}
+.form-group input:focus, .form-group select:focus { outline: none; border-color: greenyellow; }
 
 .submit-btn {
-  width: 100%;
-  background-color: greenyellow;
-  color: #000;
-  font-weight: 800;
-  font-size: 15px;
-  padding: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.2);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  width: 100%; background-color: greenyellow; color: #000; font-weight: 800;
+  font-size: 15px; padding: 14px; border: none; border-radius: 4px; cursor: pointer;
+  text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(173, 255, 47, 0.2);
+  transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-
-.submit-btn:hover {
-  background-color: #9eff1a;
-  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.4);
-}
+.submit-btn:hover { background-color: #9eff1a; box-shadow: 0 6px 20px rgba(173, 255, 47, 0.4); }
 
 .status-msg {
-  display: none;
-  padding: 12px;
-  margin-top: 15px;
-  border-radius: 4px;
-  font-size: 14px;
-  text-align: center;
+  display: none; padding: 12px; margin-top: 15px; border-radius: 4px; font-size: 14px; text-align: center;
 }
+.status-msg.success { display: block; background-color: rgba(173, 255, 47, 0.1); color: greenyellow; border: 1px solid greenyellow; }
+.status-msg.error { display: block; background-color: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid #ff4d4d; }
 
-.status-msg.success {
-  display: block;
-  background-color: rgba(173, 255, 47, 0.1);
-  color: greenyellow;
-  border: 1px solid greenyellow;
-}
-
-.status-msg.error {
-  display: block;
-  background-color: rgba(255, 77, 77, 0.1);
-  color: #ff4d4d;
-  border: 1px solid #ff4d4d;
-}
-
-#loader {
-  text-align: center;
-  padding: 40px 0;
-  color: greenyellow;
-}
+#loader { text-align: center; padding: 40px 0; color: greenyellow; }
 
 footer { 
-  flex-shrink: 0;
-  background-color: rgba(0, 0, 0, 0.90); 
-  color: #777; 
-  font-family: monospace; 
-  font-size: 12px; 
-  padding: 20px; 
-  text-align: center;
-  border-top: 1px solid #222;
+  flex-shrink: 0; background-color: rgba(0, 0, 0, 0.90); color: #777; font-family: monospace; 
+  font-size: 12px; padding: 20px; text-align: center; border-top: 1px solid #222;
 }
-
 footer a, footer a:visited { color: #aaa; }
 footer a:hover { color: greenyellow; background: transparent; }
 </style>
@@ -252,16 +158,37 @@ footer a:hover { color: greenyellow; background: transparent; }
     <div class="connect-container">
       <div id="loader">
         <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
-        <p>Loading account details...</p>
+        <p>Loading connection details...</p>
       </div>
 
       <div class="form-card" id="connectContent" style="display: none;">
-        <h2><i class="fa-solid fa-mobile-screen-button"></i> Connect MoMo</h2>
-        <p>Link your Mobile Money account details for automated payouts.</p>
+        <h2><i class="fa-solid fa-mobile-screen-button"></i> Connect MoMo Account</h2>
+        <p>Pay the one-time connection fee and link your Mobile Money payout account below.</p>
+
+        <!-- Dynamic Admin Payment Details -->
+        <div class="payment-instructions-box">
+          <h3><i class="fa-solid fa-hand-holding-dollar"></i> Required One-Time Connection Fee</h3>
+          <div class="fee-row">
+            <span>Fee Amount:</span>
+            <span id="displayFee">GHS --.--</span>
+          </div>
+          <div class="fee-row">
+            <span>Pay To Provider:</span>
+            <span id="displayAdminProvider">--</span>
+          </div>
+          <div class="fee-row">
+            <span>Pay To Name:</span>
+            <span id="displayAdminName">--</span>
+          </div>
+          <div class="fee-row">
+            <span>Pay To Number:</span>
+            <span id="displayAdminNumber" style="color: greenyellow;">--</span>
+          </div>
+        </div>
 
         <form id="momoForm">
           <div class="form-group">
-            <label for="momoProvider">Mobile Network Provider</label>
+            <label for="momoProvider">Your Network Provider</label>
             <select id="momoProvider" name="momoProvider" required>
               <option value="" disabled selected>Select Provider</option>
               <option value="MTN MoMo">MTN Mobile Money</option>
@@ -271,17 +198,22 @@ footer a:hover { color: greenyellow; background: transparent; }
           </div>
 
           <div class="form-group">
-            <label for="momoName">MoMo Account Name</label>
-            <input type="text" id="momoName" name="momoName" placeholder="e.g. Owusu Joseph" required>
+            <label for="momoName">Your Account Name</label>
+            <input type="text" id="momoName" name="momoName" placeholder="e.g. Kwadwo Mensah" required>
           </div>
 
           <div class="form-group">
-            <label for="momoNumber">MoMo Phone Number</label>
+            <label for="momoNumber">Your MoMo Phone Number</label>
             <input type="tel" id="momoNumber" name="momoNumber" placeholder="e.g. 0501234567" required>
           </div>
 
+          <div class="form-group">
+            <label for="receiptFile">Upload Payment Receipt Screenshot</label>
+            <input type="file" id="receiptFile" name="receiptFile" accept="image/*" required>
+          </div>
+
           <button type="submit" class="submit-btn" id="submitBtn">
-            <i class="fa-solid fa-link"></i> Save & Link Account
+            <i class="fa-solid fa-paper-plane"></i> Submit For Approval
           </button>
 
           <div id="statusMsg" class="status-msg"></div>
@@ -300,20 +232,27 @@ footer a:hover { color: greenyellow; background: transparent; }
 <script type="module">
   import { auth, db } from './firebase.js';
   import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const logoutBtn = document.getElementById('logoutBtn');
   const loader = document.getElementById('loader');
   const connectContent = document.getElementById('connectContent');
   
+  const displayFee = document.getElementById('displayFee');
+  const displayAdminProvider = document.getElementById('displayAdminProvider');
+  const displayAdminName = document.getElementById('displayAdminName');
+  const displayAdminNumber = document.getElementById('displayAdminNumber');
+
   const momoForm = document.getElementById('momoForm');
   const momoProvider = document.getElementById('momoProvider');
   const momoName = document.getElementById('momoName');
   const momoNumber = document.getElementById('momoNumber');
+  const receiptFileInput = document.getElementById('receiptFile');
   const submitBtn = document.getElementById('submitBtn');
   const statusMsg = document.getElementById('statusMsg');
 
   let currentUserId = null;
+  let connectionFeeAmount = 0;
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -321,13 +260,36 @@ footer a:hover { color: greenyellow; background: transparent; }
       document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
       
       currentUserId = user.uid;
-      await loadExistingMomoData(user.uid);
+      await fetchConnectionSettings();
+      await loadExistingUserData(user.uid);
     } else {
       window.location.href = 'login.html';
     }
   });
 
-  async function loadExistingMomoData(uid) {
+  // Fetch Payment Instruction Details from settings/connection
+  async function fetchConnectionSettings() {
+    try {
+      const configRef = doc(db, 'settings', 'connection');
+      const docSnap = await getDoc(configRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        connectionFeeAmount = parseFloat(data.fee || 0);
+        displayFee.textContent = `GHS ${connectionFeeAmount.toFixed(2)}`;
+        displayAdminProvider.textContent = data.provider || 'N/A';
+        displayAdminName.textContent = data.accountName || 'N/A';
+        displayAdminNumber.textContent = data.accountNumber || 'N/A';
+      } else {
+        statusMsg.textContent = 'Connection configuration details are missing. Contact support.';
+        statusMsg.classList.add('error');
+      }
+    } catch (err) {
+      console.error('Error fetching connection settings:', err);
+    }
+  }
+
+  async function loadExistingUserData(uid) {
     try {
       const userRef = doc(db, 'users', uid);
       const docSnap = await getDoc(userRef);
@@ -346,6 +308,16 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   }
 
+  // Convert image file to base64 string for direct Firestore persistence
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
   logoutBtn.addEventListener('click', async () => {
     try {
       await signOut(auth);
@@ -362,38 +334,47 @@ footer a:hover { color: greenyellow; background: transparent; }
     const providerVal = momoProvider.value;
     const nameVal = momoName.value.trim();
     const numberVal = momoNumber.value.trim();
+    const file = receiptFileInput.files[0];
 
-    if (!providerVal || !nameVal || !numberVal) {
-      statusMsg.textContent = 'Please fill out all fields.';
+    if (!providerVal || !nameVal || !numberVal || !file) {
+      statusMsg.textContent = 'Please fill out all fields and attach receipt image.';
       statusMsg.classList.add('error');
       return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
 
     try {
-      const userRef = doc(db, 'users', currentUserId);
-      await updateDoc(userRef, {
+      const base64Receipt = await fileToBase64(file);
+
+      // Create connection request document for Admin review
+      await addDoc(collection(db, 'connectionRequests'), {
+        userId: currentUserId,
         momoProvider: providerVal,
         momoName: nameVal,
-        momoNumber: numberVal
+        momoNumber: numberVal,
+        feeAmount: connectionFeeAmount,
+        receiptImage: base64Receipt,
+        status: 'pending',
+        timestamp: serverTimestamp()
       });
 
-      statusMsg.textContent = 'Account details linked successfully! Redirecting...';
+      statusMsg.textContent = 'Request submitted successfully! Admin will review your payment.';
       statusMsg.classList.add('success');
+      momoForm.reset();
 
       setTimeout(() => {
         window.location.href = 'withdraw.html';
-      }, 1500);
+      }, 2000);
 
     } catch (err) {
-      console.error('Error updating MoMo details:', err);
-      statusMsg.textContent = 'Failed to save details. Please try again.';
+      console.error('Error submitting connection request:', err);
+      statusMsg.textContent = 'Submission failed. Please select a smaller receipt image and try again.';
       statusMsg.classList.add('error');
     } finally {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fa-solid fa-link"></i> Save & Link Account';
+      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit For Approval';
     }
   });
 </script>
