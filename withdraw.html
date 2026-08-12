@@ -97,7 +97,7 @@ nav a:hover, nav a.active, nav button:hover {
 }
 
 .auth-only, .guest-only {
-  display: none; /* Controlled via JS Auth observer */
+  display: none;
 }
 
 /* Withdraw Page Layout */
@@ -446,6 +446,80 @@ table td {
   color: greenyellow;
 }
 
+/* Real-Time Notification Toast */
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification-toast {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-left: 5px solid greenyellow;
+  border-radius: 6px;
+  padding: 15px 20px;
+  color: #fff;
+  min-width: 280px;
+  max-width: 360px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.notification-toast.approved, .notification-toast.completed {
+  border-left-color: greenyellow;
+}
+
+.notification-toast.rejected {
+  border-left-color: #ff4d4d;
+}
+
+.notification-toast i {
+  font-size: 20px;
+  margin-top: 2px;
+}
+
+.notification-toast.approved i, .notification-toast.completed i {
+  color: greenyellow;
+}
+
+.notification-toast.rejected i {
+  color: #ff4d4d;
+}
+
+.notification-content {
+  flex-grow: 1;
+}
+
+.notification-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.notification-body {
+  font-size: 12px;
+  color: #aaa;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
 /* Floating Support Button & Widget */
 .floating-support-container {
   position: fixed;
@@ -534,6 +608,9 @@ footer a:hover { color: greenyellow; background: transparent; }
 </head>
 <body>
 
+<!-- Notification Container -->
+<div id="notificationContainer" class="notification-container"></div>
+
 <div id="app-content">
   <div class="main-body">
     <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
@@ -607,12 +684,12 @@ footer a:hover { color: greenyellow; background: transparent; }
           <div class="form-card">
             <h2>Request Payout</h2>
             
-            <!-- Connect MoMo Button (Shown if MoMo account not linked) -->
+            <!-- Connect MoMo Button -->
             <a href="connect.html" id="connectMomoBtn" class="connect-momo-btn" style="display: none;">
               <i class="fa-solid fa-plug"></i> Connect MoMo Account
             </a>
 
-            <!-- Display MoMo Account Details (Fetched from Firestore) -->
+            <!-- Display MoMo Account Details -->
             <div id="momoDetailsDisplay" class="momo-details-box" style="display: none;">
               <div class="momo-details-item">
                 <span>Provider:</span>
@@ -703,7 +780,7 @@ footer a:hover { color: greenyellow; background: transparent; }
 <script type="module">
   import { auth, db } from './firebase.js';
   import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { doc, getDoc, updateDoc, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { doc, getDoc, updateDoc, collection, addDoc, query, where, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const logoutBtn = document.getElementById('logoutBtn');
   const supportToggleBtn = document.getElementById('supportToggleBtn');
@@ -726,11 +803,13 @@ footer a:hover { color: greenyellow; background: transparent; }
   const submitBtn = document.getElementById('submitBtn');
   const statusMsg = document.getElementById('statusMsg');
   const historyTableBody = document.getElementById('historyTableBody');
+  const notificationContainer = document.getElementById('notificationContainer');
 
   let currentUserId = null;
   let userCurrentBalance = 0;
-  let minWithdrawAmount = 10; // Default fallback
+  let minWithdrawAmount = 10;
   let userMomoData = null;
+  let unsubscribeWithdrawals = null;
 
   // Dynamic Auth State UI Observer
   onAuthStateChanged(auth, async (user) => {
@@ -741,17 +820,109 @@ footer a:hover { color: greenyellow; background: transparent; }
       currentUserId = user.uid;
       await fetchMinWithdraw();
       await loadUserData(user);
-      await loadWithdrawalHistory(user.uid);
+      listenToWithdrawalUpdates(user.uid);
     } else {
-      // Redirect unauthenticated user to login page
+      if (unsubscribeWithdrawals) unsubscribeWithdrawals();
       window.location.href = 'login.html';
     }
   });
 
-  // Fetch minimum withdrawal limit from settings/withdraw or settings/withdraw/minWithdraw
+  // Display Realtime Notification Pop-up
+  function showNotification(title, message, status) {
+    const toast = document.createElement('div');
+    toast.className = `notification-toast ${status}`;
+
+    let iconClass = 'fa-circle-check';
+    if (status === 'rejected') iconClass = 'fa-circle-xmark';
+
+    toast.innerHTML = `
+      <i class="fa-solid ${iconClass}"></i>
+      <div class="notification-content">
+        <div class="notification-title">${title}</div>
+        <div class="notification-body">${message}</div>
+      </div>
+    `;
+
+    notificationContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+      setTimeout(() => toast.remove(), 300);
+    }, 5000);
+  }
+
+  // Real-time listener for withdrawal updates
+  function listenToWithdrawalUpdates(uid) {
+    const q = query(
+      collection(db, 'withdrawals'),
+      where('userId', '==', uid)
+    );
+
+    unsubscribeWithdrawals = onSnapshot(q, (snapshot) => {
+      const docs = [];
+      
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'modified') {
+          const data = change.doc.data();
+          const amountFormatted = parseFloat(data.amount || 0).toFixed(2);
+          
+          if (data.status === 'approved' || data.status === 'completed') {
+            showNotification('Withdrawal Approved', `Your withdrawal request of GHS ${amountFormatted} has been approved!`, 'approved');
+          } else if (data.status === 'rejected') {
+            showNotification('Withdrawal Rejected', `Your withdrawal request of GHS ${amountFormatted} was rejected.`, 'rejected');
+          }
+        }
+      });
+
+      snapshot.forEach((docSnap) => {
+        docs.push({ id: docSnap.id, ...docSnap.data() });
+      });
+
+      docs.sort((a, b) => {
+        const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+        const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+        return timeB - timeA;
+      });
+
+      renderHistoryTable(docs);
+    }, (err) => {
+      console.error('Realtime listener error:', err);
+    });
+  }
+
+  // Render Table History
+  function renderHistoryTable(docs) {
+    if (docs.length > 0) {
+      historyTableBody.innerHTML = '';
+      docs.forEach((row) => {
+        const dateStr = row.timestamp ? new Date(row.timestamp.toDate()).toLocaleDateString() : 'Pending';
+        
+        let statusClass = 'pending';
+        if (row.status === 'approved' || row.status === 'completed') statusClass = 'approved';
+        if (row.status === 'rejected') statusClass = 'rejected';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${dateStr}</td>
+          <td>${row.method || 'MoMo'}</td>
+          <td>${row.accountDetails || row.momoNumber || 'N/A'}</td>
+          <td style="color: greenyellow; font-weight: bold;">GHS ${parseFloat(row.amount).toFixed(2)}</td>
+          <td><span class="status-badge ${statusClass}">${row.status || 'pending'}</span></td>
+        `;
+        historyTableBody.appendChild(tr);
+      });
+    } else {
+      historyTableBody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center; color: #888; padding: 20px;">No withdrawal history found.</td>
+        </tr>
+      `;
+    }
+  }
+
+  // Fetch minimum withdrawal limit from settings
   async function fetchMinWithdraw() {
     try {
-      // 1. Try doc settings/withdraw/minWithdraw
       let docSnap = await getDoc(doc(db, 'settings', 'withdraw', 'minWithdraw', 'config'));
       if (!docSnap.exists()) {
         docSnap = await getDoc(doc(db, 'settings', 'withdraw'));
@@ -764,7 +935,6 @@ footer a:hover { color: greenyellow; background: transparent; }
           minWithdrawAmount = parseFloat(extractedMin);
         }
       } else {
-        // Fallback check settings collection for a general withdraw doc
         const genSnap = await getDoc(doc(db, 'settings', 'payment'));
         if (genSnap.exists() && genSnap.data().minWithdraw) {
           minWithdrawAmount = parseFloat(genSnap.data().minWithdraw);
@@ -779,7 +949,7 @@ footer a:hover { color: greenyellow; background: transparent; }
     document.getElementById('amount').min = minWithdrawAmount;
   }
 
-  // Load User Balance and MoMo Details from Firestore
+  // Load User Balance and MoMo Details
   async function loadUserData(user) {
     try {
       const userRef = doc(db, 'users', user.uid);
@@ -790,7 +960,6 @@ footer a:hover { color: greenyellow; background: transparent; }
         userCurrentBalance = data.balance !== undefined ? parseFloat(data.balance) : 0;
         walletBalance.textContent = `GHS ${userCurrentBalance.toFixed(2)}`;
 
-        // Check if MoMo details exist in user document
         const momoProvider = data.momoProvider || data.provider || data.momoType;
         const momoName = data.momoName || data.accountName;
         const momoNumber = data.momoNumber || data.accountNumber;
@@ -810,7 +979,6 @@ footer a:hover { color: greenyellow; background: transparent; }
           connectMomoBtn.style.display = 'none';
           submitBtn.disabled = false;
         } else {
-          // No MoMo account details linked
           momoDetailsDisplay.style.display = 'none';
           connectMomoBtn.style.display = 'inline-flex';
           submitBtn.disabled = true;
@@ -822,60 +990,6 @@ footer a:hover { color: greenyellow; background: transparent; }
     } catch (err) {
       console.error('Error fetching user details:', err);
       withdrawLoader.innerHTML = '<p style="color: #ff4d4d;">Failed to load user data. Please refresh.</p>';
-    }
-  }
-
-  // Load Past Withdrawal Requests for Current User
-  async function loadWithdrawalHistory(uid) {
-    try {
-      // Query without orderBy to prevent missing composite index errors
-      const q = query(
-        collection(db, 'withdrawals'),
-        where('userId', '==', uid)
-      );
-  
-      const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-        // Convert snapshot to array and sort client-side by timestamp descending
-        const docs = [];
-        querySnapshot.forEach((docSnap) => {
-          docs.push({ id: docSnap.id, ...docSnap.data() });
-        });
-  
-        docs.sort((a, b) => {
-          const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
-          const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
-          return timeB - timeA;
-        });
-  
-        historyTableBody.innerHTML = '';
-        docs.forEach((row) => {
-          const dateStr = row.timestamp ? new Date(row.timestamp.toDate()).toLocaleDateString() : 'Pending';
-          
-          let statusClass = 'pending';
-          if (row.status === 'approved' || row.status === 'completed') statusClass = 'approved';
-          if (row.status === 'rejected') statusClass = 'rejected';
-  
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${dateStr}</td>
-            <td>${row.method || 'MoMo'}</td>
-            <td>${row.accountDetails || row.momoNumber || 'N/A'}</td>
-            <td style="color: greenyellow; font-weight: bold;">GHS ${parseFloat(row.amount).toFixed(2)}</td>
-            <td><span class="status-badge ${statusClass}">${row.status || 'pending'}</span></td>
-          `;
-          historyTableBody.appendChild(tr);
-        });
-      } else {
-        historyTableBody.innerHTML = `
-          <tr>
-            <td colspan="5" style="text-align: center; color: #888; padding: 20px;">No withdrawal history found.</td>
-          </tr>
-        `;
-      }
-    } catch (err) {
-      console.error('Error fetching withdrawal history:', err);
     }
   }
 
@@ -916,7 +1030,7 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   });
 
-  // Handle Withdrawal Form Submission to Firestore
+  // Handle Withdrawal Form Submission
   withdrawForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     statusMsg.className = 'status-msg';
@@ -929,7 +1043,6 @@ footer a:hover { color: greenyellow; background: transparent; }
 
     const withdrawAmount = parseFloat(document.getElementById('amount').value);
 
-    // Validation checks
     if (withdrawAmount < minWithdrawAmount) {
       statusMsg.textContent = `Minimum withdrawal amount is GHS ${minWithdrawAmount.toFixed(2)}`;
       statusMsg.classList.add('error');
@@ -946,7 +1059,6 @@ footer a:hover { color: greenyellow; background: transparent; }
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
 
     try {
-      // 1. Create withdrawal document with fetched MoMo details
       const withdrawalData = {
         userId: currentUserId,
         method: userMomoData.provider,
@@ -959,21 +1071,16 @@ footer a:hover { color: greenyellow; background: transparent; }
 
       await addDoc(collection(db, 'withdrawals'), withdrawalData);
 
-      // 2. Deduct user balance in Firestore
       const newBalance = userCurrentBalance - withdrawAmount;
       const userRef = doc(db, 'users', currentUserId);
       await updateDoc(userRef, { balance: newBalance });
 
-      // 3. Refresh UI & Local State
       userCurrentBalance = newBalance;
       walletBalance.textContent = `GHS ${userCurrentBalance.toFixed(2)}`;
 
       statusMsg.textContent = 'Withdrawal request submitted successfully!';
       statusMsg.classList.add('success');
       withdrawForm.reset();
-
-      // Refresh withdrawal history table
-      await loadWithdrawalHistory(currentUserId);
     } catch (err) {
       console.error('Error submitting withdrawal:', err);
       statusMsg.textContent = 'Failed to submit withdrawal request. Please try again.';
