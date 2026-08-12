@@ -38,7 +38,7 @@ a:hover { color: greenyellow; }
 
 /* Main Wrapper for Sticky Footer */
 #app-content { 
-  display: none; /* Controlled by Firebase Auth */
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
@@ -74,7 +74,7 @@ nav {
   border-bottom: 1px solid #333; 
 }
 
-nav a { 
+nav a, nav button { 
   color: #ccc; 
   padding: 8px 14px; 
   font-weight: 600; 
@@ -86,189 +86,323 @@ nav a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-nav a:hover, nav a.active { 
+nav a:hover, nav a.active, nav button:hover { 
   background-color: greenyellow; 
   color: black; 
   border-color: greenyellow; 
 }
 
-/* Profile Grid & Container */
-.content-wrapper {
-  max-width: 900px;
-  margin: 30px auto;
+.auth-only, .guest-only {
+  display: none; /* Controlled via JS Auth observer */
+}
+
+/* Profile Container Layout */
+.profile-container {
+  max-width: 950px;
+  margin: 40px auto;
   padding: 0 20px;
 }
 
-.profile-card {
-  background-color: rgba(0, 0, 0, 0.85);
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 30px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  border-bottom: 1px solid #333;
-  padding-bottom: 20px;
-  margin-bottom: 25px;
-}
-
-.avatar-box {
-  width: 80px;
-  height: 80px;
-  background-color: #1a1a1a;
-  border: 2px solid greenyellow;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  color: greenyellow;
-}
-
-.user-title h1 {
-  margin: 0;
-  font-size: 180%;
-  color: #fff;
-}
-
-.user-title .badge {
-  display: inline-block;
-  background-color: greenyellow;
-  color: #000;
-  font-weight: 800;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 3px;
-  margin-top: 5px;
-  text-transform: uppercase;
-}
-
-/* Stats Overview Cards */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
+.page-title {
+  text-align: center;
   margin-bottom: 30px;
 }
 
-.stat-box {
-  background: #181818;
-  border: 1px solid #2a2a2a;
-  padding: 20px;
-  border-radius: 6px;
+.page-title h1 {
+  font-size: 200%;
+  color: #fff;
+  margin: 0 0 10px 0;
+  letter-spacing: 1px;
+}
+
+.page-title p {
+  color: #aaa;
+  font-size: 100%;
+  margin: 0;
+}
+
+/* Grid Layout */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 25px;
+}
+
+@media (max-width: 768px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Cards */
+.profile-card {
+  background-color: rgba(0, 0, 0, 0.75);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  margin-bottom: 25px;
+}
+
+.profile-card h2 {
+  color: greenyellow;
+  font-size: 120%;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Avatar Header Card */
+.user-avatar-block {
   text-align: center;
 }
 
-.stat-box i {
-  font-size: 24px;
-  color: greenyellow;
-  margin-bottom: 8px;
-}
-
-.stat-box .val {
-  font-size: 160%;
-  font-weight: 800;
-  color: #fff;
-  margin-top: 5px;
-}
-
-.stat-box .lbl {
-  font-size: 12px;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Info Details List */
-.details-section h2 {
-  font-size: 120%;
-  color: #fff;
-  border-bottom: 1px solid #333;
-  padding-bottom: 8px;
-  margin-bottom: 15px;
+.avatar-wrapper {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 15px auto;
+  border-radius: 50%;
+  border: 3px solid greenyellow;
+  background-color: #222;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  font-size: 36px;
+  color: greenyellow;
+  box-shadow: 0 0 15px rgba(173, 255, 47, 0.3);
 }
 
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
+.user-display-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 5px 0;
 }
 
-.detail-item {
-  background: #141414;
-  border: 1px solid #222;
-  padding: 12px 16px;
-  border-radius: 4px;
+.user-email-text {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 15px 0;
+  word-break: break-all;
+}
+
+.badge-plan {
+  display: inline-block;
+  padding: 5px 12px;
+  background-color: rgba(173, 255, 47, 0.15);
+  color: greenyellow;
+  border: 1px solid greenyellow;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Overview Data Items */
+.stat-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed #2a2a2a;
 }
 
-.detail-item span.label {
-  color: #777;
-  font-size: 13px;
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: #aaa;
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.detail-item span.value {
-  color: #ddd;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.actions-box {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #333;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.btn {
-  padding: 10px 20px;
-  font-weight: 700;
-  font-size: 13px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-
-.btn-whatsapp {
-  background-color: #25D366;
-  color: #000;
-}
-
-.btn-whatsapp:hover {
-  background-color: #20ba5a;
-  color: #000;
-}
-
-.btn-logout {
-  background-color: #e53935;
+.stat-value {
   color: #fff;
+  font-weight: 700;
+  font-size: 15px;
 }
 
-.btn-logout:hover {
-  background-color: #c62828;
+.stat-value.highlight {
+  color: greenyellow;
 }
 
-/* Footer Aligned Bottom */
+/* Form Styles */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #ccc;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: greenyellow;
+}
+
+.form-group input:disabled {
+  background-color: #121212;
+  color: #666;
+  border-color: #222;
+  cursor: not-allowed;
+}
+
+.submit-btn {
+  width: 100%;
+  background-color: greenyellow;
+  color: #000;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.submit-btn:hover {
+  background-color: #9eff1a;
+  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.4);
+}
+
+.status-msg {
+  display: none;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.status-msg.success {
+  display: block;
+  background-color: rgba(173, 255, 47, 0.1);
+  color: greenyellow;
+  border: 1px solid greenyellow;
+}
+
+.status-msg.error {
+  display: block;
+  background-color: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+}
+
+/* Loading Overlay */
+#profileLoader {
+  text-align: center;
+  padding: 50px 0;
+  color: greenyellow;
+  font-size: 18px;
+}
+
+/* Floating Support Button & Widget */
+.floating-support-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.support-toggle-btn {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background-color: greenyellow;
+  color: #000;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.support-toggle-btn:hover {
+  transform: scale(1.08);
+  background-color: #9eff1a;
+}
+
+.support-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.support-options.active {
+  display: flex;
+}
+
+.support-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #222;
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.support-link:hover {
+  border-color: greenyellow;
+  background-color: #2a2a2a;
+}
+
+.support-link.whatsapp i { color: #25D366; font-size: 16px; }
+.support-link.email i { color: #ea4335; font-size: 16px; }
+
+/* Footer Section Locked to Bottom */
 footer { 
   flex-shrink: 0;
   background-color: rgba(0, 0, 0, 0.90); 
@@ -297,178 +431,346 @@ footer a:hover { color: greenyellow; background: transparent; }
       <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
       <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
       <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
-      <a href="profile.html" class="active auth-only"><i class="fa-solid fa-user"></i> Profile</a>
+      
+      <!-- Authenticated User Links -->
+      <a href="profile.html" class="auth-only active"><i class="fa-solid fa-user"></i> Profile</a>
       <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <!-- Guest Links -->
       <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
       <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <!-- Main Content Container -->
-    <div class="content-wrapper">
-      <div class="profile-card">
+    <!-- Profile Content -->
+    <div class="profile-container">
+      <div class="page-title">
+        <h1>Gamer Dashboard</h1>
+        <p>Manage your account settings, active subscription, and wallet balances.</p>
+      </div>
+
+      <!-- Loading State -->
+      <div id="profileLoader">
+        <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+        <p>Fetching your gamer profile...</p>
+      </div>
+
+      <!-- Profile Grid Container (Hidden until loaded) -->
+      <div id="profileContent" class="profile-grid" style="display: none;">
         
-        <div class="profile-header">
-          <div class="avatar-box">
-            <i class="fa-solid fa-user-ninja"></i>
+        <!-- Left Sidebar Section -->
+        <div>
+          <!-- Avatar Summary Card -->
+          <div class="profile-card user-avatar-block">
+            <div class="avatar-wrapper">
+              <i class="fa-solid fa-headset"></i>
+            </div>
+            <h3 id="displayUsername" class="user-display-name">Gamer</h3>
+            <p id="displayEmail" class="user-email-text">user@example.com</p>
+            <span id="planBadge" class="badge-plan">Basic Plan</span>
           </div>
-          <div class="user-title">
-            <h1 id="user-display-name">Gamer...</h1>
-            <span class="badge" id="user-plan-badge">Basic Plan</span>
-          </div>
-        </div>
 
-        <!-- Metric Grid -->
-        <div class="stats-grid">
-          <div class="stat-box">
-            <i class="fa-solid fa-wallet"></i>
-            <div class="lbl">Wallet Balance</div>
-            <div class="val" id="user-balance">$0.00</div>
-          </div>
-          <div class="stat-box">
-            <i class="fa-solid fa-layer-group"></i>
-            <div class="lbl">Current Subscription</div>
-            <div class="val" id="user-plan-name">Basic Plan</div>
-          </div>
-          <div class="stat-box">
-            <i class="fa-solid fa-gamepad"></i>
-            <div class="lbl">Total Earned</div>
-            <div class="val" id="user-total-earned">$0.00</div>
-          </div>
-        </div>
+          <!-- Quick Balance Summary Card -->
+          <div class="profile-card">
+            <h2><i class="fa-solid fa-vault"></i> Account Overview</h2>
+            
+            <div class="stat-item">
+              <span class="stat-label"><i class="fa-solid fa-wallet"></i> Wallet Balance</span>
+              <span id="statBalance" class="stat-value highlight">$0.00</span>
+            </div>
 
-        <!-- Account Details -->
-        <div class="details-section">
-          <h2><i class="fa-solid fa-id-card"></i> Account Information</h2>
-          <div class="details-grid">
-            <div class="detail-item">
-              <span class="label"><i class="fa-solid fa-envelope"></i> Email Address</span>
-              <span class="value" id="user-email">...</span>
+            <div class="stat-item">
+              <span class="stat-label"><i class="fa-solid fa-trophy"></i> Active Plan</span>
+              <span id="statPlan" class="stat-value">Basic Plan</span>
             </div>
-            <div class="detail-item">
-              <span class="label"><i class="fa-solid fa-shield-halved"></i> Account Status</span>
-              <span class="value" style="color: greenyellow;">Active</span>
-            </div>
-            <div class="detail-item">
-              <span class="label"><i class="fa-solid fa-calendar-day"></i> Member Since</span>
-              <span class="value" id="user-created">...</span>
-            </div>
-            <div class="detail-item">
-              <span class="label"><i class="fa-solid fa-hashtag"></i> User ID</span>
-              <span class="value" id="user-uid" style="font-size: 11px; font-family: monospace;">...</span>
+
+            <div class="stat-item">
+              <span class="stat-label"><i class="fa-solid fa-gamepad"></i> Games Played</span>
+              <span id="statGames" class="stat-value">0</span>
             </div>
           </div>
         </div>
 
-        <!-- Action Controls -->
-        <div class="actions-box">
-          <a id="whatsapp-support-btn" href="#" target="_blank" class="btn btn-whatsapp">
-            <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
-          </a>
-          <button id="logout-btn" class="btn btn-logout">
-            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
-          </button>
+        <!-- Right Main Form Section -->
+        <div>
+          <!-- Personal Info Form -->
+          <div class="profile-card">
+            <h2><i class="fa-solid fa-user-gear"></i> Personal Details</h2>
+            <form id="profileForm">
+              <div class="form-group">
+                <label for="usernameInput">Username</label>
+                <input type="text" id="usernameInput" placeholder="Enter username" required>
+              </div>
+
+              <div class="form-group">
+                <label for="fullNameInput">Full Name</label>
+                <input type="text" id="fullNameInput" placeholder="Enter full name">
+              </div>
+
+              <div class="form-group">
+                <label for="emailInput">Email Address (Read-Only)</label>
+                <input type="email" id="emailInput" disabled>
+              </div>
+
+              <div class="form-group">
+                <label for="phoneInput">Phone Number</label>
+                <input type="tel" id="phoneInput" placeholder="Enter phone number">
+              </div>
+
+              <button type="submit" class="submit-btn" id="saveProfileBtn">
+                <i class="fa-solid fa-floppy-disk"></i> Save Profile Details
+              </button>
+
+              <div id="profileStatusMsg" class="status-msg"></div>
+            </form>
+          </div>
+
+          <!-- Password Security Section -->
+          <div class="profile-card">
+            <h2><i class="fa-solid fa-lock"></i> Security & Password</h2>
+            <form id="passwordForm">
+              <div class="form-group">
+                <label for="newPasswordInput">New Password</label>
+                <input type="password" id="newPasswordInput" placeholder="Minimum 6 characters" required>
+              </div>
+
+              <button type="submit" class="submit-btn" id="updatePasswordBtn">
+                <i class="fa-solid fa-key"></i> Update Password
+              </button>
+
+              <div id="passwordStatusMsg" class="status-msg"></div>
+            </form>
+          </div>
+
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- Footer Aligned Bottom -->
+  <!-- Floating Support Button -->
+  <div class="floating-support-container">
+    <div id="supportOptions" class="support-options">
+      <a id="whatsappLink" href="#" target="_blank" class="support-link whatsapp">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
+      </a>
+      <a id="emailLink" href="#" target="_blank" class="support-link email">
+        <i class="fa-solid fa-envelope"></i> Email Support
+      </a>
+    </div>
+    <button id="supportToggleBtn" class="support-toggle-btn" title="Contact Support">
+      <i class="fa-solid fa-headset"></i>
+    </button>
+  </div>
+
+  <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:50:33 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:52:34 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
 <script type="module">
   import { auth, db } from './firebase.js';
-  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { onAuthStateChanged, signOut, updatePassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc, updateDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const appContent = document.getElementById('app-content');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const supportToggleBtn = document.getElementById('supportToggleBtn');
+  const supportOptions = document.getElementById('supportOptions');
+  const whatsappLink = document.getElementById('whatsappLink');
+  const emailLink = document.getElementById('emailLink');
 
-  // Elements
-  const elDisplayName = document.getElementById('user-display-name');
-  const elPlanBadge = document.getElementById('user-plan-badge');
-  const elPlanName = document.getElementById('user-plan-name');
-  const elBalance = document.getElementById('user-balance');
-  const elTotalEarned = document.getElementById('user-total-earned');
-  const elEmail = document.getElementById('user-email');
-  const elCreated = document.getElementById('user-created');
-  const elUid = document.getElementById('user-uid');
-  const elWhatsappBtn = document.getElementById('whatsapp-support-btn');
+  const profileLoader = document.getElementById('profileLoader');
+  const profileContent = document.getElementById('profileContent');
 
-  // Auth Guard
+  const displayUsername = document.getElementById('displayUsername');
+  const displayEmail = document.getElementById('displayEmail');
+  const planBadge = document.getElementById('planBadge');
+  const statBalance = document.getElementById('statBalance');
+  const statPlan = document.getElementById('statPlan');
+  const statGames = document.getElementById('statGames');
+
+  const profileForm = document.getElementById('profileForm');
+  const usernameInput = document.getElementById('usernameInput');
+  const fullNameInput = document.getElementById('fullNameInput');
+  const emailInput = document.getElementById('emailInput');
+  const phoneInput = document.getElementById('phoneInput');
+  const saveProfileBtn = document.getElementById('saveProfileBtn');
+  const profileStatusMsg = document.getElementById('profileStatusMsg');
+
+  const passwordForm = document.getElementById('passwordForm');
+  const newPasswordInput = document.getElementById('newPasswordInput');
+  const updatePasswordBtn = document.getElementById('updatePasswordBtn');
+  const passwordStatusMsg = document.getElementById('passwordStatusMsg');
+
+  let currentUserDocRef = null;
+
+  // Dynamic Auth State Observer & Profile Loader
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      appContent.style.display = 'flex';
-      
-      // Basic Auth info
-      elEmail.textContent = user.email || 'N/A';
-      elUid.textContent = user.uid;
-      
-      if (user.metadata && user.metadata.creationTime) {
-        const date = new Date(user.metadata.creationTime);
-        elCreated.textContent = date.toLocaleDateString();
-      }
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
 
-      // 1. Fetch User Data from Firestore (`users/{uid}`)
-      try {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userDocRef);
-
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-          
-          // Display Name
-          elDisplayName.textContent = data.displayName || data.username || user.email.split('@')[0];
-          
-          // Subscription Plan (e.g., 'Basic Plan', 'Silver Plan')
-          const plan = data.plan || 'Basic Plan';
-          elPlanBadge.textContent = plan;
-          elPlanName.textContent = plan;
-
-          // Wallet Stats
-          const balance = data.balance !== undefined ? parseFloat(data.balance).toFixed(2) : '0.00';
-          const totalEarned = data.totalEarned !== undefined ? parseFloat(data.totalEarned).toFixed(2) : balance;
-          
-          elBalance.textContent = `$${balance}`;
-          elTotalEarned.textContent = `$${totalEarned}`;
-        } else {
-          elDisplayName.textContent = user.email.split('@')[0];
-        }
-      } catch (err) {
-        console.error('Error fetching user document:', err);
-      }
-
-      // 2. Fetch WhatsApp Support Number from `settings/payment` document
-      try {
-        const paymentSettingsRef = doc(db, 'settings', 'payment');
-        const paymentSnap = await getDoc(paymentSettingsRef);
-
-        if (paymentSnap.exists() && paymentSnap.data().whatsappNumber) {
-          const num = paymentSnap.data().whatsappNumber.replace(/[^0-9]/g, '');
-          elWhatsappBtn.href = `https://wa.me/${num}`;
-        } else {
-          elWhatsappBtn.style.display = 'none'; // Hide if not configured
-        }
-      } catch (err) {
-        console.error('Error fetching support configuration:', err);
-      }
-
+      currentUserDocRef = doc(db, 'users', user.uid);
+      await loadUserProfile(user);
     } else {
+      // Redirect to login if user accesses profile while unauthenticated
       window.location.href = 'login.html';
     }
   });
 
-  // Logout Handler
-  document.getElementById('logout-btn').addEventListener('click', async () => {
+  // Fetch Profile Data from Firestore
+  async function loadUserProfile(user) {
+    try {
+      const docSnap = await getDoc(currentUserDocRef);
+      let userData = {};
+
+      if (docSnap.exists()) {
+        userData = docSnap.data();
+      } else {
+        // Fallback default setup if user document doesn't exist yet
+        userData = {
+          username: user.displayName || user.email.split('@')[0],
+          fullName: user.displayName || '',
+          email: user.email,
+          plan: 'Basic Plan',
+          balance: 0,
+          gamesPlayed: 0
+        };
+        await setDoc(currentUserDocRef, { ...userData, createdAt: serverTimestamp() }, { merge: true });
+      }
+
+      // Populate UI Header & Stats
+      const activePlan = userData.plan || 'Basic Plan';
+      const username = userData.username || user.email.split('@')[0];
+      const balance = userData.balance !== undefined ? userData.balance : 0;
+      const games = userData.gamesPlayed !== undefined ? userData.gamesPlayed : 0;
+
+      displayUsername.textContent = username;
+      displayEmail.textContent = user.email;
+      planBadge.textContent = activePlan;
+      statPlan.textContent = activePlan;
+      statBalance.textContent = `$${parseFloat(balance).toFixed(2)}`;
+      statGames.textContent = games;
+
+      // Populate Form Fields
+      usernameInput.value = username;
+      fullNameInput.value = userData.fullName || '';
+      emailInput.value = user.email;
+      phoneInput.value = userData.phone || '';
+
+      profileLoader.style.display = 'none';
+      profileContent.style.display = 'grid';
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+      profileLoader.innerHTML = '<p style="color:#ff4d4d;">Failed to load profile data. Please refresh.</p>';
+    }
+  }
+
+  // Handle Personal Profile Updates
+  profileForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    saveProfileBtn.disabled = true;
+    saveProfileBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    profileStatusMsg.className = 'status-msg';
+
+    const updatedData = {
+      username: usernameInput.value.trim(),
+      fullName: fullNameInput.value.trim(),
+      phone: phoneInput.value.trim(),
+      updatedAt: serverTimestamp()
+    };
+
+    try {
+      await updateDoc(currentUserDocRef, updatedData);
+      
+      // Update UI Header
+      displayUsername.textContent = updatedData.username;
+      
+      profileStatusMsg.textContent = 'Profile details updated successfully!';
+      profileStatusMsg.classList.add('success');
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      profileStatusMsg.textContent = 'Failed to update profile. Please try again.';
+      profileStatusMsg.classList.add('error');
+    } finally {
+      saveProfileBtn.disabled = false;
+      saveProfileBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Profile Details';
+    }
+  });
+
+  // Handle Security Password Update
+  passwordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newPassword = newPasswordInput.value.trim();
+
+    if (newPassword.length < 6) {
+      passwordStatusMsg.textContent = 'Password must be at least 6 characters long.';
+      passwordStatusMsg.className = 'status-msg error';
+      return;
+    }
+
+    updatePasswordBtn.disabled = true;
+    updatePasswordBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+    passwordStatusMsg.className = 'status-msg';
+
+    try {
+      if (auth.currentUser) {
+        await updatePassword(auth.currentUser, newPassword);
+        passwordStatusMsg.textContent = 'Password updated successfully!';
+        passwordStatusMsg.classList.add('success');
+        passwordForm.reset();
+      }
+    } catch (err) {
+      console.error('Error updating password:', err);
+      if (err.code === 'auth/requires-recent-login') {
+        passwordStatusMsg.textContent = 'Security sensitivity: Please log out and log in again before changing your password.';
+      } else {
+        passwordStatusMsg.textContent = 'Failed to update password: ' + err.message;
+      }
+      passwordStatusMsg.classList.add('error');
+    } finally {
+      updatePasswordBtn.disabled = false;
+      updatePasswordBtn.innerHTML = '<i class="fa-solid fa-key"></i> Update Password';
+    }
+  });
+
+  // Logout Action
+  logoutBtn.addEventListener('click', async () => {
     try {
       await signOut(auth);
       window.location.href = 'login.html';
-    } catch (err) {
-      alert('Error signing out: ' + err.message);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
+
+  // Floating Support Button Handler
+  let supportFetched = false;
+  supportToggleBtn.addEventListener('click', async () => {
+    supportOptions.classList.toggle('active');
+
+    if (!supportFetched) {
+      try {
+        const docRef = doc(db, 'settings', 'payment');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.whatsappNumber) {
+            const cleanNum = data.whatsappNumber.replace(/[^\d+]/g, '');
+            whatsappLink.href = `https://wa.me/${cleanNum}`;
+          }
+          if (data.email) {
+            emailLink.href = `mailto:${data.email}`;
+          }
+        }
+        supportFetched = true;
+      } catch (err) {
+        console.error('Error fetching support contact details:', err);
+      }
     }
   });
 </script>
