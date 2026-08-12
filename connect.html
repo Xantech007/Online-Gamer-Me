@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect MoMo Account - Online Gamer®</title>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+  background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
+              linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, 
+              linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, 
+              linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, 
+              linear-gradient(90deg, #1b1b1b 10px, transparent 10px), 
+              linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); 
+  background-color: #131313; 
+  background-size: 20px 20px; 
+  color: #e0e0e0;
+}
+
+a, a:visited { color: #888; text-decoration: none; }
+a:hover { color: greenyellow; }
+
+#app-content { 
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-body {
+  flex: 1 0 auto;
+}
+
+/* Header & Navigation */
+.headline { 
+  background-color: rgba(0, 0, 0, 0.85); 
+  color: greenyellow; 
+  font-size: 140%; 
+  font-weight: 800; 
+  padding: 15px 0; 
+  text-align: center; 
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid #222;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+nav { 
+  background-color: rgba(0, 0, 0, 0.90); 
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  gap: 8px; 
+  padding: 12px; 
+  border-bottom: 1px solid #333; 
+}
+
+nav a, nav button { 
+  color: #ccc; 
+  padding: 8px 14px; 
+  font-weight: 600; 
+  font-size: 13px; 
+  border: 1px solid #333; 
+  background: #1e1e1e; 
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out; 
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+nav a:hover, nav a.active, nav button:hover { 
+  background-color: greenyellow; 
+  color: black; 
+  border-color: greenyellow; 
+}
+
+.auth-only, .guest-only {
+  display: none;
+}
+
+/* Form Container */
+.connect-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.form-card {
+  background-color: rgba(0, 0, 0, 0.75);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.form-card h2 {
+  color: greenyellow;
+  font-size: 140%;
+  margin-top: 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+.form-card p {
+  color: #aaa;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #ccc;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: greenyellow;
+}
+
+.submit-btn {
+  width: 100%;
+  background-color: greenyellow;
+  color: #000;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.submit-btn:hover {
+  background-color: #9eff1a;
+  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.4);
+}
+
+.status-msg {
+  display: none;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.status-msg.success {
+  display: block;
+  background-color: rgba(173, 255, 47, 0.1);
+  color: greenyellow;
+  border: 1px solid greenyellow;
+}
+
+.status-msg.error {
+  display: block;
+  background-color: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+}
+
+#loader {
+  text-align: center;
+  padding: 40px 0;
+  color: greenyellow;
+}
+
+footer { 
+  flex-shrink: 0;
+  background-color: rgba(0, 0, 0, 0.90); 
+  color: #777; 
+  font-family: monospace; 
+  font-size: 12px; 
+  padding: 20px; 
+  text-align: center;
+  border-top: 1px solid #222;
+}
+
+footer a, footer a:visited { color: #aaa; }
+footer a:hover { color: greenyellow; background: transparent; }
+</style>
+</head>
+<body>
+
+<div id="app-content">
+  <div class="main-body">
+    <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
+
+    <nav>
+      <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+      <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      
+      <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
+      <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
+    </nav>
+
+    <div class="connect-container">
+      <div id="loader">
+        <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+        <p>Loading account details...</p>
+      </div>
+
+      <div class="form-card" id="connectContent" style="display: none;">
+        <h2><i class="fa-solid fa-mobile-screen-button"></i> Connect MoMo</h2>
+        <p>Link your Mobile Money account details for automated payouts.</p>
+
+        <form id="momoForm">
+          <div class="form-group">
+            <label for="momoProvider">Mobile Network Provider</label>
+            <select id="momoProvider" name="momoProvider" required>
+              <option value="" disabled selected>Select Provider</option>
+              <option value="MTN MoMo">MTN Mobile Money</option>
+              <option value="Telecel Cash">Telecel Cash</option>
+              <option value="AT Money">AT Money</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="momoName">MoMo Account Name</label>
+            <input type="text" id="momoName" name="momoName" placeholder="e.g. Owusu Joseph" required>
+          </div>
+
+          <div class="form-group">
+            <label for="momoNumber">MoMo Phone Number</label>
+            <input type="tel" id="momoNumber" name="momoNumber" placeholder="e.g. 0501234567" required>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <i class="fa-solid fa-link"></i> Save & Link Account
+          </button>
+
+          <div id="statusMsg" class="status-msg"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Online Gamer®</p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:56:49 UTC</span></p>
+    <p>powered by Online Gamer® v4.0.8</p>
+  </footer>
+</div>
+
+<script type="module">
+  import { auth, db } from './firebase.js';
+  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  const loader = document.getElementById('loader');
+  const connectContent = document.getElementById('connectContent');
+  
+  const momoForm = document.getElementById('momoForm');
+  const momoProvider = document.getElementById('momoProvider');
+  const momoName = document.getElementById('momoName');
+  const momoNumber = document.getElementById('momoNumber');
+  const submitBtn = document.getElementById('submitBtn');
+  const statusMsg = document.getElementById('statusMsg');
+
+  let currentUserId = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
+      
+      currentUserId = user.uid;
+      await loadExistingMomoData(user.uid);
+    } else {
+      window.location.href = 'login.html';
+    }
+  });
+
+  async function loadExistingMomoData(uid) {
+    try {
+      const userRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.momoProvider) momoProvider.value = data.momoProvider;
+        if (data.momoName) momoName.value = data.momoName;
+        if (data.momoNumber) momoNumber.value = data.momoNumber;
+      }
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+    } finally {
+      loader.style.display = 'none';
+      connectContent.style.display = 'block';
+    }
+  }
+
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.href = 'login.html';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
+
+  momoForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    statusMsg.className = 'status-msg';
+
+    const providerVal = momoProvider.value;
+    const nameVal = momoName.value.trim();
+    const numberVal = momoNumber.value.trim();
+
+    if (!providerVal || !nameVal || !numberVal) {
+      statusMsg.textContent = 'Please fill out all fields.';
+      statusMsg.classList.add('error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+    try {
+      const userRef = doc(db, 'users', currentUserId);
+      await updateDoc(userRef, {
+        momoProvider: providerVal,
+        momoName: nameVal,
+        momoNumber: numberVal
+      });
+
+      statusMsg.textContent = 'Account details linked successfully! Redirecting...';
+      statusMsg.classList.add('success');
+
+      setTimeout(() => {
+        window.location.href = 'withdraw.html';
+      }, 1500);
+
+    } catch (err) {
+      console.error('Error updating MoMo details:', err);
+      statusMsg.textContent = 'Failed to save details. Please try again.';
+      statusMsg.classList.add('error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-link"></i> Save & Link Account';
+    }
+  });
+</script>
+
+</body>
+</html>
