@@ -1,441 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Online Gamer®</title>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta
+      property="og:description"
+      content="A web-based Plinko game inspired by Stake.com, built using Svelte and Tailwind CSS"
+    />
+    
+		<link href="./_app/immutable/assets/0.B06MVAWj.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/3.D2gFKv4v.css" rel="stylesheet">
+		<link rel="modulepreload" href="./_app/immutable/entry/start.ByWSBojB.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/entry.CgEUvEux.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/runtime.L3S9f_it.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.CQZBtXWt.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/utils.V0cIllTo.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index-client.CiTDmMB9.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/app.CwobvQoN.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/render.6OpfRaAp.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/svelte-head.DFZzVed5.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/disclose-version.w2WwNl4H.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/props.Dt6bYaYu.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/this.D898A2ko.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/0.CbKs2FLC.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/snippet.D3eOigg0.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/attributes.DJHT-jMS.js">
+		<link rel="modulepreload" href="./_app/immutable/nodes/3.ecu_ykDi.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/Plinko.BpaH7Kmb.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/legacy.bvHZAqi1.js"><!--[--><link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"> <meta property="og:type" content="website"> <meta property="og:title" content="Plinko"> <meta property="og:url" content="https://plinko-web-game.netlify.app/"> <meta property="og:image" content="/_app/immutable/assets/og_image.PzHn9Bxz.jpg"><!--]--><title>Plinko</title>
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents"><!--[--><!--[--><!----><!--[!--><!----><div class="relative flex min-h-dvh w-full flex-col"><nav class="sticky top-0 z-10 w-full bg-gray-700 px-5 drop-shadow-lg"><div class="mx-auto flex h-14 max-w-7xl items-center justify-between"><img src="/_app/immutable/assets/logo.Bq7oLjZC.svg" alt="logo" class="h-6 sm:h-7"> <div class="mx-auto"><div class="flex overflow-hidden rounded-md"><div class="flex gap-2 bg-slate-900 px-3 py-2 text-sm font-semibold text-white tabular-nums sm:text-base"><span class="text-gray-500 select-none">$</span> <span class="min-w-16 text-right">0.00</span></div> <!----><!----><!--[!--><button class="bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 active:bg-blue-700 sm:text-base" id="bits-1" aria-haspopup="dialog" aria-expanded="false" data-state="closed" data-popover-trigger="" type="button"><!---->Add<!----></button><!--]--><!----><!----> <!----><!--[--><!--[!--><!--[!--><!--[!--><!--]--><!--]--> <!--[--><!--[!--><!--]--><!----><!--]--><!----><!----><!----><!----><!----><!----><!----><!--]--><!--]--><!----><!----><!----><!----></div><!----></div></div></nav> <div class="flex-1 px-5"><div class="mx-auto mt-5 max-w-xl min-w-[300px] drop-shadow-xl md:mt-10 lg:max-w-7xl"><div class="flex flex-col-reverse overflow-hidden rounded-lg lg:w-full lg:flex-row"><div class="flex flex-col gap-5 bg-slate-700 p-3 lg:max-w-80"><div class="flex gap-1 rounded-full bg-slate-900 p-1"><!--[--><button class="flex-1 rounded-full py-2 text-sm font-medium text-white transition hover:not-disabled:bg-slate-600 active:not-disabled:bg-slate-500 disabled:cursor-not-allowed disabled:opacity-50 bg-slate-600">Manual</button><button class="flex-1 rounded-full py-2 text-sm font-medium text-white transition hover:not-disabled:bg-slate-600 active:not-disabled:bg-slate-500 disabled:cursor-not-allowed disabled:opacity-50">Auto</button><!--]--></div> <div class="relative"><label for="betAmount" class="text-sm font-medium text-slate-300">Bet Amount</label> <div class="flex"><div class="relative flex-1"><input id="betAmount" value="1" type="number" min="0" step="0.01" inputmode="decimal" class="w-full rounded-l-md border-2 bg-slate-900 py-2 pr-2 pl-7 text-sm text-white transition-colors hover:cursor-pointer focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 border-red-500 hover:not-disabled:border-red-400 focus:border-red-400"> <div class="absolute top-2 left-3 text-slate-500 select-none" aria-hidden="true">$</div></div> <button class="touch-manipulation bg-slate-600 px-4 font-bold text-white diagonal-fractions transition-colors hover:not-disabled:bg-slate-500 active:not-disabled:bg-slate-400 disabled:cursor-not-allowed disabled:opacity-50">1/2</button> <button class="relative touch-manipulation rounded-r-md bg-slate-600 px-4 text-sm font-bold text-white transition-colors after:absolute after:left-0 after:inline-block after:h-1/2 after:w-[2px] after:bg-slate-800 after:content-[''] hover:not-disabled:bg-slate-500 active:not-disabled:bg-slate-400 disabled:cursor-not-allowed disabled:opacity-50">2×</button></div> <!--[!--><!--[--><p class="absolute text-xs leading-5 text-red-400">Can't bet more than your balance!</p><!--]--><!--]--></div> <div><label for="riskLevel" class="text-sm font-medium text-slate-300">Risk</label> <div class="relative"><select class="block w-full appearance-none rounded-md border-2 border-slate-600 bg-slate-900 py-2 pr-8 pl-3 text-sm text-white transition hover:cursor-pointer hover:not-disabled:border-slate-500 focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50" id="riskLevel"><!--[--><option value="LOW">Low</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option><!--]--></select> <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="absolute top-3 right-3 text-slate-500"><!----><!----><rect width="256" height="256" fill="none"></rect><!--[--><path d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z"></path><!--]--></svg><!----></div><!----></div> <div><label for="rowCount" class="text-sm font-medium text-slate-300">Rows</label> <div class="relative"><select class="block w-full appearance-none rounded-md border-2 border-slate-600 bg-slate-900 py-2 pr-8 pl-3 text-sm text-white transition hover:cursor-pointer hover:not-disabled:border-slate-500 focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50" id="rowCount"><!--[--><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><!--]--></select> <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="absolute top-3 right-3 text-slate-500"><!----><!----><rect width="256" height="256" fill="none"></rect><!--[--><path d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z"></path><!--]--></svg><!----></div><!----></div> <!--[!--><!--]--> <button disabled class="touch-manipulation rounded-md bg-green-500 py-3 font-semibold text-slate-900 transition-colors hover:bg-green-400 active:bg-green-600 disabled:bg-neutral-600 disabled:text-neutral-400"><!--[-->Drop Ball<!--]--></button> <div class="mt-auto pt-5"><div class="flex items-center gap-4 border-t border-slate-600 pt-3"><!----><!----><!----><!--[!--><button class="rounded-full p-2 text-slate-300 transition hover:bg-slate-600 active:bg-slate-500" id="bits-6" data-state="closed" data-delay-duration="0" data-tooltip-trigger="" tabindex="0" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="size-6"><!----><!----><rect width="256" height="256" fill="none"></rect><!--[!--><!--[!--><!--[--><path d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"></path><!--]--><!--]--><!--]--></svg><!----></button><!--]--><!----><!----> <!----><!--[--><!--[!--><!--[!--><!--[!--><!--]--><!--]--> <!--[--><!--[!--><!--]--><!----><!--]--><!----><!----><!----><!----><!----><!----><!----><!--]--><!--]--><!----><!----><!----><!----> <!----><!----><!--[!--><button class="rounded-full p-2 text-slate-300 transition hover:bg-slate-600 active:bg-slate-500" id="bits-11" data-state="closed" data-delay-duration="0" data-tooltip-trigger="" tabindex="0" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="size-6"><!----><!----><rect width="256" height="256" fill="none"></rect><!--[--><path d="M236,208a12,12,0,0,1-12,12H32a12,12,0,0,1-12-12V48a12,12,0,0,1,24,0v85.55L88.1,95a12,12,0,0,1,15.1-.57l56.22,42.16L216.1,87A12,12,0,1,1,231.9,105l-64,56a12,12,0,0,1-15.1.57L96.58,119.44,44,165.45V196H224A12,12,0,0,1,236,208Z"></path><!--]--></svg><!----></button><!--]--><!----><!----> <!----><!--[--><!--[!--><!--[!--><!--[!--><!--]--><!--]--> <!--[--><!--[!--><!--]--><!----><!--]--><!----><!----><!----><!----><!----><!----><!----><!--]--><!--]--><!----><!----><!----><!----><!----><!----></div></div></div><!----> <div class="flex-1"><div class="relative bg-gray-900"><div style="max-width: 760px;" class="mx-auto flex h-full flex-col px-4 pb-4"><div style="aspect-ratio: 760 / 570;" class="relative w-full"><!--[--><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="size-20 animate-spin text-slate-600"><!----><!----><rect width="256" height="256" fill="none"></rect><!--[--><path d="M236,128a108,108,0,0,1-216,0c0-42.52,24.73-81.34,63-98.9A12,12,0,1,1,93,50.91C63.24,64.57,44,94.83,44,128a84,84,0,0,0,168,0c0-33.17-19.24-63.43-49-77.09A12,12,0,1,1,173,29.1C211.27,46.66,236,85.48,236,128Z"></path><!--]--></svg><!----></div><!--]--> <canvas width="760" height="570" class="absolute inset-0 h-full w-full"></canvas></div> <div class="flex h-[clamp(10px,0.352px+2.609vw,16px)] w-full justify-center lg:h-7"><!--[!--><!--]--></div><!----></div> <div class="absolute top-1/2 right-[5%] -translate-y-1/2"><div style="aspect-ratio: 1 / 4;" class="flex w-[clamp(1.5rem,0.893rem+2.857vw,2rem)] flex-col overflow-hidden rounded-xs text-[clamp(8px,5.568px+0.714vw,10px)] md:rounded-md lg:w-12 lg:text-sm"><!--[--><!--]--></div><!----></div></div><!----></div></div></div></div> <!--[!--><!--]--><!----> <!--[!--><!--]--><!----> <footer class="px-5 pt-16 pb-4"><div class="mx-auto max-w-[40rem]"><div aria-hidden="true" class="h-[1px] bg-slate-700"></div> <div class="flex items-center justify-between p-2"><p class="text-sm text-slate-500"><a href="https://www.ansonh.com" target="_blank" rel="noreferrer" class="text-cyan-600 transition hover:text-cyan-500">Anson Heung</a> © 2026</p> <a href="https://github.com/AnsonH/plinko-game" target="_blank" rel="noreferrer" class="flex items-center gap-1 p-1 text-sm text-slate-500 transition hover:text-cyan-500"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" class="size-4"><!----><!----><rect width="256" height="256" fill="none"></rect><!--[--><path d="M212.62,75.17A63.7,63.7,0,0,0,206.39,26,12,12,0,0,0,196,20a63.71,63.71,0,0,0-50,24H126A63.71,63.71,0,0,0,76,20a12,12,0,0,0-10.39,6,63.7,63.7,0,0,0-6.23,49.17A61.5,61.5,0,0,0,52,104v8a60.1,60.1,0,0,0,45.76,58.28A43.66,43.66,0,0,0,92,192v4H76a20,20,0,0,1-20-20,44.05,44.05,0,0,0-44-44,12,12,0,0,0,0,24,20,20,0,0,1,20,20,44.05,44.05,0,0,0,44,44H92v12a12,12,0,0,0,24,0V192a20,20,0,0,1,40,0v40a12,12,0,0,0,24,0V192a43.66,43.66,0,0,0-5.76-21.72A60.1,60.1,0,0,0,220,112v-8A61.5,61.5,0,0,0,212.62,75.17ZM196,112a36,36,0,0,1-36,36H112a36,36,0,0,1-36-36v-8a37.87,37.87,0,0,1,6.13-20.12,11.65,11.65,0,0,0,1.58-11.49,39.9,39.9,0,0,1-.4-27.72,39.87,39.87,0,0,1,26.41,17.8A12,12,0,0,0,119.82,68h32.35a12,12,0,0,0,10.11-5.53,39.84,39.84,0,0,1,26.41-17.8,39.9,39.9,0,0,1-.4,27.72,12,12,0,0,0,1.61,11.53A37.85,37.85,0,0,1,196,104Z"></path><!--]--></svg><!----> <span>Source Code</span></a></div></div></footer></div><!----><!--]--><!----><!----><!--]--> <!--[!--><!--]--><!--]-->
+			
+			<script>
+				{
+					__sveltekit_8gss54 = {
+						base: new URL(".", location).pathname.slice(0, -1)
+					};
 
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+					const element = document.currentScript.parentElement;
 
-<style>
-* {
-  box-sizing: border-box;
-}
-
-/* Sticky Footer Layout Structure */
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
-body { 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-  background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
-              linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, 
-              linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, 
-              linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, 
-              linear-gradient(90deg, #1b1b1b 10px, transparent 10px), 
-              linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); 
-  background-color: #131313; 
-  background-size: 20px 20px; 
-  color: #e0e0e0;
-}
-
-a, a:visited { color: #888; text-decoration: none; }
-a:hover { color: greenyellow; }
-img { border: 1px solid #444; border-radius: 4px; }
-
-/* Main Wrapper for Sticky Footer */
-#app-content { 
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.main-body {
-  flex: 1 0 auto;
-}
-
-/* Header & Navigation */
-.headline { 
-  background-color: rgba(0, 0, 0, 0.85); 
-  color: greenyellow; 
-  font-size: 140%; 
-  font-weight: 800; 
-  padding: 15px 0; 
-  text-align: center; 
-  letter-spacing: 1.5px;
-  border-bottom: 2px solid #222;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-nav { 
-  background-color: rgba(0, 0, 0, 0.90); 
-  display: flex; 
-  flex-wrap: wrap; 
-  justify-content: center; 
-  gap: 8px; 
-  padding: 12px; 
-  border-bottom: 1px solid #333; 
-}
-
-nav a, nav button { 
-  color: #ccc; 
-  padding: 8px 14px; 
-  font-weight: 600; 
-  font-size: 13px; 
-  border: 1px solid #333; 
-  background: #1e1e1e; 
-  border-radius: 4px;
-  transition: all 0.2s ease-in-out; 
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-nav a:hover, nav a.active, nav button:hover { 
-  background-color: greenyellow; 
-  color: black; 
-  border-color: greenyellow; 
-}
-
-.auth-only, .guest-only {
-  display: none; /* Controlled via JS Auth observer */
-}
-
-/* Hero Section */
-#hero-section {
-  text-align: center; 
-  padding: 60px 20px; 
-  max-width: 800px;
-  margin: 30px auto;
-  background-color: rgba(0, 0, 0, 0.75); 
-  border: 1px solid #333;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-}
-
-#hero-section h1 { 
-  margin: 0 0 15px 0; 
-  font-size: 220%; 
-  color: #ffffff; 
-  letter-spacing: 1px;
-}
-
-#hero-section p { 
-  color: #aaa; 
-  font-size: 110%; 
-  line-height: 1.6;
-  margin-bottom: 30px; 
-}
-
-.play-btn { 
-  background-color: greenyellow; 
-  color: #000; 
-  font-weight: 800; 
-  font-size: 18px; 
-  padding: 16px 40px; 
-  border: none; 
-  border-radius: 4px;
-  cursor: pointer; 
-  text-transform: uppercase; 
-  letter-spacing: 1px;
-  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.3); 
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.play-btn:hover { 
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.5);
-}
-
-.play-btn:active { 
-  transform: translateY(1px); 
-}
-
-/* Games Grid Container */
-#games-container { 
-  display: none; 
-  padding: 20px 10px;
-}
-
-.list { 
-  display: flex; 
-  flex-wrap: wrap; 
-  justify-content: center; 
-  margin: 0; 
-}
-
-.game { 
-  background-color: #1a1a1a; 
-  border: 1px solid #333; 
-  border-radius: 6px;
-  margin: 8px; 
-  padding: 12px 8px 8px 8px; 
-  text-align: center; 
-  width: 130px;
-  color: #eee;
-  transition: transform 0.2s, border-color 0.2s;
-}
-
-.game:hover { 
-  background-color: #242424; 
-  border-color: greenyellow;
-  transform: translateY(-3px);
-}
-
-.game small {
-  color: #888;
-  display: block;
-  margin-top: 2px;
-}
-
-.platform { 
-  background-color: transparent; 
-  color: #666; 
-  font-size: 12px; 
-  padding-top: 6px; 
-  text-align: right; 
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-}
-
-/* Floating Support Button & Widget */
-.floating-support-container {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-.support-toggle-btn {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  background-color: greenyellow;
-  color: #000;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.support-toggle-btn:hover {
-  transform: scale(1.08);
-  background-color: #9eff1a;
-}
-
-.support-options {
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-}
-
-.support-options.active {
-  display: flex;
-}
-
-.support-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background-color: #222;
-  color: #fff !important;
-  border: 1px solid #444;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.support-link:hover {
-  border-color: greenyellow;
-  background-color: #2a2a2a;
-}
-
-.support-link.whatsapp i { color: #25D366; font-size: 16px; }
-.support-link.email i { color: #ea4335; font-size: 16px; }
-
-/* Footer Section Locked to Bottom */
-footer { 
-  flex-shrink: 0;
-  background-color: rgba(0, 0, 0, 0.90); 
-  color: #777; 
-  font-family: monospace; 
-  font-size: 12px; 
-  padding: 20px; 
-  text-align: center;
-  border-top: 1px solid #222;
-}
-
-footer a, footer a:visited { color: #aaa; }
-footer a:hover { color: greenyellow; background: transparent; }
-</style>
-</head>
-<body>
-
-<div id="app-content">
-  <div class="main-body">
-    <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
-
-    <!-- Navigation Header -->
-    <nav>
-      <a href="index.html" class="active"><i class="fa-solid fa-house"></i> Home</a>
-      <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
-      <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
-      <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
-      <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
-      
-      <!-- Authenticated User Links -->
-      <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
-      <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
-      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-
-      <!-- Guest Links -->
-      <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
-      <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
-    </nav>
-
-    <!-- Hero Section -->
-    <div id="hero-section">
-      <h1>Ready to Play & Earn?</h1>
-      <p>Welcome to Online Gamer®. Enjoy our curated retro gaming arcade, track your live gameplay stats, and earn rewards as you climb the leaderboards.</p>
-      <button id="playNowBtn" class="play-btn"><i class="fa-solid fa-play"></i> Play Now</button>
-    </div>
-
-    <!-- Games Container -->
-    <div id="games-container">
-      <div class="list">
-        <a href="hextris-lite/"><div class="game"><img src="_logo/hextris-lite.png" width="100" height="100" alt="Hextris"><br />Hextris<br /><small>hexagonal tetris</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="pond/"><div class="game"><img src="_logo/pond.png" width="100" height="100" alt="The Pond"><br />The Pond<br /><small>eat, swim, love</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="2048-lite/"><div class="game"><img src="_logo/2048-lite.png" width="100" height="100" alt="2048"><br />2048<br /><small>2, 4, 8, swipe</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="taptaptap/play/"><div class="game"><img src="_logo/taptaptap.png" width="100" height="100" alt="Tap Tap Tap"><br />Tap Tap Tap<br /><small>tap the blue</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="particle-clicker/"><div class="game"><img src="_logo/particle-clicker.png" width="100" height="100" alt="Particle Clicker"><br />Particle Clicker<br /><small>be like CERN</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="tower/"><div class="game"><img src="_logo/tower.png" width="100" height="100" alt="Tower"><br />Tower<br /><small>build up</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="clumsy-bird/"><div class="game"><img src="_logo/clumsy-bird.png" width="100" height="100" alt="Clumsy Bird"><br />Clumsy Bird<br /><small>happy happy</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="hyperspace-garbage-collection/"><div class="game"><img src="_logo/hyperspace-garbage-collection.png" width="100" height="100" alt="Hyperspace G"><br />Hyperspace G<br /><small>collect garbage</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="pacman-lite/"><div class="game"><img src="_logo/pacman-lite.png" width="100" height="100" alt="pacman"><br />pacman<br /><small>another pacman</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="snakisms/"><div class="game"><img src="_logo/snakisms.png" width="100" height="100" alt="Snakisms"><br />Snakisms<br /><small>philosophy snake</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="EightQueens/"><div class="game"><img src="_logo/EightQueens.png" width="100" height="100" alt="Eight Queens"><br />Eight Queens<br /><small>chess puzzle</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="chess/"><div class="game"><img src="_logo/chess.png" width="100" height="100" alt="Chess"><br />Chess<br /><small>e2 to e4</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="missile-game/"><div class="game"><img src="_logo/missile-game.png" width="100" height="100" alt="Missile Game"><br />Missile Game<br /><small>fly thru it</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="ns-shaft/"><div class="game"><img src="_logo/ns-shaft.png" width="100" height="100" alt="NS-Shaft"><br />NS-Shaft<br /><small>fall safely</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="colorful-life/"><div class="game"><img src="_logo/colorful-life.png" width="100" height="100" alt="Colorful Life"><br />Colorful Life<br /><small>life with color</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="life/"><div class="game"><img src="_logo/life.png" width="100" height="100" alt="Life"><br />Life<br /><small>conway's game</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="javascript-piano/"><div class="game"><img src="_logo/javascript-piano.png" width="100" height="100" alt="Piano J"><br />Piano J<br /><small>synthy javascript</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-        <a href="virtual-piano/"><div class="game"><img src="_logo/virtual-piano.png" width="100" height="100" alt="Piano V"><br />Piano V<br /><small>virtually classic</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Floating Support Button -->
-  <div class="floating-support-container">
-    <div id="supportOptions" class="support-options">
-      <a id="whatsappLink" href="#" target="_blank" class="support-link whatsapp">
-        <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
-      </a>
-      <a id="emailLink" href="#" target="_blank" class="support-link email">
-        <i class="fa-solid fa-envelope"></i> Email Support
-      </a>
-    </div>
-    <button id="supportToggleBtn" class="support-toggle-btn" title="Contact Support">
-      <i class="fa-solid fa-headset"></i>
-    </button>
-  </div>
-
-  <!-- Footer Aligned to Bottom -->
-  <footer>
-    <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:24:00 UTC</span></p>
-    <p>powered by Online Gamer® v4.0.8</p>
-  </footer>
-</div>
-
-<script type="module">
-  import { auth, db } from './firebase.js';
-  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-  const heroSection = document.getElementById('hero-section');
-  const gamesContainer = document.getElementById('games-container');
-  const playNowBtn = document.getElementById('playNowBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-
-  const supportToggleBtn = document.getElementById('supportToggleBtn');
-  const supportOptions = document.getElementById('supportOptions');
-  const whatsappLink = document.getElementById('whatsappLink');
-  const emailLink = document.getElementById('emailLink');
-
-  // Play Now toggle
-  playNowBtn.addEventListener('click', () => {
-    heroSection.style.display = 'none';
-    gamesContainer.style.display = 'block';
-  });
-
-  // Dynamic Auth State UI
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
-    } else {
-      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'inline-flex');
-    }
-  });
-
-  // Logout Action
-  logoutBtn.addEventListener('click', async () => {
-    try {
-      await signOut(auth);
-      window.location.reload();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  });
-
-  // Floating Support Button Handler (Fetches from settings/contact document)
-  let supportFetched = false;
-  supportToggleBtn.addEventListener('click', async () => {
-    supportOptions.classList.toggle('active');
-
-    if (!supportFetched) {
-      try {
-        const docRef = doc(db, 'settings', 'contact');
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.whatsapp) {
-            const cleanNum = data.whatsapp.replace(/[^\d+]/g, '');
-            whatsappLink.href = `https://wa.me/${cleanNum}`;
-          }
-          if (data.email) {
-            emailLink.href = `mailto:${data.email}`;
-          }
-        }
-        supportFetched = true;
-      } catch (err) {
-        console.error('Error fetching support contact details:', err);
-      }
-    }
-  });
-</script>
-
-</body>
+					Promise.all([
+						import("./_app/immutable/entry/start.ByWSBojB.js"),
+						import("./_app/immutable/entry/app.CwobvQoN.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 3],
+							data: [null,null],
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+  </body>
 </html>
