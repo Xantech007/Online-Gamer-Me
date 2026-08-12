@@ -1,6 +1,0 @@
-<Files ".gitignore">
-  Require all denied
-</Files>
-<Files "composer.json">
-  Require all denied
-</Files>
