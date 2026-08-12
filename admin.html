@@ -151,12 +151,12 @@ footer {
         <h2><i class="fa-solid fa-lock"></i> Admin Authentication</h2>
         <form id="adminLoginForm">
           <div class="form-group">
-            <label for="adminEmail">Email Address</label>
-            <input type="email" id="adminEmail" required>
+            <label for="adminUsername">Username</label>
+            <input type="text" id="adminUsername" required placeholder="Enter username">
           </div>
           <div class="form-group">
             <label for="adminPassword">Password</label>
-            <input type="password" id="adminPassword" required>
+            <input type="password" id="adminPassword" required placeholder="Enter password">
           </div>
           <button type="submit" class="action-btn" id="loginBtn">Login to Panel</button>
           <div id="loginStatus" class="status-msg"></div>
@@ -265,9 +265,8 @@ footer {
 </div>
 
 <script type="module">
-  import { auth, db } from './firebase.js';
-  import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { doc, getDoc, setDoc, collection, getDocs, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { db } from './firebase.js';
+  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const loader = document.getElementById('loader');
   const loginSection = document.getElementById('loginSection');
@@ -277,44 +276,81 @@ footer {
   const loginStatus = document.getElementById('loginStatus');
   const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-  // Authentication Observer
-  onAuthStateChanged(auth, async (user) => {
+  // Check saved session state on initialization
+  window.addEventListener('DOMContentLoaded', () => {
+    const isAuth = localStorage.getItem('adminLoggedIn');
     loader.style.display = 'none';
-    if (user) {
-      // Show Dashboard Panel
-      loginSection.style.display = 'none';
-      adminNav.style.display = 'flex';
-      dashboardSection.style.display = 'block';
 
-      loadUsers();
-      loadRequests();
-      loadWithdrawals();
-      loadSettings();
+    if (isAuth === 'true') {
+      showDashboard();
     } else {
-      // Show Login Interface
-      adminNav.style.display = 'none';
-      dashboardSection.style.display = 'none';
-      loginSection.style.display = 'block';
+      showLogin();
     }
   });
 
-  // Admin Login Handler
+  function showDashboard() {
+    loginSection.style.display = 'none';
+    adminNav.style.display = 'flex';
+    dashboardSection.style.display = 'block';
+
+    loadUsers();
+    loadRequests();
+    loadWithdrawals();
+    loadSettings();
+  }
+
+  function showLogin() {
+    adminNav.style.display = 'none';
+    dashboardSection.style.display = 'none';
+    loginSection.style.display = 'block';
+  }
+
+  // Admin Login Handler via Firestore admin/login collection
   adminLoginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     loginStatus.className = 'status-msg';
-    const email = document.getElementById('adminEmail').value.trim();
-    const pass = document.getElementById('adminPassword').value.trim();
+    loginStatus.style.display = 'none';
+
+    const inputUsername = document.getElementById('adminUsername').value.trim();
+    const inputPassword = document.getElementById('adminPassword').value.trim();
 
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
+      const loginRef = collection(db, 'admin', 'login', 'users');
+      const q = query(
+        loginRef, 
+        where('username', '==', inputUsername), 
+        where('password', '==', inputPassword)
+      );
+      
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        localStorage.setItem('adminLoggedIn', 'true');
+        showDashboard();
+      } else {
+        // Fallback check: Check directly if a document with ID exists under admin/login collection
+        const docRef = doc(db, 'admin', 'login');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists() && docSnap.data().username === inputUsername && docSnap.data().password === inputPassword) {
+          localStorage.setItem('adminLoggedIn', 'true');
+          showDashboard();
+        } else {
+          loginStatus.textContent = 'Invalid username or password.';
+          loginStatus.classList.add('error');
+        }
+      }
     } catch (err) {
-      loginStatus.textContent = err.message;
+      loginStatus.textContent = 'Authentication error: ' + err.message;
       loginStatus.classList.add('error');
     }
   });
 
   // Logout Handler
-  adminLogoutBtn.addEventListener('click', () => signOut(auth));
+  adminLogoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('adminLoggedIn');
+    showLogin();
+  });
 
   // Navigation Tab Switcher
   document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -333,11 +369,11 @@ footer {
     try {
       const snap = await getDocs(collection(db, 'users'));
       tbody.innerHTML = '';
-      snap.forEach(doc => {
-        const d = doc.data();
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
         tbody.innerHTML += `
           <tr>
-            <td>${doc.id}</td>
+            <td>${docSnap.id}</td>
             <td>${d.momoName || 'N/A'}</td>
             <td>${d.momoNumber || 'N/A'}</td>
             <td>${d.momoProvider || 'N/A'}</td>
