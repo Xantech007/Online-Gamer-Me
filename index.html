@@ -5,6 +5,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Online Gamer®</title>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 <style>
 * {
   box-sizing: border-box;
@@ -55,6 +59,10 @@ img { border: 1px solid #444; border-radius: 4px; }
   letter-spacing: 1.5px;
   border-bottom: 2px solid #222;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 nav { 
@@ -76,9 +84,12 @@ nav a {
   background: #1e1e1e; 
   border-radius: 4px;
   transition: all 0.2s ease-in-out; 
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-nav a:hover { 
+nav a:hover, nav a.active { 
   background-color: greenyellow; 
   color: black; 
   border-color: greenyellow; 
@@ -123,6 +134,9 @@ nav a:hover {
   letter-spacing: 1px;
   box-shadow: 0 4px 15px rgba(173, 255, 47, 0.3); 
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .play-btn:hover { 
@@ -174,9 +188,12 @@ nav a:hover {
 .platform { 
   background-color: transparent; 
   color: #666; 
-  font-size: small; 
+  font-size: 12px; 
   padding-top: 6px; 
   text-align: right; 
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 /* Footer Section Locked to Bottom */
@@ -199,48 +216,49 @@ footer a:hover { color: greenyellow; background: transparent; }
 
 <div id="app-content">
   <div class="main-body">
-    <div class="headline">Online Gamer®</div>
+    <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
 
     <!-- Navigation Header -->
     <nav>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="faq.html">FAQ</a>
-      <a href="terms.html">Terms</a>
-      <a href="profile.html" class="auth-only">Profile</a>
-      <a href="withdraw.html" class="auth-only">Withdraw</a>
-      <a href="login.html" class="guest-only">Login</a>
-      <a href="register.html" class="guest-only">Register</a>
+      <a href="index.html" class="active"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+      <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
+      <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <!-- Detailed Section (Hidden upon clicking Play Now) -->
+    <!-- Hero Section (Hidden upon clicking Play Now) -->
     <div id="hero-section">
       <h1>Ready to Play & Earn?</h1>
       <p>Welcome to Online Gamer®. Enjoy our curated retro gaming arcade, track your live gameplay stats, and earn rewards as you climb the leaderboards.</p>
-      <button id="playNowBtn" class="play-btn">Play Now</button>
+      <button id="playNowBtn" class="play-btn"><i class="fa-solid fa-play"></i> Play Now</button>
     </div>
 
     <!-- Games Container (Visible after clicking Play Now) -->
     <div id="games-container">
       <div class="list">
-        <a href="hextris-lite/"><div class="game"><img src="_logo/hextris-lite.png" width="100" height="100" alt="Hextris"><br />Hextris<br /><small>hexagonal tetris</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="pond/"><div class="game"><img src="_logo/pond.png" width="100" height="100" alt="The Pond"><br />The Pond<br /><small>eat, swim, love</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="2048-lite/"><div class="game"><img src="_logo/2048-lite.png" width="100" height="100" alt="2048"><br />2048<br /><small>2, 4, 8, swipe</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="taptaptap/play/"><div class="game"><img src="_logo/taptaptap.png" width="100" height="100" alt="Tap Tap Tap"><br />Tap Tap Tap<br /><small>tap the blue</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="particle-clicker/"><div class="game"><img src="_logo/particle-clicker.png" width="100" height="100" alt="Particle Clicker"><br />Particle Clicker<br /><small>be like CERN</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="tower/"><div class="game"><img src="_logo/tower.png" width="100" height="100" alt="Tower"><br />Tower<br /><small>build up</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="clumsy-bird/"><div class="game"><img src="_logo/clumsy-bird.png" width="100" height="100" alt="Clumsy Bird"><br />Clumsy Bird<br /><small>happy happy</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="hyperspace-garbage-collection/"><div class="game"><img src="_logo/hyperspace-garbage-collection.png" width="100" height="100" alt="Hyperspace G"><br />Hyperspace G<br /><small>collect garbage</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="pacman-lite/"><div class="game"><img src="_logo/pacman-lite.png" width="100" height="100" alt="pacman"><br />pacman<br /><small>another pacman</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="snakisms/"><div class="game"><img src="_logo/snakisms.png" width="100" height="100" alt="Snakisms"><br />Snakisms<br /><small>philosophy snake</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="EightQueens/"><div class="game"><img src="_logo/EightQueens.png" width="100" height="100" alt="Eight Queens"><br />Eight Queens<br /><small>chess puzzle</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="chess/"><div class="game"><img src="_logo/chess.png" width="100" height="100" alt="Chess"><br />Chess<br /><small>e2 to e4</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="missile-game/"><div class="game"><img src="_logo/missile-game.png" width="100" height="100" alt="Missile Game"><br />Missile Game<br /><small>fly thru it</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="ns-shaft/"><div class="game"><img src="_logo/ns-shaft.png" width="100" height="100" alt="NS-Shaft"><br />NS-Shaft<br /><small>fall safely</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="colorful-life/"><div class="game"><img src="_logo/colorful-life.png" width="100" height="100" alt="Colorful Life"><br />Colorful Life<br /><small>life with color</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="life/"><div class="game"><img src="_logo/life.png" width="100" height="100" alt="Life"><br />Life<br /><small>conway's game</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="javascript-piano/"><div class="game"><img src="_logo/javascript-piano.png" width="100" height="100" alt="Piano J"><br />Piano J<br /><small>synthy javascript</small><div class="platform">&#9000; &#128241;</div></div></a>
-        <a href="virtual-piano/"><div class="game"><img src="_logo/virtual-piano.png" width="100" height="100" alt="Piano V"><br />Piano V<br /><small>virtually classic</small><div class="platform">&#9000; &#128241;</div></div></a>
+        <a href="hextris-lite/"><div class="game"><img src="_logo/hextris-lite.png" width="100" height="100" alt="Hextris"><br />Hextris<br /><small>hexagonal tetris</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="pond/"><div class="game"><img src="_logo/pond.png" width="100" height="100" alt="The Pond"><br />The Pond<br /><small>eat, swim, love</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="2048-lite/"><div class="game"><img src="_logo/2048-lite.png" width="100" height="100" alt="2048"><br />2048<br /><small>2, 4, 8, swipe</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="taptaptap/play/"><div class="game"><img src="_logo/taptaptap.png" width="100" height="100" alt="Tap Tap Tap"><br />Tap Tap Tap<br /><small>tap the blue</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="particle-clicker/"><div class="game"><img src="_logo/particle-clicker.png" width="100" height="100" alt="Particle Clicker"><br />Particle Clicker<br /><small>be like CERN</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="tower/"><div class="game"><img src="_logo/tower.png" width="100" height="100" alt="Tower"><br />Tower<br /><small>build up</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="clumsy-bird/"><div class="game"><img src="_logo/clumsy-bird.png" width="100" height="100" alt="Clumsy Bird"><br />Clumsy Bird<br /><small>happy happy</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="hyperspace-garbage-collection/"><div class="game"><img src="_logo/hyperspace-garbage-collection.png" width="100" height="100" alt="Hyperspace G"><br />Hyperspace G<br /><small>collect garbage</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="pacman-lite/"><div class="game"><img src="_logo/pacman-lite.png" width="100" height="100" alt="pacman"><br />pacman<br /><small>another pacman</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="snakisms/"><div class="game"><img src="_logo/snakisms.png" width="100" height="100" alt="Snakisms"><br />Snakisms<br /><small>philosophy snake</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="EightQueens/"><div class="game"><img src="_logo/EightQueens.png" width="100" height="100" alt="Eight Queens"><br />Eight Queens<br /><small>chess puzzle</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="chess/"><div class="game"><img src="_logo/chess.png" width="100" height="100" alt="Chess"><br />Chess<br /><small>e2 to e4</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="missile-game/"><div class="game"><img src="_logo/missile-game.png" width="100" height="100" alt="Missile Game"><br />Missile Game<br /><small>fly thru it</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="ns-shaft/"><div class="game"><img src="_logo/ns-shaft.png" width="100" height="100" alt="NS-Shaft"><br />NS-Shaft<br /><small>fall safely</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="colorful-life/"><div class="game"><img src="_logo/colorful-life.png" width="100" height="100" alt="Colorful Life"><br />Colorful Life<br /><small>life with color</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="life/"><div class="game"><img src="_logo/life.png" width="100" height="100" alt="Life"><br />Life<br /><small>conway's game</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="javascript-piano/"><div class="game"><img src="_logo/javascript-piano.png" width="100" height="100" alt="Piano J"><br />Piano J<br /><small>synthy javascript</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="virtual-piano/"><div class="game"><img src="_logo/virtual-piano.png" width="100" height="100" alt="Piano V"><br />Piano V<br /><small>virtually classic</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
       </div>
     </div>
   </div>
@@ -248,7 +266,7 @@ footer a:hover { color: greenyellow; background: transparent; }
   <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:37:53 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:01:04 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
