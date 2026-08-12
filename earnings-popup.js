@@ -141,7 +141,7 @@ minBtn.addEventListener('click', (e) => {
 
 exitBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  window.location.href = 'index.html';
+  window.location.href = '../index.html';
 });
 
 // Drag and Drop Logic (Mouse & Touch support)
