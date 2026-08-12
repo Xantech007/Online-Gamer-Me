@@ -10,61 +10,115 @@ body { font-family: sans-serif; margin: 0; background: linear-gradient(27deg, #1
 a, a:visited { color: darkblue; text-decoration: none; }
 a:hover { background-color: greenyellow; color: black; }
 img { border: 1px solid darkgrey; }
-.headline { background-color: rgba(0, 0, 0, 0.60); color: honeydew; font-size: 120%; font-weight: bold; margin: 0; text-align: center; }
-.list { display: flex; flex-wrap: wrap; justify-content: center; margin: 0; }
+.headline { background-color: rgba(0, 0, 0, 0.80); color: honeydew; font-size: 140%; font-weight: bold; padding: 10px 0; text-align: center; border-bottom: 2px solid #333; }
+
+/* Navigation Styling */
+nav { background-color: rgba(0, 0, 0, 0.90); display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; padding: 10px; border-bottom: 1px solid #333; }
+nav a { color: greenyellow; padding: 6px 12px; font-weight: bold; font-size: 14px; border: 1px solid #333; background: #1a1a1a; transition: 0.2s; }
+nav a:hover { background-color: greenyellow; color: black; border-color: black; }
+
+/* Hero / Play Section */
+.hero { text-align: center; padding: 40px 20px; color: white; background-color: rgba(0, 0, 0, 0.40); }
+.hero h1 { margin: 0 0 10px 0; font-size: 200%; color: honeydew; }
+.hero p { color: #ccc; font-size: 110%; margin-bottom: 25px; }
+.play-btn { background-color: greenyellow; color: black; font-weight: bold; font-size: 18px; padding: 15px 35px; border: 2px solid black; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #000; transition: transform 0.1s; }
+.play-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #000; }
+
+/* Games list initial state */
+.list { display: flex; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
 .game { background-color: white; border: 1px solid black; margin: 5px; padding: 10px 5px 0 5px; text-align: center; width: 118px;}
 .game:hover{ background-color: greenyellow; }
 .platform { background-color: transparent; color: grey; font-size: small; padding: 2px; text-align: right; }
-footer { background-color: rgba(0, 0, 0, 0.70); color: slategrey; font-family: monospace; font-size: small; font-style: italic; padding: 20px; }
+
+footer { background-color: rgba(0, 0, 0, 0.70); color: slategrey; font-family: monospace; font-size: small; font-style: italic; padding: 20px; text-align: center; margin-top: 30px; }
 footer a, footer a:visited { color: lightblue; }
 footer a:hover { background-color: darkblue; }
 
-/* Hide page content until auth status is verified */
+/* Hide page content until auth check complete, hide games until Play Now clicked */
 #app-content { display: none; }
+#games-container { display: none; }
 </style>
 </head>
 <body>
 
 <div id="app-content">
   <div class="headline">Online Gamer®</div>
-  <div class="list">
-    <a href="hextris-lite/"><div class="game"><img src="_logo/hextris-lite.png" width="100" height="100" alt="Hextris"><br />Hextris<br /><small>hexagonal tetris</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="pond/"><div class="game"><img src="_logo/pond.png" width="100" height="100" alt="The Pond"><br />The Pond<br /><small>eat, swim, love</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="2048-lite/"><div class="game"><img src="_logo/2048-lite.png" width="100" height="100" alt="2048"><br />2048<br /><small>2, 4, 8, swipe</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="taptaptap/play/"><div class="game"><img src="_logo/taptaptap.png" width="100" height="100" alt="Tap Tap Tap"><br />Tap Tap Tap<br /><small>tap the blue</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="particle-clicker/"><div class="game"><img src="_logo/particle-clicker.png" width="100" height="100" alt="Particle Clicker"><br />Particle Clicker<br /><small>be like CERN</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="tower/"><div class="game"><img src="_logo/tower.png" width="100" height="100" alt="Tower"><br />Tower<br /><small>build up</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="clumsy-bird/"><div class="game"><img src="_logo/clumsy-bird.png" width="100" height="100" alt="Clumsy Bird"><br />Clumsy Bird<br /><small>happy happy</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="hyperspace-garbage-collection/"><div class="game"><img src="_logo/hyperspace-garbage-collection.png" width="100" height="100" alt="Hyperspace G"><br />Hyperspace G<br /><small>collect garbage</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="pacman-lite/"><div class="game"><img src="_logo/pacman-lite.png" width="100" height="100" alt="pacman"><br />pacman<br /><small>another pacman</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="snakisms/"><div class="game"><img src="_logo/snakisms.png" width="100" height="100" alt="Snakisms"><br />Snakisms<br /><small>philosophy snake</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="EightQueens/"><div class="game"><img src="_logo/EightQueens.png" width="100" height="100" alt="Eight Queens"><br />Eight Queens<br /><small>chess puzzle</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="chess/"><div class="game"><img src="_logo/chess.png" width="100" height="100" alt="Chess"><br />Chess<br /><small>e2 to e4</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="missile-game/"><div class="game"><img src="_logo/missile-game.png" width="100" height="100" alt="Missile Game"><br />Missile Game<br /><small>fly thru it</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="ns-shaft/"><div class="game"><img src="_logo/ns-shaft.png" width="100" height="100" alt="NS-Shaft"><br />NS-Shaft<br /><small>fall safely</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="colorful-life/"><div class="game"><img src="_logo/colorful-life.png" width="100" height="100" alt="Colorful Life"><br />Colorful Life<br /><small>life with color</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="life/"><div class="game"><img src="_logo/life.png" width="100" height="100" alt="Life"><br />Life<br /><small>conway's game</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="javascript-piano/"><div class="game"><img src="_logo/javascript-piano.png" width="100" height="100" alt="Piano J"><br />Piano J<br /><small>synthy javascript</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
-    <a href="virtual-piano/"><div class="game"><img src="_logo/virtual-piano.png" width="100" height="100" alt="Piano V"><br />Piano V<br /><small>virtually classic</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+
+  <!-- Navigation Bar -->
+  <nav id="nav-bar">
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="faq.html">FAQ</a>
+    <a href="terms.html">Terms</a>
+    <a href="profile.html" class="auth-only">Profile</a>
+    <a href="withdraw.html" class="auth-only">Withdraw</a>
+    <a href="login.html" class="guest-only">Login</a>
+    <a href="register.html" class="guest-only">Register</a>
+  </nav>
+
+  <!-- Hero Banner with Play Now trigger -->
+  <div class="hero">
+    <h1>Ready to Play & Earn?</h1>
+    <p>Choose from our library of retro games and start accumulating rewards directly to your wallet.</p>
+    <button id="playNowBtn" class="play-btn">Play Now</button>
   </div>
+
+  <!-- Games Container (Hidden by default) -->
+  <div id="games-container">
+    <div class="list">
+      <a href="hextris-lite/"><div class="game"><img src="_logo/hextris-lite.png" width="100" height="100" alt="Hextris"><br />Hextris<br /><small>hexagonal tetris</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="pond/"><div class="game"><img src="_logo/pond.png" width="100" height="100" alt="The Pond"><br />The Pond<br /><small>eat, swim, love</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="2048-lite/"><div class="game"><img src="_logo/2048-lite.png" width="100" height="100" alt="2048"><br />2048<br /><small>2, 4, 8, swipe</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="taptaptap/play/"><div class="game"><img src="_logo/taptaptap.png" width="100" height="100" alt="Tap Tap Tap"><br />Tap Tap Tap<br /><small>tap the blue</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="particle-clicker/"><div class="game"><img src="_logo/particle-clicker.png" width="100" height="100" alt="Particle Clicker"><br />Particle Clicker<br /><small>be like CERN</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="tower/"><div class="game"><img src="_logo/tower.png" width="100" height="100" alt="Tower"><br />Tower<br /><small>build up</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="clumsy-bird/"><div class="game"><img src="_logo/clumsy-bird.png" width="100" height="100" alt="Clumsy Bird"><br />Clumsy Bird<br /><small>happy happy</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="hyperspace-garbage-collection/"><div class="game"><img src="_logo/hyperspace-garbage-collection.png" width="100" height="100" alt="Hyperspace G"><br />Hyperspace G<br /><small>collect garbage</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="pacman-lite/"><div class="game"><img src="_logo/pacman-lite.png" width="100" height="100" alt="pacman"><br />pacman<br /><small>another pacman</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="snakisms/"><div class="game"><img src="_logo/snakisms.png" width="100" height="100" alt="Snakisms"><br />Snakisms<br /><small>philosophy snake</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="EightQueens/"><div class="game"><img src="_logo/EightQueens.png" width="100" height="100" alt="Eight Queens"><br />Eight Queens<br /><small>chess puzzle</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="chess/"><div class="game"><img src="_logo/chess.png" width="100" height="100" alt="Chess"><br />Chess<br /><small>e2 to e4</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="missile-game/"><div class="game"><img src="_logo/missile-game.png" width="100" height="100" alt="Missile Game"><br />Missile Game<br /><small>fly thru it</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="ns-shaft/"><div class="game"><img src="_logo/ns-shaft.png" width="100" height="100" alt="NS-Shaft"><br />NS-Shaft<br /><small>fall safely</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="colorful-life/"><div class="game"><img src="_logo/colorful-life.png" width="100" height="100" alt="Colorful Life"><br />Colorful Life<br /><small>life with color</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="life/"><div class="game"><img src="_logo/life.png" width="100" height="100" alt="Life"><br />Life<br /><small>conway's game</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="javascript-piano/"><div class="game"><img src="_logo/javascript-piano.png" width="100" height="100" alt="Piano J"><br />Piano J<br /><small>synthy javascript</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+      <a href="virtual-piano/"><div class="game"><img src="_logo/virtual-piano.png" width="100" height="100" alt="Piano V"><br />Piano V<br /><small>virtually classic</small><br /><div class="platform">&#9000; &#128241;</div></div></a>
+    </div>
+  </div>
+
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-11 23:35:37 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:33:33 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
-<!-- Include your modular firebase connection file -->
+<!-- Firebase Auth & Interactivity Script -->
 <script type="module">
   import { auth } from './firebase.js';
   import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
+  const appContent = document.getElementById('app-content');
+  const gamesContainer = document.getElementById('games-container');
+  const playNowBtn = document.getElementById('playNowBtn');
+
+  // Handle Play Now Click
+  playNowBtn.addEventListener('click', () => {
+    gamesContainer.style.display = 'block';
+    // Smooth scroll down to the games grid
+    gamesContainer.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Verify User Auth State
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // User is logged in, make games visible
-      document.getElementById('app-content').style.display = 'block';
+      // User is logged in: show content & adjust nav buttons
+      appContent.style.display = 'block';
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
     } else {
-      // User is not logged in, redirect to login page
+      // User is not logged in: redirect to login page
       window.location.href = 'login.html'; 
     }
   });
