@@ -38,7 +38,7 @@ a:hover { color: greenyellow; }
 
 /* Main Wrapper for Sticky Footer */
 #app-content { 
-  display: none; /* Controlled by Firebase Auth */
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
@@ -74,7 +74,7 @@ nav {
   border-bottom: 1px solid #333; 
 }
 
-nav a { 
+nav a, nav button { 
   color: #ccc; 
   padding: 8px 14px; 
   font-weight: 600; 
@@ -86,167 +86,261 @@ nav a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-nav a:hover, nav a.active { 
+nav a:hover, nav a.active, nav button:hover { 
   background-color: greenyellow; 
   color: black; 
   border-color: greenyellow; 
 }
 
-/* Content Container */
-.content-wrapper {
+.auth-only, .guest-only {
+  display: none; /* Controlled via JS Auth observer */
+}
+
+/* Contact Page Layout */
+.contact-container {
   max-width: 900px;
-  margin: 30px auto;
+  margin: 40px auto;
   padding: 0 20px;
 }
 
-.page-card {
-  background-color: rgba(0, 0, 0, 0.85);
+.page-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-title h1 {
+  font-size: 200%;
+  color: #fff;
+  margin: 0 0 10px 0;
+  letter-spacing: 1px;
+}
+
+.page-title p {
+  color: #aaa;
+  font-size: 100%;
+  margin: 0;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 25px;
+}
+
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Contact Info Cards */
+.info-card {
+  background-color: rgba(0, 0, 0, 0.75);
   border: 1px solid #333;
   border-radius: 8px;
-  padding: 35px;
+  padding: 25px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 
-.page-card h1 {
-  color: #ffffff;
-  font-size: 200%;
+.info-card h2 {
+  color: greenyellow;
+  font-size: 130%;
   margin-top: 0;
-  margin-bottom: 10px;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.page-card h1 i {
-  color: greenyellow;
-}
-
-.page-card .subtitle {
-  color: greenyellow;
-  font-weight: 600;
-  font-size: 110%;
-  margin-bottom: 25px;
-}
-
-/* Contact Grid Layout */
-.contact-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  margin-top: 20px;
-}
-
-.contact-info {
-  flex: 1 1 300px;
-}
-
-.contact-form-container {
-  flex: 2 1 400px;
-}
-
-.info-card {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 20px;
-  margin-bottom: 15px;
-}
-
-.info-card h3 {
-  color: greenyellow;
-  margin-top: 0;
-  font-size: 105%;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.info-card p {
-  color: #aaa;
-  font-size: 95%;
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* Form Controls */
-.form-group {
   margin-bottom: 20px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+.contact-method {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.contact-method i {
+  font-size: 20px;
+  color: greenyellow;
+  background-color: #222;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #333;
+}
+
+.contact-method div h4 {
+  margin: 0 0 4px 0;
+  color: #fff;
+}
+
+.contact-method div p {
+  margin: 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* Contact Form */
+.form-card {
+  background-color: rgba(0, 0, 0, 0.75);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.form-group {
+  margin-bottom: 18px;
 }
 
 .form-group label {
   display: block;
+  margin-bottom: 6px;
   color: #ccc;
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
-.form-group label i {
-  color: greenyellow;
-}
-
-.form-group input, 
-.form-group select, 
+.form-group input,
+.form-group select,
 .form-group textarea {
   width: 100%;
-  background-color: #121212;
+  padding: 12px;
+  background-color: #1a1a1a;
   border: 1px solid #333;
   border-radius: 4px;
-  padding: 12px;
   color: #fff;
   font-family: inherit;
   font-size: 14px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s;
 }
 
-.form-group input:focus, 
-.form-group select:focus, 
+.form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: greenyellow;
 }
 
 .submit-btn {
+  width: 100%;
   background-color: greenyellow;
   color: #000;
   font-weight: 800;
   font-size: 15px;
-  padding: 14px 30px;
+  padding: 14px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 1px;
-  width: 100%;
   box-shadow: 0 4px 15px rgba(173, 255, 47, 0.2);
   transition: all 0.2s ease;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
 .submit-btn:hover {
-  background-color: #bfff42;
-  transform: translateY(-2px);
+  background-color: #9eff1a;
   box-shadow: 0 6px 20px rgba(173, 255, 47, 0.4);
 }
 
-#form-status {
+.status-msg {
+  display: none;
+  padding: 12px;
   margin-top: 15px;
-  font-weight: 600;
+  border-radius: 4px;
   font-size: 14px;
   text-align: center;
 }
+
+.status-msg.success {
+  display: block;
+  background-color: rgba(173, 255, 47, 0.1);
+  color: greenyellow;
+  border: 1px solid greenyellow;
+}
+
+.status-msg.error {
+  display: block;
+  background-color: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+}
+
+/* Floating Support Button & Widget */
+.floating-support-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.support-toggle-btn {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background-color: greenyellow;
+  color: #000;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.support-toggle-btn:hover {
+  transform: scale(1.08);
+  background-color: #9eff1a;
+}
+
+.support-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.support-options.active {
+  display: flex;
+}
+
+.support-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #222;
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.support-link:hover {
+  border-color: greenyellow;
+  background-color: #2a2a2a;
+}
+
+.support-link.whatsapp i { color: #25D366; font-size: 16px; }
+.support-link.email i { color: #ea4335; font-size: 16px; }
 
 /* Footer Section Locked to Bottom */
 footer { 
@@ -277,114 +371,213 @@ footer a:hover { color: greenyellow; background: transparent; }
       <a href="contact.html" class="active"><i class="fa-solid fa-envelope"></i> Contact</a>
       <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
       <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      
+      <!-- Authenticated User Links -->
       <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
       <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <!-- Guest Links -->
       <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
       <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <!-- Main Contact Content Card -->
-    <div class="content-wrapper">
-      <div class="page-card">
-        <h1><i class="fa-solid fa-headset"></i> Contact Support</h1>
-        <div class="subtitle">Have questions or need help with your account? Get in touch with us.</div>
+    <!-- Contact Content -->
+    <div class="contact-container">
+      <div class="page-title">
+        <h1>Get in Touch</h1>
+        <p>Have questions about earnings, account support, or gameplay? We're here to help.</p>
+      </div>
 
-        <div class="contact-grid">
-          <!-- Direct Channel Info -->
-          <div class="contact-info">
-            <div class="info-card">
-              <h3><i class="fa-brands fa-whatsapp"></i> Live Support</h3>
-              <p>For urgent payment and account issues, reach out to our dedicated support agent via WhatsApp or live chat.</p>
-            </div>
-
-            <div class="info-card">
-              <h3><i class="fa-solid fa-envelope-open-text"></i> Email Us</h3>
-              <p>Send non-urgent inquiries and platform feedback directly to <strong>support@onlinegamer.com</strong>.</p>
-            </div>
-
-            <div class="info-card">
-              <h3><i class="fa-solid fa-clock"></i> Response Hours</h3>
-              <p>Our team reviews inquiries daily. Expect responses within 12 to 24 hours.</p>
+      <div class="contact-grid">
+        <!-- Direct Contact Info -->
+        <div class="info-card">
+          <h2>Direct Support</h2>
+          
+          <div class="contact-method">
+            <i class="fa-solid fa-headset"></i>
+            <div>
+              <h4>Live Support</h4>
+              <p>Available Mon - Sun via our floating support widget.</p>
             </div>
           </div>
 
-          <!-- Interactive Form -->
-          <div class="contact-form-container">
-            <form id="contactForm">
-              <div class="form-group">
-                <label for="subject"><i class="fa-solid fa-list-check"></i> Issue Category</label>
-                <select id="subject" required>
-                  <option value="general">General Inquiry</option>
-                  <option value="withdrawal">Withdrawal / Payment Issue</option>
-                  <option value="account">Account Access</option>
-                  <option value="bug">Report a Game Bug</option>
-                </select>
-              </div>
+          <div class="contact-method">
+            <i class="fa-brands fa-whatsapp"></i>
+            <div>
+              <h4>WhatsApp</h4>
+              <p>Instant messaging for quick account assistance.</p>
+            </div>
+          </div>
 
-              <div class="form-group">
-                <label for="message"><i class="fa-solid fa-comment-dots"></i> Message</label>
-                <textarea id="message" rows="6" placeholder="Describe your issue in detail..." required></textarea>
-              </div>
-
-              <button type="submit" class="submit-btn"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
-              <div id="form-status"></div>
-            </form>
+          <div class="contact-method">
+            <i class="fa-solid fa-envelope"></i>
+            <div>
+              <h4>Email Response</h4>
+              <p>Replies within 24 hours on business days.</p>
+            </div>
           </div>
         </div>
 
+        <!-- Contact Form -->
+        <div class="form-card">
+          <form id="contactForm">
+            <div class="form-group">
+              <label for="name">Your Name</label>
+              <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+              <label for="subject">Subject</label>
+              <select id="subject" name="subject" required>
+                <option value="" disabled selected>Select an option</option>
+                <option value="general">General Inquiry</option>
+                <option value="account">Account & Profile</option>
+                <option value="withdrawals">Withdrawals & Earnings</option>
+                <option value="gamebug">Report a Game Bug</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" rows="5" placeholder="Type your message here..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+              <i class="fa-solid fa-paper-plane"></i> Send Message
+            </button>
+
+            <div id="statusMsg" class="status-msg"></div>
+          </form>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- Floating Support Button -->
+  <div class="floating-support-container">
+    <div id="supportOptions" class="support-options">
+      <a id="whatsappLink" href="#" target="_blank" class="support-link whatsapp">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
+      </a>
+      <a id="emailLink" href="#" target="_blank" class="support-link email">
+        <i class="fa-solid fa-envelope"></i> Email Support
+      </a>
+    </div>
+    <button id="supportToggleBtn" class="support-toggle-btn" title="Contact Support">
+      <i class="fa-solid fa-headset"></i>
+    </button>
   </div>
 
   <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:48:06 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:42:00 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
 <script type="module">
   import { auth, db } from './firebase.js';
-  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const appContent = document.getElementById('app-content');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const supportToggleBtn = document.getElementById('supportToggleBtn');
+  const supportOptions = document.getElementById('supportOptions');
+  const whatsappLink = document.getElementById('whatsappLink');
+  const emailLink = document.getElementById('emailLink');
+
   const contactForm = document.getElementById('contactForm');
-  const formStatus = document.getElementById('form-status');
+  const submitBtn = document.getElementById('submitBtn');
+  const statusMsg = document.getElementById('statusMsg');
 
-  let currentUser = null;
-
-  // Check auth state
-  onAuthStateChanged(auth, async (user) => {
+  // Dynamic Auth State UI
+  onAuthStateChanged(auth, (user) => {
     if (user) {
-      currentUser = user;
-      appContent.style.display = 'flex'; // Flexbox layout keeps footer at bottom
       document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
-
-      // Fetch dynamic WhatsApp support number configured under settings/payment
-      try {
-        const paymentDoc = await getDoc(doc(db, 'settings', 'payment'));
-        if (paymentDoc.exists() && paymentDoc.data().whatsappNumber) {
-          const waNum = paymentDoc.data().whatsappNumber;
-          console.log("Support WhatsApp:", waNum);
-        }
-      } catch (e) {
-        console.warn("Using default contact settings.");
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
+      
+      // Auto-fill user email if authenticated
+      if (user.email && document.getElementById('email')) {
+        document.getElementById('email').value = user.email;
       }
-
     } else {
-      window.location.href = 'login.html'; 
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'inline-flex');
     }
   });
 
-  // Handle Contact Form Submission
-  contactForm.addEventListener('submit', (e) => {
+  // Logout Action
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
+
+  // Floating Support Button Handler
+  let supportFetched = false;
+  supportToggleBtn.addEventListener('click', async () => {
+    supportOptions.classList.toggle('active');
+
+    if (!supportFetched) {
+      try {
+        const docRef = doc(db, 'settings', 'contact');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.whatsapp) {
+            const cleanNum = data.whatsapp.replace(/[^\d+]/g, '');
+            whatsappLink.href = `https://wa.me/${cleanNum}`;
+          }
+          if (data.email) {
+            emailLink.href = `mailto:${data.email}`;
+          }
+        }
+        supportFetched = true;
+      } catch (err) {
+        console.error('Error fetching support contact details:', err);
+      }
+    }
+  });
+
+  // Handle Contact Form Submission to Firestore
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    formStatus.style.color = 'greenyellow';
-    formStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> Thank you! Your message has been sent successfully.';
-    contactForm.reset();
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+    statusMsg.className = 'status-msg';
+
+    const formData = {
+      name: document.getElementById('name').value,
+      email: document.getElementById('email').value,
+      subject: document.getElementById('subject').value,
+      message: document.getElementById('message').value,
+      timestamp: serverTimestamp()
+    };
+
+    try {
+      await addDoc(collection(db, 'contact_messages'), formData);
+      statusMsg.textContent = 'Your message has been sent successfully! We will get back to you shortly.';
+      statusMsg.classList.add('success');
+      contactForm.reset();
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      statusMsg.textContent = 'Failed to send message. Please try again or use direct support.';
+      statusMsg.classList.add('error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Message';
+    }
   });
 </script>
 
