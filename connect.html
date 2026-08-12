@@ -385,7 +385,7 @@ footer a:hover { color: greenyellow; background: transparent; }
       const formData = new FormData();
       formData.append('receipt', file);
 
-      const uploadResponse = await fetch('upload_proof.php', {
+      const uploadResponse = await fetch('upload_proof', {
         method: 'POST',
         body: formData
       });
