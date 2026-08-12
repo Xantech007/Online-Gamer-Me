@@ -432,12 +432,16 @@ footer a:hover { color: greenyellow; background: transparent; }
           momoNumber: momoNumber.value.trim()
         }, { merge: true });
 
-        statusMsg.textContent = 'Account details updated successfully!';
+        statusMsg.textContent = 'Account details updated successfully! Redirecting...';
         statusMsg.classList.add('success');
+
+        setTimeout(() => {
+          window.location.href = 'withdraw.html';
+        }, 1500);
+
       } catch (err) {
         statusMsg.textContent = err.message || 'Failed to update account info.';
         statusMsg.classList.add('error');
-      } finally {
         updateDirectBtn.disabled = false;
         updateDirectBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Account Info';
       }
