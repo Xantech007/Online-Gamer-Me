@@ -10,6 +10,19 @@ let initialBalance = 0;
 let timerInterval = null;
 let userDocRef = null;
 
+// Helper function to format time in secs, mins, or hrs
+function formatTimeString(totalSeconds) {
+  if (totalSeconds < 60) {
+    return `${totalSeconds} secs`;
+  }
+  const minutes = Math.floor(totalSeconds / 60);
+  if (minutes < 60) {
+    return `${minutes} mins`;
+  }
+  const hours = (totalSeconds / 3600).toFixed(1);
+  return `${hours} hrs`;
+}
+
 // Inject CSS styles for floating widget
 const style = document.createElement('style');
 style.innerHTML = `
@@ -26,7 +39,7 @@ style.innerHTML = `
     font-size: 13px;
     z-index: 999999;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    min-width: 160px;
+    min-width: 175px;
     user-select: none;
   }
   #earnings-widget .title {
@@ -58,8 +71,8 @@ const widget = document.createElement('div');
 widget.id = 'earnings-widget';
 widget.innerHTML = `
   <div class="title">Live Earnings</div>
-  <div class="stat"><span>Time:</span> <span id="ew-time" class="value">00:00</span></div>
-  <div class="stat"><span>Earned:</span> <span id="ew-earned" class="value earned">0.0000</span></div>
+  <div class="stat"><span>Time:</span> <span id="ew-time" class="value">0 secs</span></div>
+  <div class="stat"><span>Earned:</span> <span id="ew-earned" class="value earned">GHS 0.0000</span></div>
   <div class="stat"><span>Balance:</span> <span id="ew-balance" class="value balance">Loading...</span></div>
 `;
 document.body.appendChild(widget);
@@ -129,11 +142,11 @@ onAuthStateChanged(auth, async (user) => {
         initialBalance = dbBalance;
         isFirstLoad = false;
       }
-      document.getElementById('ew-balance').textContent = (initialBalance + sessionEarnings).toFixed(4);
+      document.getElementById('ew-balance').textContent = `GHS ${(initialBalance + sessionEarnings).toFixed(4)}`;
     } else {
-      setDoc(userDocRef, { balance: 0 }, { merge: true });
+      setDoc(userDocRef, { balance: 0, gameTime: 0 }, { merge: true });
       initialBalance = 0;
-      document.getElementById('ew-balance').textContent = '0.0000';
+      document.getElementById('ew-balance').textContent = 'GHS 0.0000';
     }
   });
 
@@ -155,18 +168,15 @@ function startEarningTimer() {
     localStorage.setItem('sessionEarnings', sessionEarnings.toFixed(4));
 
     // Format & Update UI Elements
-    const mins = String(Math.floor(secondsPlayed / 60)).padStart(2, '0');
-    const secs = String(secondsPlayed % 60).padStart(2, '0');
-
-    document.getElementById('ew-time').textContent = `${mins}:${secs}`;
-    document.getElementById('ew-earned').textContent = sessionEarnings.toFixed(4);
-    document.getElementById('ew-balance').textContent = (initialBalance + sessionEarnings).toFixed(4);
+    document.getElementById('ew-time').textContent = formatTimeString(secondsPlayed);
+    document.getElementById('ew-earned').textContent = `GHS ${sessionEarnings.toFixed(4)}`;
+    document.getElementById('ew-balance').textContent = `GHS ${(initialBalance + sessionEarnings).toFixed(4)}`;
 
     // 2. UPDATE FIRESTORE (Every 10 seconds)
     if (rate > 0 && userDocRef && secondsPlayed % 10 === 0) {
       setDoc(userDocRef, {
         balance: increment(rate * 10),
-        timeSpent: increment(10)
+        gameTime: increment(10)
       }, { merge: true }).catch(err => console.error('Firestore sync error:', err));
     }
   }, 1000);
