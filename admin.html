@@ -302,21 +302,21 @@ footer {
 
             <div class="section-title">General Platform Settings</div>
             <div class="form-group">
-              <label for="gameRate">Game Rate (games/settings/rate)</label>
+              <label for="gameRate">Game Rate (games/settings/rate collection)</label>
               <input type="number" step="0.01" id="gameRate" required>
             </div>
             <div class="form-group">
-              <label for="minWithdraw">Minimum Withdrawal (settings/withdraw/minWithdraw)</label>
+              <label for="minWithdraw">Minimum Withdrawal (settings/withdraw/minWithdraw collection)</label>
               <input type="number" step="0.01" id="minWithdraw" required>
             </div>
 
             <div class="section-title">Contact Support Settings</div>
             <div class="form-group">
-              <label for="supportEmail">Support Email (settings/contact)</label>
+              <label for="supportEmail">Support Email (settings/contact collection)</label>
               <input type="email" id="supportEmail" required>
             </div>
             <div class="form-group">
-              <label for="supportWhatsapp">Support WhatsApp Number (settings/contact)</label>
+              <label for="supportWhatsapp">Support WhatsApp Number (settings/contact collection)</label>
               <input type="text" id="supportWhatsapp" required>
             </div>
 
@@ -337,7 +337,7 @@ footer {
 
 <script type="module">
   import { db } from './firebase.js';
-  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, increment, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const loader = document.getElementById('loader');
   const loginSection = document.getElementById('loginSection');
@@ -347,11 +347,9 @@ footer {
   const loginStatus = document.getElementById('loginStatus');
   const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-  // Cache user data map for fast lookup: { [userId]: { email, fullname, ... } }
   const usersCache = new Map();
   const PAGE_SIZE = 20;
 
-  // Pagination & Search States
   const tabState = {
     usersSection: { data: [], filtered: [], page: 1, search: '' },
     requestsSection: { data: [], filtered: [], page: 1, search: '' },
@@ -387,59 +385,19 @@ footer {
     loginSection.style.display = 'block';
   }
 
-  // Fetch and cache user profiles by reading users/{userId}/fullname dynamically
+  // Pre-fetch all user profiles into local cache to resolve email and fullname
   async function ensureUsersCached() {
     if (usersCache.size > 0) return;
     try {
       const snap = await getDocs(collection(db, 'users'));
-      for (const userDoc of snap.docs) {
-        const uData = userDoc.data();
-        const userId = userDoc.id;
-        
-        // Retrieve fullname directly from users/UID document reference
-        let fullName = uData.fullname;
-        if (!fullName) {
-          const directUserSnap = await getDoc(doc(db, 'users', userId));
-          if (directUserSnap.exists()) {
-            fullName = directUserSnap.data().fullname;
-          }
-        }
-
-        usersCache.set(userId, {
-          id: userId,
-          email: uData.email || 'N/A',
-          fullname: fullName || 'N/A',
-          momoName: uData.momoName || 'N/A',
-          momoNumber: uData.momoNumber || 'N/A',
-          momoProvider: uData.momoProvider || 'N/A',
-          balance: uData.balance || 0
-        });
-      }
+      snap.forEach(d => {
+        usersCache.set(d.id, { id: d.id, ...d.data() });
+      });
     } catch (e) {
       console.error("Error building user cache:", e);
     }
   }
 
-  // Fetch individual user fullname directly by UID if missed in initial cache
-  async function getUserFullName(userId) {
-    if (!userId) return 'N/A';
-    if (usersCache.has(userId)) {
-      return usersCache.get(userId).fullname || 'N/A';
-    }
-    try {
-      const userSnap = await getDoc(doc(db, 'users', userId));
-      if (userSnap.exists()) {
-        const uData = userSnap.data();
-        usersCache.set(userId, { id: userId, ...uData });
-        return uData.fullname || 'N/A';
-      }
-    } catch (err) {
-      console.error(`Error fetching fullname for ${userId}:`, err);
-    }
-    return 'N/A';
-  }
-
-  // Search input listeners setup
   function setupSearchListeners() {
     document.getElementById('usersSearch').addEventListener('input', (e) => {
       filterAndRender('usersSection', e.target.value);
@@ -492,7 +450,6 @@ footer {
     if (tabId === 'withdrawalsSection') renderWithdrawalsTable();
   }
 
-  // Admin Login Handler
   adminLoginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     loginStatus.className = 'status-msg';
@@ -532,7 +489,6 @@ footer {
     }
   });
 
-  // Logout Handler
   adminLogoutBtn.addEventListener('click', () => {
     localStorage.removeItem('adminLoggedIn');
     loadedTabs.clear();
@@ -540,7 +496,6 @@ footer {
     showLogin();
   });
 
-  // Navigation Tab Switcher
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -565,7 +520,6 @@ footer {
     loadedTabs.add(tabId);
   }
 
-  // Helper to resolve user fields safely
   function getUserInfo(userId) {
     const user = usersCache.get(userId) || {};
     return {
@@ -578,10 +532,13 @@ footer {
   async function loadUsers() {
     const tbody = document.getElementById('usersTableBody');
     try {
+      const snap = await getDocs(collection(db, 'users'));
       const list = [];
-      for (const [userId, d] of usersCache.entries()) {
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        usersCache.set(docSnap.id, { id: docSnap.id, ...d });
         list.push({
-          id: userId,
+          id: docSnap.id,
           email: d.email || 'N/A',
           name: d.fullname || 'N/A',
           momoName: d.momoName || 'N/A',
@@ -589,7 +546,7 @@ footer {
           momoProvider: d.momoProvider || 'N/A',
           balance: d.balance || 0
         });
-      }
+      });
       
       tabState.usersSection.data = list;
       filterAndRender('usersSection', tabState.usersSection.search);
@@ -628,16 +585,14 @@ footer {
     try {
       const snap = await getDocs(collection(db, 'connectionRequests'));
       const list = [];
-      for (const docSnap of snap.docs) {
+      snap.forEach(docSnap => {
         const d = docSnap.data();
-        const userFullName = await getUserFullName(d.userId);
         const userInfo = getUserInfo(d.userId);
-        
         list.push({
           id: docSnap.id,
           userId: d.userId,
           email: userInfo.email,
-          name: userFullName !== 'N/A' ? userFullName : userInfo.name,
+          name: userInfo.name,
           accountDetails: `${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})`,
           receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
           status: d.status || 'pending',
@@ -645,7 +600,7 @@ footer {
           momoNumber: d.momoNumber || '',
           momoProvider: d.momoProvider || ''
         });
-      }
+      });
 
       tabState.requestsSection.data = list;
       filterAndRender('requestsSection', tabState.requestsSection.search);
@@ -696,22 +651,20 @@ footer {
     try {
       const snap = await getDocs(collection(db, 'withdrawals'));
       const list = [];
-      for (const docSnap of snap.docs) {
+      snap.forEach(docSnap => {
         const d = docSnap.data();
-        const userFullName = await getUserFullName(d.userId);
         const userInfo = getUserInfo(d.userId);
-
         list.push({
           id: docSnap.id,
           userId: d.userId,
           email: userInfo.email,
-          name: userFullName !== 'N/A' ? userFullName : userInfo.name,
+          name: userInfo.name,
           amount: d.amount || 0,
           destination: d.accountNumber || 'N/A',
           receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
           status: d.status || 'pending'
         });
-      }
+      });
 
       tabState.withdrawalsSection.data = list;
       filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
@@ -757,10 +710,15 @@ footer {
     renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
   }
 
-  // 4. Load Settings (Connection, Rate, Contact & MinWithdraw)
+  // Helper variables to track active document IDs within collections
+  let currentRateDocId = null;
+  let currentContactDocId = null;
+  let currentMinWithdrawDocId = null;
+
+  // 4. Load Settings (Collection-Based Fetching)
   async function loadSettings() {
     try {
-      // 1. Connection Settings
+      // 1. Connection Settings (2 path segments -> Document)
       const connSnap = await getDoc(doc(db, 'settings', 'connection'));
       if (connSnap.exists()) {
         const d = connSnap.data();
@@ -770,30 +728,37 @@ footer {
         document.getElementById('payNumber').value = d.accountNumber || '';
       }
 
-      // 2. Game Rate (stored under top-level collection games/settings/rate)
-      const rateSnap = await getDoc(doc(db, 'games', 'settings', 'rate'));
-      if (rateSnap.exists()) {
-        document.getElementById('gameRate').value = rateSnap.data().rate || rateSnap.data().value || 0;
+      // 2. Game Rate (3 path segments -> Collection: games/settings/rate)
+      const rateSnap = await getDocs(collection(db, 'games', 'settings', 'rate'));
+      if (!rateSnap.empty) {
+        const firstDoc = rateSnap.docs[0];
+        currentRateDocId = firstDoc.id;
+        const data = firstDoc.data();
+        document.getElementById('gameRate').value = data.rate !== undefined ? data.rate : (data.value || 0);
       }
 
-      // 3. Contact Support (stored under settings/contact/ collection)
-      const contactSnap = await getDoc(doc(db, 'settings', 'contact'));
-      if (contactSnap.exists()) {
-        const c = contactSnap.data();
-        document.getElementById('supportEmail').value = c.email || '';
-        document.getElementById('supportWhatsapp').value = c.whatsapp || '';
+      // 3. Contact Support (3 path segments -> Collection: settings/contact/)
+      const contactSnap = await getDocs(collection(db, 'settings', 'contact'));
+      if (!contactSnap.empty) {
+        const firstDoc = contactSnap.docs[0];
+        currentContactDocId = firstDoc.id;
+        const data = firstDoc.data();
+        document.getElementById('supportEmail').value = data.email || '';
+        document.getElementById('supportWhatsapp').value = data.whatsapp || '';
       }
 
-      // 4. Minimum Withdrawal (stored under settings/withdraw/minWithdraw collection)
-      const withdrawSnap = await getDoc(doc(db, 'settings', 'withdraw', 'minWithdraw'));
-      if (withdrawSnap.exists()) {
-        const w = withdrawSnap.data();
-        document.getElementById('minWithdraw').value = w.minWithdraw || w.amount || w.min || 0;
+      // 4. Min Withdrawal (3 path segments -> Collection: settings/withdraw/minWithdraw)
+      const withdrawSnap = await getDocs(collection(db, 'settings', 'withdraw', 'minWithdraw'));
+      if (!withdrawSnap.empty) {
+        const firstDoc = withdrawSnap.docs[0];
+        currentMinWithdrawDocId = firstDoc.id;
+        const data = firstDoc.data();
+        document.getElementById('minWithdraw').value = data.minWithdraw !== undefined ? data.minWithdraw : (data.amount || data.min || 0);
       }
     } catch (err) { console.error("Error loading settings:", err); }
   }
 
-  // Save Settings
+  // Save Settings Form Handler
   document.getElementById('settingsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const status = document.getElementById('settingsStatus');
@@ -806,21 +771,35 @@ footer {
         accountNumber: document.getElementById('payNumber').value
       }, { merge: true });
 
-      // 2. Game rate in top-level collection games/settings/rate
-      await setDoc(doc(db, 'games', 'settings', 'rate'), {
-        rate: parseFloat(document.getElementById('gameRate').value)
-      }, { merge: true });
+      // 2. Save Game Rate to games/settings/rate collection
+      const rateData = { rate: parseFloat(document.getElementById('gameRate').value) };
+      if (currentRateDocId) {
+        await setDoc(doc(db, 'games', 'settings', 'rate', currentRateDocId), rateData, { merge: true });
+      } else {
+        const newDoc = await addDoc(collection(db, 'games', 'settings', 'rate'), rateData);
+        currentRateDocId = newDoc.id;
+      }
 
-      // 3. Contact support in settings/contact/ (email and whatsapp fields)
-      await setDoc(doc(db, 'settings', 'contact'), {
+      // 3. Save Contact Support to settings/contact collection
+      const contactData = {
         email: document.getElementById('supportEmail').value,
         whatsapp: document.getElementById('supportWhatsapp').value
-      }, { merge: true });
+      };
+      if (currentContactDocId) {
+        await setDoc(doc(db, 'settings', 'contact', currentContactDocId), contactData, { merge: true });
+      } else {
+        const newDoc = await addDoc(collection(db, 'settings', 'contact'), contactData);
+        currentContactDocId = newDoc.id;
+      }
 
-      // 4. Minimum withdrawal in settings/withdraw/minWithdraw collection
-      await setDoc(doc(db, 'settings', 'withdraw', 'minWithdraw'), {
-        minWithdraw: parseFloat(document.getElementById('minWithdraw').value)
-      }, { merge: true });
+      // 4. Save Minimum Withdrawal to settings/withdraw/minWithdraw collection
+      const minWithdrawData = { minWithdraw: parseFloat(document.getElementById('minWithdraw').value) };
+      if (currentMinWithdrawDocId) {
+        await setDoc(doc(db, 'settings', 'withdraw', 'minWithdraw', currentMinWithdrawDocId), minWithdrawData, { merge: true });
+      } else {
+        const newDoc = await addDoc(collection(db, 'settings', 'withdraw', 'minWithdraw'), minWithdrawData);
+        currentMinWithdrawDocId = newDoc.id;
+      }
 
       status.textContent = 'All settings saved successfully!';
       status.className = 'status-msg success';
@@ -830,7 +809,6 @@ footer {
     }
   });
 
-  // Handle Connection Request status changes
   window.handleConnectionRequest = async (requestId, userId, momoName, momoNumber, momoProvider, newStatus) => {
     try {
       await updateDoc(doc(db, 'connectionRequests', requestId), { status: newStatus });
@@ -848,7 +826,6 @@ footer {
     } catch (err) { alert('Error updating connection request: ' + err.message); }
   };
 
-  // Handle Withdrawal status changes (Rejection refunds user balance)
   window.handleWithdrawal = async (withdrawalId, userId, amount, newStatus) => {
     try {
       await updateDoc(doc(db, 'withdrawals', withdrawalId), { status: newStatus });
