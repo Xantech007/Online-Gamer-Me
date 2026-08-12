@@ -828,24 +828,35 @@ footer a:hover { color: greenyellow; background: transparent; }
   // Load Past Withdrawal Requests for Current User
   async function loadWithdrawalHistory(uid) {
     try {
+      // Query without orderBy to prevent missing composite index errors
       const q = query(
         collection(db, 'withdrawals'),
-        where('userId', '==', uid),
-        orderBy('timestamp', 'desc')
+        where('userId', '==', uid)
       );
-
+  
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
-        historyTableBody.innerHTML = '';
+        // Convert snapshot to array and sort client-side by timestamp descending
+        const docs = [];
         querySnapshot.forEach((docSnap) => {
-          const row = docSnap.data();
+          docs.push({ id: docSnap.id, ...docSnap.data() });
+        });
+  
+        docs.sort((a, b) => {
+          const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+          const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+          return timeB - timeA;
+        });
+  
+        historyTableBody.innerHTML = '';
+        docs.forEach((row) => {
           const dateStr = row.timestamp ? new Date(row.timestamp.toDate()).toLocaleDateString() : 'Pending';
           
           let statusClass = 'pending';
           if (row.status === 'approved' || row.status === 'completed') statusClass = 'approved';
           if (row.status === 'rejected') statusClass = 'rejected';
-
+  
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${dateStr}</td>
@@ -856,6 +867,12 @@ footer a:hover { color: greenyellow; background: transparent; }
           `;
           historyTableBody.appendChild(tr);
         });
+      } else {
+        historyTableBody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; color: #888; padding: 20px;">No withdrawal history found.</td>
+          </tr>
+        `;
       }
     } catch (err) {
       console.error('Error fetching withdrawal history:', err);
