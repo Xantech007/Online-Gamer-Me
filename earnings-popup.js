@@ -26,24 +26,34 @@ function formatDisplayTime(totalSeconds) {
   return remMins > 0 ? `${hrs} hrs ${remMins} mins` : `${hrs} hrs`;
 }
 
-// Inject CSS styles for floating widget
+// Inject CSS styles for floating widget, draggable header, and controls
 const style = document.createElement('style');
 style.innerHTML = `
   #earnings-widget {
     position: fixed;
     top: 15px;
     right: 15px;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.90);
     border: 2px solid greenyellow;
     border-radius: 8px;
     color: white;
-    padding: 10px 15px;
+    padding: 10px 12px;
     font-family: sans-serif;
     font-size: 13px;
     z-index: 999999;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    min-width: 180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    min-width: 190px;
     user-select: none;
+    touch-action: none;
+  }
+  #earnings-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    border-bottom: 1px solid #333;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
   }
   #earnings-widget .title {
     color: greenyellow;
@@ -51,9 +61,36 @@ style.innerHTML = `
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 5px;
-    border-bottom: 1px solid #333;
-    padding-bottom: 3px;
+    pointer-events: none;
+  }
+  #earnings-widget .controls {
+    display: flex;
+    gap: 6px;
+  }
+  #earnings-widget .btn-ctrl {
+    background: #222;
+    border: 1px solid #444;
+    color: #ccc;
+    font-size: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 2px 6px;
+    line-height: 1;
+    transition: all 0.2s ease;
+  }
+  #earnings-widget .btn-ctrl:hover {
+    background: greenyellow;
+    color: black;
+    border-color: greenyellow;
+  }
+  #earnings-widget .btn-exit {
+    border-color: #ff4d4d;
+    color: #ff4d4d;
+  }
+  #earnings-widget .btn-exit:hover {
+    background: #ff4d4d;
+    color: white;
+    border-color: #ff4d4d;
   }
   #earnings-widget .stat {
     display: flex;
@@ -66,19 +103,99 @@ style.innerHTML = `
   }
   #earnings-widget .earned { color: #50fa7b; }
   #earnings-widget .balance { color: #f1fa8c; }
+  #earnings-widget-body.minimized {
+    display: none;
+  }
 `;
 document.head.appendChild(style);
 
-// Create Widget UI Element
+// Create Widget UI Element with Controls
 const widget = document.createElement('div');
 widget.id = 'earnings-widget';
 widget.innerHTML = `
-  <div class="title">Live Earnings</div>
-  <div class="stat"><span>Time:</span> <span id="ew-time" class="value">0 secs</span></div>
-  <div class="stat"><span>Earned:</span> <span id="ew-earned" class="value earned">GHS 0.0000</span></div>
-  <div class="stat"><span>Balance:</span> <span id="ew-balance" class="value balance">Loading...</span></div>
+  <div id="earnings-widget-header">
+    <span class="title">Live Earnings</span>
+    <div class="controls">
+      <button id="ew-min-btn" class="btn-ctrl" title="Minimize / Expand">—</button>
+      <button id="ew-exit-btn" class="btn-ctrl btn-exit" title="Exit Game">Exit</button>
+    </div>
+  </div>
+  <div id="earnings-widget-body">
+    <div class="stat"><span>Time:</span> <span id="ew-time" class="value">0 secs</span></div>
+    <div class="stat"><span>Earned:</span> <span id="ew-earned" class="value earned">GHS 0.0000</span></div>
+    <div class="stat"><span>Balance:</span> <span id="ew-balance" class="value balance">Loading...</span></div>
+  </div>
 `;
 document.body.appendChild(widget);
+
+// Minimize & Exit Actions
+const minBtn = document.getElementById('ew-min-btn');
+const exitBtn = document.getElementById('ew-exit-btn');
+const widgetBody = document.getElementById('earnings-widget-body');
+
+minBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  widgetBody.classList.toggle('minimized');
+  minBtn.textContent = widgetBody.classList.contains('minimized') ? '+' : '—';
+});
+
+exitBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  window.location.href = 'index.html';
+});
+
+// Drag and Drop Logic (Mouse & Touch support)
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+const header = document.getElementById('earnings-widget-header');
+
+function startDrag(e) {
+  isDragging = true;
+  const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+  const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+  
+  const rect = widget.getBoundingClientRect();
+  offsetX = clientX - rect.left;
+  offsetY = clientY - rect.top;
+  
+  // Convert positioning from right/top to absolute pixel top/left on drag start
+  widget.style.right = 'auto';
+  widget.style.left = `${rect.left}px`;
+  widget.style.top = `${rect.top}px`;
+}
+
+function moveDrag(e) {
+  if (!isDragging) return;
+  const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+  const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+  let newLeft = clientX - offsetX;
+  let newTop = clientY - offsetY;
+
+  // Screen boundary clamping
+  const maxLeft = window.innerWidth - widget.offsetWidth;
+  const maxTop = window.innerHeight - widget.offsetHeight;
+
+  newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+  newTop = Math.max(0, Math.min(newTop, maxTop));
+
+  widget.style.left = `${newLeft}px`;
+  widget.style.top = `${newTop}px`;
+}
+
+function stopDrag() {
+  isDragging = false;
+}
+
+header.addEventListener('mousedown', startDrag);
+document.addEventListener('mousemove', moveDrag);
+document.addEventListener('mouseup', stopDrag);
+
+header.addEventListener('touchstart', startDrag, { passive: true });
+document.addEventListener('touchmove', moveDrag, { passive: true });
+document.addEventListener('touchend', stopDrag);
 
 // Helper function to extract rate from any document snapshot
 function parseRateFromDoc(docData) {
