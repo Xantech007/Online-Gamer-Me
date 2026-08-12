@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About Us - Online Gamer®</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+/* Sticky Footer Layout Structure */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+  background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
+              linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, 
+              linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, 
+              linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, 
+              linear-gradient(90deg, #1b1b1b 10px, transparent 10px), 
+              linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); 
+  background-color: #131313; 
+  background-size: 20px 20px; 
+  color: #e0e0e0;
+}
+
+a, a:visited { color: #888; text-decoration: none; }
+a:hover { color: greenyellow; }
+
+/* Main Wrapper for Sticky Footer */
+#app-content { 
+  display: none; /* Controlled by Firebase Auth */
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-body {
+  flex: 1 0 auto;
+}
+
+/* Header & Navigation */
+.headline { 
+  background-color: rgba(0, 0, 0, 0.85); 
+  color: greenyellow; 
+  font-size: 140%; 
+  font-weight: 800; 
+  padding: 15px 0; 
+  text-align: center; 
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid #222;
+  text-transform: uppercase;
+}
+
+nav { 
+  background-color: rgba(0, 0, 0, 0.90); 
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  gap: 8px; 
+  padding: 12px; 
+  border-bottom: 1px solid #333; 
+}
+
+nav a { 
+  color: #ccc; 
+  padding: 8px 14px; 
+  font-weight: 600; 
+  font-size: 13px; 
+  border: 1px solid #333; 
+  background: #1e1e1e; 
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out; 
+}
+
+nav a:hover, nav a.active { 
+  background-color: greenyellow; 
+  color: black; 
+  border-color: greenyellow; 
+}
+
+/* Content Container */
+.content-wrapper {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.page-card {
+  background-color: rgba(0, 0, 0, 0.85);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 35px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.page-card h1 {
+  color: #ffffff;
+  font-size: 200%;
+  margin-top: 0;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.page-card .subtitle {
+  color: greenyellow;
+  font-weight: 600;
+  font-size: 110%;
+  margin-bottom: 25px;
+}
+
+.page-card h2 {
+  color: #fff;
+  font-size: 130%;
+  border-bottom: 1px solid #333;
+  padding-bottom: 8px;
+  margin-top: 30px;
+}
+
+.page-card p {
+  color: #bbb;
+  line-height: 1.7;
+  font-size: 100%;
+  margin-bottom: 15px;
+}
+
+/* Feature Grid */
+.features-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.feature-box {
+  flex: 1 1 calc(50% - 15px);
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 20px;
+  min-width: 250px;
+}
+
+.feature-box h3 {
+  color: greenyellow;
+  margin-top: 0;
+  font-size: 110%;
+  margin-bottom: 8px;
+}
+
+.feature-box p {
+  font-size: 90%;
+  color: #aaa;
+  margin: 0;
+}
+
+.cta-container {
+  text-align: center;
+  margin-top: 35px;
+}
+
+.cta-btn {
+  display: inline-block;
+  background-color: greenyellow;
+  color: #000;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 12px 30px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.3);
+  transition: all 0.2s ease;
+}
+
+.cta-btn:hover {
+  background-color: #bfff42;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.5);
+}
+
+/* Footer Section Locked to Bottom */
+footer { 
+  flex-shrink: 0;
+  background-color: rgba(0, 0, 0, 0.90); 
+  color: #777; 
+  font-family: monospace; 
+  font-size: 12px; 
+  padding: 20px; 
+  text-align: center;
+  border-top: 1px solid #222;
+}
+
+footer a, footer a:visited { color: #aaa; }
+footer a:hover { color: greenyellow; background: transparent; }
+</style>
+</head>
+<body>
+
+<div id="app-content">
+  <div class="main-body">
+    <div class="headline">Online Gamer®</div>
+
+    <!-- Navigation Header -->
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html" class="active">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="faq.html">FAQ</a>
+      <a href="terms.html">Terms</a>
+      <a href="profile.html" class="auth-only">Profile</a>
+      <a href="withdraw.html" class="auth-only">Withdraw</a>
+      <a href="login.html" class="guest-only">Login</a>
+      <a href="register.html" class="guest-only">Register</a>
+    </nav>
+
+    <!-- Main About Content Card -->
+    <div class="content-wrapper">
+      <div class="page-card">
+        <h1>About Online Gamer®</h1>
+        <div class="subtitle">Where Classic Arcade Gaming Meets Real Time Rewards</div>
+        
+        <p>Founded with a passion for retro web gaming, Online Gamer® turns casual gaming sessions into rewarding experiences. We host a curated selection of lightweight, high-performance web arcade games that run seamlessly across mobile and desktop browsers.</p>
+
+        <h2>Our Platform Model</h2>
+        <p>We believe players should be rewarded for their time and skill. By tracking active gameplay and score achievements in real time, Online Gamer® allows registered users to accumulate balance directly into their account wallet while enjoying timeless arcade classics.</p>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+          <div class="feature-box">
+            <h3>🎮 Retro Library</h3>
+            <p>Access classics ranging from strategy and puzzles like 2048 and Eight Queens to fast-paced action like Hextris and Clumsy Bird.</p>
+          </div>
+          <div class="feature-box">
+            <h3>⚡ Real-Time Tracking</h3>
+            <p>Integrated Cloud Firestore infrastructure monitors active playtime and stats instantly as you play.</p>
+          </div>
+          <div class="feature-box">
+            <h3>📱 Cross-Platform</h3>
+            <p>Optimized for low bandwidth and full responsiveness across desktop keyboards and mobile touchscreens.</p>
+          </div>
+          <div class="feature-box">
+            <h3>💳 Instant Withdrawals</h3>
+            <p>Easily manage your earnings with low minimum thresholds and simple payout requests right from your profile.</p>
+          </div>
+        </div>
+
+        <h2>Security & Transparency</h2>
+        <p>Our infrastructure utilizes industry-standard Firebase authentication and strict database security rules to safeguard player accounts, balances, and session history. Every payout request is reviewed to ensure fair play across our leaderboard community.</p>
+
+        <div class="cta-container">
+          <a href="index.html" class="cta-btn">Start Playing Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Aligned to Bottom -->
+  <footer>
+    <p>Online Gamer®</p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:40:00 UTC</span></p>
+    <p>powered by Online Gamer® v4.0.8</p>
+  </footer>
+</div>
+
+<script type="module">
+  import { auth } from './firebase.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+  const appContent = document.getElementById('app-content');
+
+  // Check auth state
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      appContent.style.display = 'flex'; // Uses Flexbox layout to align footer
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
+    } else {
+      window.location.href = 'login.html'; 
+    }
+  });
+</script>
+
+</body>
+</html>
