@@ -503,7 +503,7 @@ footer a:hover { color: greenyellow; background: transparent; }
 
             <div class="stat-item">
               <span class="stat-label"><i class="fa-solid fa-stopwatch"></i> Gaming Time</span>
-              <span id="statGamingTime" class="stat-value">0m</span>
+              <span id="statGamingTime" class="stat-value">0s</span>
             </div>
           </div>
         </div>
@@ -636,16 +636,20 @@ footer a:hover { color: greenyellow; background: transparent; }
 
   let currentUserDocRef = null;
 
-  // Formatting utility for gameTime (supports numbers as seconds/minutes or formatted strings)
+  // Formatting utility converting total seconds to formatted secs, mins, or hrs
   function formatGamingTime(val) {
-    if (val === undefined || val === null || val === '') return '0m';
-    if (typeof val === 'number') {
-      if (val < 60) return `${val}m`;
-      const hrs = Math.floor(val / 60);
-      const mins = val % 60;
-      return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+    const totalSeconds = parseInt(val) || 0;
+    if (totalSeconds < 60) {
+      return `${totalSeconds}s`;
     }
-    return String(val);
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    if (mins < 60) {
+      return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+    }
+    const hrs = Math.floor(mins / 60);
+    const remMins = mins % 60;
+    return remMins > 0 ? `${hrs}h ${remMins}m` : `${hrs}h`;
   }
 
   // Dynamic Auth State Observer & Profile Loader
