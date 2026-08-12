@@ -60,7 +60,7 @@ nav button:hover, nav button.active {
   background-color: greenyellow; color: black; border-color: greenyellow; 
 }
 
-.admin-container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+.admin-container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
 
 .card {
   background-color: rgba(0, 0, 0, 0.75);
@@ -101,9 +101,25 @@ nav button:hover, nav button.active {
 .btn-small { width: auto; padding: 6px 10px; font-size: 11px; text-transform: none; }
 .actions-cell { display: flex; gap: 6px; align-items: center; }
 
+/* Search & Pagination UI */
+.table-header-controls {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap;
+}
+.search-input {
+  padding: 8px 12px; background: #1e1e1e; border: 1px solid #333; color: #fff; border-radius: 4px; font-size: 13px; width: 250px;
+}
+.pagination-controls {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; color: #aaa;
+}
+.pagination-controls button {
+  background: #1e1e1e; border: 1px solid #333; color: #fff; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
+}
+.pagination-controls button:disabled { opacity: 0.4; cursor: not-allowed; }
+.pagination-controls button:hover:not(:disabled) { background: greenyellow; color: #000; }
+
 .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; white-space: nowrap; }
-th, td { padding: 10px 12px; border-bottom: 1px solid #282828; }
+th, td { padding: 10px 12px; border-bottom: 1px solid #282828; vertical-align: middle; }
 th { background-color: #1a1a1a; color: greenyellow; font-weight: 600; }
 tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
@@ -120,6 +136,16 @@ tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 #loader { text-align: center; padding: 40px 0; color: greenyellow; }
 
+/* Receipt Proof Preview Styling */
+.receipt-thumb {
+  width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #444; cursor: pointer; transition: transform 0.2s;
+}
+.receipt-thumb:hover { transform: scale(1.1); border-color: greenyellow; }
+
+.section-title {
+  color: greenyellow; font-size: 15px; border-bottom: 1px solid #333; padding-bottom: 6px; margin: 20px 0 15px 0; font-weight: 700;
+}
+
 footer { 
   flex-shrink: 0; background-color: rgba(0, 0, 0, 0.90); color: #777; font-family: monospace; 
   font-size: 12px; padding: 20px; text-align: center; border-top: 1px solid #222;
@@ -129,6 +155,7 @@ footer {
   nav button { flex: 1 1 45%; justify-content: center; font-size: 12px; padding: 8px; }
   .card { padding: 15px; }
   .admin-container { padding: 0 10px; margin: 15px auto; }
+  .search-input { width: 100%; }
 }
 </style>
 </head>
@@ -138,7 +165,7 @@ footer {
   <div class="main-body">
     <div class="headline"><i class="fa-solid fa-user-shield"></i> Online Gamer® Admin</div>
 
-    <!-- ADMIN NAVIGATION (Hidden until logged in) -->
+    <!-- ADMIN NAVIGATION -->
     <nav id="adminNav" style="display: none;">
       <button class="nav-btn active" data-tab="usersSection"><i class="fa-solid fa-users"></i> Users</button>
       <button class="nav-btn" data-tab="requestsSection"><i class="fa-solid fa-file-invoice-dollar"></i> Requests</button>
@@ -170,25 +197,30 @@ footer {
         </form>
       </div>
 
-      <!-- DASHBOARD MAIN PANEL (Hidden until logged in) -->
+      <!-- DASHBOARD MAIN PANEL -->
       <div id="dashboardSection" style="display: none;">
 
         <!-- TAB 1: USERS OVERVIEW -->
         <div id="usersSection" class="tab-content card">
           <h2><span><i class="fa-solid fa-users"></i> Registered Users</span></h2>
+          <div class="table-header-controls">
+            <input type="text" id="usersSearch" class="search-input" placeholder="Search by name, email, MoMo...">
+            <div class="pagination-controls" id="usersPagination"></div>
+          </div>
           <div class="table-responsive">
             <table>
               <thead>
                 <tr>
-                  <th>UID</th>
+                  <th>Email</th>
                   <th>Name</th>
+                  <th>MoMo Name</th>
                   <th>MoMo Number</th>
                   <th>Provider</th>
                   <th>Balance</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <tr><td colspan="5">Loading users...</td></tr>
+                <tr><td colspan="6">Loading users...</td></tr>
               </tbody>
             </table>
           </div>
@@ -197,11 +229,16 @@ footer {
         <!-- TAB 2: CONNECTION REQUESTS -->
         <div id="requestsSection" class="tab-content card" style="display: none;">
           <h2><span><i class="fa-solid fa-file-invoice-dollar"></i> Connection Requests</span></h2>
+          <div class="table-header-controls">
+            <input type="text" id="requestsSearch" class="search-input" placeholder="Search requests...">
+            <div class="pagination-controls" id="requestsPagination"></div>
+          </div>
           <div class="table-responsive">
             <table>
               <thead>
                 <tr>
-                  <th>User ID</th>
+                  <th>Email</th>
+                  <th>Name</th>
                   <th>Account Details</th>
                   <th>Receipt Proof</th>
                   <th>Status</th>
@@ -209,7 +246,7 @@ footer {
                 </tr>
               </thead>
               <tbody id="requestsTableBody">
-                <tr><td colspan="5">Loading requests...</td></tr>
+                <tr><td colspan="6">Loading requests...</td></tr>
               </tbody>
             </table>
           </div>
@@ -218,19 +255,25 @@ footer {
         <!-- TAB 3: WITHDRAWALS -->
         <div id="withdrawalsSection" class="tab-content card" style="display: none;">
           <h2><span><i class="fa-solid fa-money-bill-transfer"></i> Payout Withdrawals</span></h2>
+          <div class="table-header-controls">
+            <input type="text" id="withdrawalsSearch" class="search-input" placeholder="Search withdrawals...">
+            <div class="pagination-controls" id="withdrawalsPagination"></div>
+          </div>
           <div class="table-responsive">
             <table>
               <thead>
                 <tr>
-                  <th>User ID</th>
+                  <th>Email</th>
+                  <th>Name</th>
                   <th>Amount</th>
                   <th>Destination</th>
+                  <th>Receipt Proof</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="withdrawalsTableBody">
-                <tr><td colspan="5">Loading withdrawals...</td></tr>
+                <tr><td colspan="7">Loading withdrawals...</td></tr>
               </tbody>
             </table>
           </div>
@@ -240,6 +283,7 @@ footer {
         <div id="settingsSection" class="tab-content card" style="display: none;">
           <h2><span><i class="fa-solid fa-sliders"></i> Global Platform Settings</span></h2>
           <form id="settingsForm">
+            <div class="section-title">Connection Settings</div>
             <div class="form-group">
               <label for="connectionFee">Connection Fee (GHS)</label>
               <input type="number" step="0.01" id="connectionFee" required>
@@ -256,7 +300,28 @@ footer {
               <label for="payNumber">Payment Receiver MoMo Number</label>
               <input type="text" id="payNumber" required>
             </div>
-            <button type="submit" class="action-btn">Save Settings</button>
+
+            <div class="section-title">General Platform Settings</div>
+            <div class="form-group">
+              <label for="gameRate">Game Rate (games/settings/rate)</label>
+              <input type="number" step="0.01" id="gameRate" required>
+            </div>
+            <div class="form-group">
+              <label for="minWithdraw">Minimum Withdrawal (settings/withdraw/minWithdraw)</label>
+              <input type="number" step="0.01" id="minWithdraw" required>
+            </div>
+
+            <div class="section-title">Contact Support Settings</div>
+            <div class="form-group">
+              <label for="supportEmail">Support Email (settings/contact)</label>
+              <input type="email" id="supportEmail" required>
+            </div>
+            <div class="form-group">
+              <label for="supportWhatsapp">Support WhatsApp Number (settings/contact)</label>
+              <input type="text" id="supportWhatsapp" required>
+            </div>
+
+            <button type="submit" class="action-btn" style="margin-top: 15px;">Save All Settings</button>
             <div id="settingsStatus" class="status-msg"></div>
           </form>
         </div>
@@ -283,6 +348,17 @@ footer {
   const loginStatus = document.getElementById('loginStatus');
   const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
+  // Cache user data map for fast lookup: { [userId]: { email, fullname, ... } }
+  const usersCache = new Map();
+  const PAGE_SIZE = 20;
+
+  // Pagination & Search States
+  const tabState = {
+    usersSection: { data: [], filtered: [], page: 1, search: '' },
+    requestsSection: { data: [], filtered: [], page: 1, search: '' },
+    withdrawalsSection: { data: [], filtered: [], page: 1, search: '' }
+  };
+
   const loadedTabs = new Set();
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -294,6 +370,8 @@ footer {
     } else {
       showLogin();
     }
+
+    setupSearchListeners();
   });
 
   function showDashboard() {
@@ -301,7 +379,6 @@ footer {
     adminNav.style.display = 'flex';
     dashboardSection.style.display = 'block';
 
-    // Lazy load the default active tab (Users)
     loadTabData('usersSection');
   }
 
@@ -311,7 +388,73 @@ footer {
     loginSection.style.display = 'block';
   }
 
-  // Admin Login Handler via Firestore admin/login collection
+  // Pre-fetch all user profiles into local cache to resolve email and fullname
+  async function ensureUsersCached() {
+    if (usersCache.size > 0) return;
+    try {
+      const snap = await getDocs(collection(db, 'users'));
+      snap.forEach(d => {
+        usersCache.set(d.id, { id: d.id, ...d.data() });
+      });
+    } catch (e) {
+      console.error("Error building user cache:", e);
+    }
+  }
+
+  // Search input listeners setup
+  function setupSearchListeners() {
+    document.getElementById('usersSearch').addEventListener('input', (e) => {
+      filterAndRender('usersSection', e.target.value);
+    });
+    document.getElementById('requestsSearch').addEventListener('input', (e) => {
+      filterAndRender('requestsSection', e.target.value);
+    });
+    document.getElementById('withdrawalsSearch').addEventListener('input', (e) => {
+      filterAndRender('withdrawalsSection', e.target.value);
+    });
+  }
+
+  function filterAndRender(tabId, queryText) {
+    const state = tabState[tabId];
+    state.search = queryText.toLowerCase().trim();
+    state.page = 1;
+
+    state.filtered = state.data.filter(item => {
+      return Object.values(item).some(val => 
+        String(val || '').toLowerCase().includes(state.search)
+      );
+    });
+
+    if (tabId === 'usersSection') renderUsersTable();
+    if (tabId === 'requestsSection') renderRequestsTable();
+    if (tabId === 'withdrawalsSection') renderWithdrawalsTable();
+  }
+
+  function renderPaginationControls(tabId, containerId) {
+    const state = tabState[tabId];
+    const totalPages = Math.ceil(state.filtered.length / PAGE_SIZE) || 1;
+    const container = document.getElementById(containerId);
+
+    container.innerHTML = `
+      <button ${state.page <= 1 ? 'disabled' : ''} id="${tabId}_prev">Prev</button>
+      <span>Page ${state.page} of ${totalPages} (${state.filtered.length} total)</span>
+      <button ${state.page >= totalPages ? 'disabled' : ''} id="${tabId}_next">Next</button>
+    `;
+
+    const prevBtn = document.getElementById(`${tabId}_prev`);
+    const nextBtn = document.getElementById(`${tabId}_next`);
+
+    if (prevBtn) prevBtn.onclick = () => { if (state.page > 1) { state.page--; renderTabBy(tabId); } };
+    if (nextBtn) nextBtn.onclick = () => { if (state.page < totalPages) { state.page++; renderTabBy(tabId); } };
+  }
+
+  function renderTabBy(tabId) {
+    if (tabId === 'usersSection') renderUsersTable();
+    if (tabId === 'requestsSection') renderRequestsTable();
+    if (tabId === 'withdrawalsSection') renderWithdrawalsTable();
+  }
+
+  // Admin Login Handler
   adminLoginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     loginStatus.className = 'status-msg';
@@ -355,10 +498,11 @@ footer {
   adminLogoutBtn.addEventListener('click', () => {
     localStorage.removeItem('adminLoggedIn');
     loadedTabs.clear();
+    usersCache.clear();
     showLogin();
   });
 
-  // Navigation Tab Switcher (With Lazy Loading for speed)
+  // Navigation Tab Switcher
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -371,101 +515,243 @@ footer {
     });
   });
 
-  function loadTabData(tabId) {
+  async function loadTabData(tabId) {
+    await ensureUsersCached();
     if (loadedTabs.has(tabId)) return;
+
     if (tabId === 'usersSection') loadUsers();
     if (tabId === 'requestsSection') loadRequests();
     if (tabId === 'withdrawalsSection') loadWithdrawals();
     if (tabId === 'settingsSection') loadSettings();
+    
     loadedTabs.add(tabId);
   }
 
-  // Load Users
+  // Helper to resolve user fields safely
+  function getUserInfo(userId) {
+    const user = usersCache.get(userId) || {};
+    return {
+      email: user.email || 'N/A',
+      name: user.fullname || 'N/A'
+    };
+  }
+
+  // 1. Load Users
   async function loadUsers() {
     const tbody = document.getElementById('usersTableBody');
     try {
       const snap = await getDocs(collection(db, 'users'));
-      tbody.innerHTML = '';
+      const list = [];
       snap.forEach(docSnap => {
         const d = docSnap.data();
-        tbody.innerHTML += `
-          <tr>
-            <td>${docSnap.id}</td>
-            <td>${d.momoName || 'N/A'}</td>
-            <td>${d.momoNumber || 'N/A'}</td>
-            <td>${d.momoProvider || 'N/A'}</td>
-            <td>GHS ${d.balance || 0}</td>
-          </tr>`;
+        usersCache.set(docSnap.id, { id: docSnap.id, ...d });
+        list.push({
+          id: docSnap.id,
+          email: d.email || 'N/A',
+          name: d.fullname || 'N/A',
+          momoName: d.momoName || 'N/A',
+          momoNumber: d.momoNumber || 'N/A',
+          momoProvider: d.momoProvider || 'N/A',
+          balance: d.balance || 0
+        });
       });
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
+      
+      tabState.usersSection.data = list;
+      filterAndRender('usersSection', tabState.usersSection.search);
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="6">Error: ${err.message}</td></tr>`; }
   }
 
-  // Load Connection Requests
+  function renderUsersTable() {
+    const tbody = document.getElementById('usersTableBody');
+    const state = tabState.usersSection;
+    const start = (state.page - 1) * PAGE_SIZE;
+    const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
+
+    if (pageItems.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>';
+      renderPaginationControls('usersSection', 'usersPagination');
+      return;
+    }
+
+    tbody.innerHTML = pageItems.map(d => `
+      <tr>
+        <td>${d.email}</td>
+        <td>${d.name}</td>
+        <td>${d.momoName}</td>
+        <td>${d.momoNumber}</td>
+        <td>${d.momoProvider}</td>
+        <td>GHS ${d.balance}</td>
+      </tr>
+    `).join('');
+
+    renderPaginationControls('usersSection', 'usersPagination');
+  }
+
+  // 2. Load Connection Requests
   async function loadRequests() {
     const tbody = document.getElementById('requestsTableBody');
     try {
       const snap = await getDocs(collection(db, 'connectionRequests'));
-      tbody.innerHTML = '';
+      const list = [];
       snap.forEach(docSnap => {
         const d = docSnap.data();
-        const actions = d.status === 'pending' ? `
-          <div class="actions-cell">
-            <button class="action-btn btn-small" onclick="handleConnectionRequest('${docSnap.id}', '${d.userId}', '${d.momoName || ''}', '${d.momoNumber || ''}', '${d.momoProvider || ''}', 'approved')">Approve</button>
-            <button class="action-btn btn-small btn-danger" onclick="handleConnectionRequest('${docSnap.id}', '${d.userId}', '', '', '', 'rejected')">Reject</button>
-          </div>
-        ` : 'N/A';
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${d.userId}</td>
-            <td>${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})</td>
-            <td><a href="${d.receiptPath || '#'}" target="_blank">View File</a></td>
-            <td><span class="badge badge-${d.status}">${d.status}</span></td>
-            <td>${actions}</td>
-          </tr>`;
+        const userInfo = getUserInfo(d.userId);
+        list.push({
+          id: docSnap.id,
+          userId: d.userId,
+          email: userInfo.email,
+          name: userInfo.name,
+          accountDetails: `${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})`,
+          receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
+          status: d.status || 'pending',
+          momoName: d.momoName || '',
+          momoNumber: d.momoNumber || '',
+          momoProvider: d.momoProvider || ''
+        });
       });
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
+
+      tabState.requestsSection.data = list;
+      filterAndRender('requestsSection', tabState.requestsSection.search);
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="6">Error: ${err.message}</td></tr>`; }
   }
 
-  // Load Withdrawals
+  function renderRequestsTable() {
+    const tbody = document.getElementById('requestsTableBody');
+    const state = tabState.requestsSection;
+    const start = (state.page - 1) * PAGE_SIZE;
+    const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
+
+    if (pageItems.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6">No requests found.</td></tr>';
+      renderPaginationControls('requestsSection', 'requestsPagination');
+      return;
+    }
+
+    tbody.innerHTML = pageItems.map(d => {
+      const actions = d.status === 'pending' ? `
+        <div class="actions-cell">
+          <button class="action-btn btn-small" onclick="handleConnectionRequest('${d.id}', '${d.userId}', '${d.momoName}', '${d.momoNumber}', '${d.momoProvider}', 'approved')">Approve</button>
+          <button class="action-btn btn-small btn-danger" onclick="handleConnectionRequest('${d.id}', '${d.userId}', '', '', '', 'rejected')">Reject</button>
+        </div>
+      ` : 'N/A';
+
+      const receiptCell = d.receiptPath 
+        ? `<a href="${d.receiptPath}" target="_blank"><img src="${d.receiptPath}" class="receipt-thumb" alt="Proof" title="Click to view full image"/></a>` 
+        : 'No Proof';
+
+      return `
+        <tr>
+          <td>${d.email}</td>
+          <td>${d.name}</td>
+          <td>${d.accountDetails}</td>
+          <td>${receiptCell}</td>
+          <td><span class="badge badge-${d.status}">${d.status}</span></td>
+          <td>${actions}</td>
+        </tr>`;
+    }).join('');
+
+    renderPaginationControls('requestsSection', 'requestsPagination');
+  }
+
+  // 3. Load Withdrawals
   async function loadWithdrawals() {
     const tbody = document.getElementById('withdrawalsTableBody');
     try {
       const snap = await getDocs(collection(db, 'withdrawals'));
-      tbody.innerHTML = '';
+      const list = [];
       snap.forEach(docSnap => {
         const d = docSnap.data();
-        const actions = d.status === 'pending' ? `
-          <div class="actions-cell">
-            <button class="action-btn btn-small" onclick="handleWithdrawal('${docSnap.id}', '${d.userId}', ${d.amount || 0}, 'approved')">Approve</button>
-            <button class="action-btn btn-small btn-danger" onclick="handleWithdrawal('${docSnap.id}', '${d.userId}', ${d.amount || 0}, 'rejected')">Reject</button>
-          </div>
-        ` : 'N/A';
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${d.userId}</td>
-            <td>GHS ${d.amount}</td>
-            <td>${d.accountNumber || 'N/A'}</td>
-            <td><span class="badge badge-${d.status}">${d.status}</span></td>
-            <td>${actions}</td>
-          </tr>`;
+        const userInfo = getUserInfo(d.userId);
+        list.push({
+          id: docSnap.id,
+          userId: d.userId,
+          email: userInfo.email,
+          name: userInfo.name,
+          amount: d.amount || 0,
+          destination: d.accountNumber || 'N/A',
+          receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
+          status: d.status || 'pending'
+        });
       });
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
+
+      tabState.withdrawalsSection.data = list;
+      filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`; }
   }
 
-  // Load Settings
+  function renderWithdrawalsTable() {
+    const tbody = document.getElementById('withdrawalsTableBody');
+    const state = tabState.withdrawalsSection;
+    const start = (state.page - 1) * PAGE_SIZE;
+    const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
+
+    if (pageItems.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7">No withdrawals found.</td></tr>';
+      renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
+      return;
+    }
+
+    tbody.innerHTML = pageItems.map(d => {
+      const actions = d.status === 'pending' ? `
+        <div class="actions-cell">
+          <button class="action-btn btn-small" onclick="handleWithdrawal('${d.id}', '${d.userId}', ${d.amount}, 'approved')">Approve</button>
+          <button class="action-btn btn-small btn-danger" onclick="handleWithdrawal('${d.id}', '${d.userId}', ${d.amount}, 'rejected')">Reject</button>
+        </div>
+      ` : 'N/A';
+
+      const receiptCell = d.receiptPath 
+        ? `<a href="${d.receiptPath}" target="_blank"><img src="${d.receiptPath}" class="receipt-thumb" alt="Proof" title="Click to view full image"/></a>` 
+        : 'No Proof';
+
+      return `
+        <tr>
+          <td>${d.email}</td>
+          <td>${d.name}</td>
+          <td>GHS ${d.amount}</td>
+          <td>${d.destination}</td>
+          <td>${receiptCell}</td>
+          <td><span class="badge badge-${d.status}">${d.status}</span></td>
+          <td>${actions}</td>
+        </tr>`;
+    }).join('');
+
+    renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
+  }
+
+  // 4. Load Settings (Connection, Rate, Contact & MinWithdraw)
   async function loadSettings() {
     try {
-      const docSnap = await getDoc(doc(db, 'settings', 'connection'));
-      if (docSnap.exists()) {
-        const d = docSnap.data();
+      // Load Connection Settings
+      const connSnap = await getDoc(doc(db, 'settings', 'connection'));
+      if (connSnap.exists()) {
+        const d = connSnap.data();
         document.getElementById('connectionFee').value = d.fee || 0;
         document.getElementById('payProvider').value = d.provider || '';
         document.getElementById('payName').value = d.accountName || '';
         document.getElementById('payNumber').value = d.accountNumber || '';
       }
-    } catch (err) { console.error(err); }
+
+      // Load Game Rate (games/settings/rate)
+      const rateSnap = await getDoc(doc(db, 'games', 'settings', 'rate'));
+      if (rateSnap.exists()) {
+        document.getElementById('gameRate').value = rateSnap.data().rate || rateSnap.data().value || 0;
+      }
+
+      // Load Support Contact (settings/contact)
+      const contactSnap = await getDoc(doc(db, 'settings', 'contact'));
+      if (contactSnap.exists()) {
+        const c = contactSnap.data();
+        document.getElementById('supportEmail').value = c.email || '';
+        document.getElementById('supportWhatsapp').value = c.whatsapp || '';
+      }
+
+      // Load Min Withdrawal (settings/withdraw/minWithdraw)
+      const withdrawSnap = await getDoc(doc(db, 'settings', 'withdraw', 'minWithdraw'));
+      if (withdrawSnap.exists()) {
+        const w = withdrawSnap.data();
+        document.getElementById('minWithdraw').value = w.minWithdraw || w.amount || w.min || 0;
+      }
+    } catch (err) { console.error("Error loading settings:", err); }
   }
 
   // Save Settings
@@ -473,16 +759,34 @@ footer {
     e.preventDefault();
     const status = document.getElementById('settingsStatus');
     try {
+      // 1. Connection settings
       await setDoc(doc(db, 'settings', 'connection'), {
         fee: parseFloat(document.getElementById('connectionFee').value),
         provider: document.getElementById('payProvider').value,
         accountName: document.getElementById('payName').value,
         accountNumber: document.getElementById('payNumber').value
       }, { merge: true });
-      status.textContent = 'Settings saved successfully!';
+
+      // 2. Game rate in games/settings/rate
+      await setDoc(doc(db, 'games', 'settings', 'rate'), {
+        rate: parseFloat(document.getElementById('gameRate').value)
+      }, { merge: true });
+
+      // 3. Contact support in settings/contact
+      await setDoc(doc(db, 'settings', 'contact'), {
+        email: document.getElementById('supportEmail').value,
+        whatsapp: document.getElementById('supportWhatsapp').value
+      }, { merge: true });
+
+      // 4. Minimum withdrawal in settings/withdraw/minWithdraw
+      await setDoc(doc(db, 'settings', 'withdraw', 'minWithdraw'), {
+        minWithdraw: parseFloat(document.getElementById('minWithdraw').value)
+      }, { merge: true });
+
+      status.textContent = 'All settings saved successfully!';
       status.className = 'status-msg success';
     } catch (err) {
-      status.textContent = err.message;
+      status.textContent = 'Error saving settings: ' + err.message;
       status.className = 'status-msg error';
     }
   });
@@ -497,8 +801,10 @@ footer {
           momoNumber,
           momoProvider
         }, { merge: true });
+        usersCache.clear();
         loadedTabs.delete('usersSection');
       }
+      loadedTabs.delete('requestsSection');
       loadRequests();
     } catch (err) { alert('Error updating connection request: ' + err.message); }
   };
@@ -511,8 +817,10 @@ footer {
         await updateDoc(doc(db, 'users', userId), {
           balance: increment(parseFloat(amount))
         });
+        usersCache.clear();
         loadedTabs.delete('usersSection');
       }
+      loadedTabs.delete('withdrawalsSection');
       loadWithdrawals();
     } catch (err) { alert('Error updating withdrawal status: ' + err.message); }
   };
