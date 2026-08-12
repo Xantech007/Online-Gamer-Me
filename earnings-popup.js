@@ -7,20 +7,23 @@ let secondsPlayed = parseInt(localStorage.getItem('secondsPlayed')) || 0;
 let sessionEarnings = parseFloat(localStorage.getItem('sessionEarnings')) || 0;
 let rate = 0; // rate per second
 let initialBalance = 0;
+let initialGameTime = 0;
 let timerInterval = null;
 let userDocRef = null;
 
-// Helper function to format time in secs, mins, or hrs
-function formatTimeString(totalSeconds) {
+// Helper function to format time into secs, mins, or hrs string
+function formatDisplayTime(totalSeconds) {
   if (totalSeconds < 60) {
     return `${totalSeconds} secs`;
   }
-  const minutes = Math.floor(totalSeconds / 60);
-  if (minutes < 60) {
-    return `${minutes} mins`;
+  const mins = Math.floor(totalSeconds / 60);
+  if (mins < 60) {
+    const secs = totalSeconds % 60;
+    return secs > 0 ? `${mins} mins ${secs} secs` : `${mins} mins`;
   }
-  const hours = (totalSeconds / 3600).toFixed(1);
-  return `${hours} hrs`;
+  const hrs = Math.floor(mins / 60);
+  const remMins = mins % 60;
+  return remMins > 0 ? `${hrs} hrs ${remMins} mins` : `${hrs} hrs`;
 }
 
 // Inject CSS styles for floating widget
@@ -39,7 +42,7 @@ style.innerHTML = `
     font-size: 13px;
     z-index: 999999;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    min-width: 175px;
+    min-width: 180px;
     user-select: none;
   }
   #earnings-widget .title {
@@ -133,20 +136,27 @@ onAuthStateChanged(auth, async (user) => {
     rate = 0.001; 
   }
 
-  // 2. Initial balance load & listener
+  // 2. Initial balance & gameTime load & listener
   let isFirstLoad = true;
   onSnapshot(userDocRef, (docSnap) => {
     if (docSnap.exists()) {
-      const dbBalance = parseFloat(docSnap.data().balance) || 0;
+      const data = docSnap.data();
+      const dbBalance = parseFloat(data.balance) || 0;
+      const dbGameTime = parseInt(data.gameTime) || 0;
+
       if (isFirstLoad) {
         initialBalance = dbBalance;
+        initialGameTime = dbGameTime;
         isFirstLoad = false;
       }
       document.getElementById('ew-balance').textContent = `GHS ${(initialBalance + sessionEarnings).toFixed(4)}`;
+      document.getElementById('ew-time').textContent = formatDisplayTime(initialGameTime + secondsPlayed);
     } else {
       setDoc(userDocRef, { balance: 0, gameTime: 0 }, { merge: true });
       initialBalance = 0;
+      initialGameTime = 0;
       document.getElementById('ew-balance').textContent = 'GHS 0.0000';
+      document.getElementById('ew-time').textContent = '0 secs';
     }
   });
 
@@ -168,7 +178,7 @@ function startEarningTimer() {
     localStorage.setItem('sessionEarnings', sessionEarnings.toFixed(4));
 
     // Format & Update UI Elements
-    document.getElementById('ew-time').textContent = formatTimeString(secondsPlayed);
+    document.getElementById('ew-time').textContent = formatDisplayTime(initialGameTime + secondsPlayed);
     document.getElementById('ew-earned').textContent = `GHS ${sessionEarnings.toFixed(4)}`;
     document.getElementById('ew-balance').textContent = `GHS ${(initialBalance + sessionEarnings).toFixed(4)}`;
 
