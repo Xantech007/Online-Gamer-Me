@@ -38,7 +38,7 @@ a:hover { color: greenyellow; }
 
 /* Main Wrapper for Sticky Footer */
 #app-content { 
-  display: none; /* Controlled by Firebase Auth */
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
@@ -58,10 +58,10 @@ a:hover { color: greenyellow; }
   letter-spacing: 1.5px;
   border-bottom: 2px solid #222;
   text-transform: uppercase;
-}
-
-.headline i {
-  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 nav { 
@@ -74,7 +74,7 @@ nav {
   border-bottom: 1px solid #333; 
 }
 
-nav a { 
+nav a, nav button { 
   color: #ccc; 
   padding: 8px 14px; 
   font-weight: 600; 
@@ -86,126 +86,215 @@ nav a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-nav a:hover, nav a.active { 
+nav a:hover, nav a.active, nav button:hover { 
   background-color: greenyellow; 
   color: black; 
   border-color: greenyellow; 
 }
 
-/* Content Container */
-.content-wrapper {
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 0 20px;
+.auth-only, .guest-only {
+  display: none; /* Controlled via JS Auth observer */
 }
 
-.page-card {
-  background-color: rgba(0, 0, 0, 0.85);
+/* Page Content Styling */
+.about-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 15px;
+}
+
+.about-card {
+  background-color: rgba(0, 0, 0, 0.80);
   border: 1px solid #333;
   border-radius: 8px;
-  padding: 35px;
+  padding: 35px 25px;
+  margin-bottom: 25px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 
-.page-card h1 {
-  color: #ffffff;
+.about-card h1 {
   font-size: 200%;
-  margin-top: 0;
-  margin-bottom: 10px;
-  letter-spacing: 1px;
-}
-
-.page-card .subtitle {
   color: greenyellow;
-  font-weight: 600;
-  font-size: 110%;
-  margin-bottom: 25px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #222;
+  padding-bottom: 12px;
 }
 
-.page-card h2 {
-  color: #fff;
+.about-card h2 {
   font-size: 130%;
-  border-bottom: 1px solid #333;
-  padding-bottom: 8px;
-  margin-top: 30px;
+  color: #ffffff;
+  margin-top: 25px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.page-card h2 i {
-  color: greenyellow;
-}
-
-.page-card p {
-  color: #bbb;
+.about-card p {
+  color: #aaa;
   line-height: 1.7;
-  font-size: 100%;
+  font-size: 105%;
   margin-bottom: 15px;
 }
 
-/* Feature Grid */
+/* Feature Grid Section */
 .features-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 15px;
   margin-top: 20px;
 }
 
 .feature-box {
-  flex: 1 1 calc(50% - 15px);
-  background: #1a1a1a;
+  background-color: #1a1a1a;
   border: 1px solid #333;
   border-radius: 6px;
   padding: 20px;
-  min-width: 250px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.feature-box:hover {
+  border-color: greenyellow;
+  transform: translateY(-3px);
+  background-color: #242424;
+}
+
+.feature-box i {
+  font-size: 32px;
+  color: greenyellow;
+  margin-bottom: 12px;
 }
 
 .feature-box h3 {
-  color: greenyellow;
-  margin-top: 0;
+  margin: 0 0 8px 0;
+  color: #fff;
   font-size: 110%;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .feature-box p {
   font-size: 90%;
-  color: #aaa;
+  color: #888;
   margin: 0;
 }
 
-.cta-container {
+/* CTA Banner Inside Page */
+.cta-box {
   text-align: center;
-  margin-top: 35px;
+  background: rgba(20, 30, 10, 0.6);
+  border: 1px solid greenyellow;
+  border-radius: 8px;
+  padding: 25px;
+  margin-top: 30px;
 }
 
-.cta-btn {
+.cta-box h3 {
+  color: #fff;
+  margin-top: 0;
+}
+
+.play-btn { 
+  background-color: greenyellow; 
+  color: #000; 
+  font-weight: 800; 
+  font-size: 15px; 
+  padding: 12px 28px; 
+  border: none; 
+  border-radius: 4px;
+  cursor: pointer; 
+  text-transform: uppercase; 
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.3); 
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  text-decoration: none;
+}
+
+.play-btn:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.5);
+  color: #000;
+}
+
+/* Floating Support Button & Widget */
+.floating-support-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.support-toggle-btn {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
   background-color: greenyellow;
   color: #000;
-  font-weight: 800;
-  font-size: 16px;
-  padding: 12px 30px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.3);
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.support-toggle-btn:hover {
+  transform: scale(1.08);
+  background-color: #9eff1a;
+}
+
+.support-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.support-options.active {
+  display: flex;
+}
+
+.support-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #222;
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
   transition: all 0.2s ease;
 }
 
-.cta-btn:hover {
-  background-color: #bfff42;
-  color: #000;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.5);
+.support-link:hover {
+  border-color: greenyellow;
+  background-color: #2a2a2a;
 }
+
+.support-link.whatsapp i { color: #25D366; font-size: 16px; }
+.support-link.email i { color: #ea4335; font-size: 16px; }
 
 /* Footer Section Locked to Bottom */
 footer { 
@@ -227,7 +316,7 @@ footer a:hover { color: greenyellow; background: transparent; }
 
 <div id="app-content">
   <div class="main-body">
-    <div class="headline"><i class="fa-solid fa-gamepad"></i>Online Gamer®</div>
+    <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
 
     <!-- Navigation Header -->
     <nav>
@@ -236,75 +325,138 @@ footer a:hover { color: greenyellow; background: transparent; }
       <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
       <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
       <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      
+      <!-- Authenticated User Links -->
       <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
       <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <!-- Guest Links -->
       <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
       <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <!-- Main About Content Card -->
-    <div class="content-wrapper">
-      <div class="page-card">
-        <h1>About Online Gamer®</h1>
-        <div class="subtitle">Where Classic Arcade Gaming Meets Real Time Rewards</div>
-        
-        <p>Founded with a passion for retro web gaming, Online Gamer® turns casual gaming sessions into rewarding experiences. We host a curated selection of lightweight, high-performance web arcade games that run seamlessly across mobile and desktop browsers.</p>
+    <!-- Main About Content -->
+    <div class="about-container">
+      <div class="about-card">
+        <h1><i class="fa-solid fa-shield-halved"></i> About Online Gamer®</h1>
+        <p>Online Gamer® is a premier web-based arcade and reward gaming platform built to combine retro classic entertainment with seamless live session tracking and player rewards.</p>
+        <p>Our platform brings high-performance web gaming directly to your browser without requiring hefty downloads or external installs. Whether you prefer strategic classics like Chess, fast-paced arcade action like Hextris, or clicker challenges like Particle Clicker, Online Gamer® delivers high-speed gaming across mobile and desktop browsers alike.</p>
 
-        <h2><i class="fa-solid fa-diagram-project"></i> Our Platform Model</h2>
-        <p>We believe players should be rewarded for their time and skill. By tracking active gameplay and score achievements in real time, Online Gamer® allows registered users to accumulate balance directly into their account wallet while enjoying timeless arcade classics.</p>
-
-        <!-- Features Grid -->
+        <h2><i class="fa-solid fa-trophy"></i> What Sets Us Apart</h2>
         <div class="features-grid">
           <div class="feature-box">
-            <h3><i class="fa-solid fa-gamepad"></i> Retro Library</h3>
-            <p>Access classics ranging from strategy and puzzles like 2048 and Eight Queens to fast-paced action like Hextris and Clumsy Bird.</p>
+            <i class="fa-solid fa-bolt"></i>
+            <h3>Instant Gameplay</h3>
+            <p>No extra downloads. Launch retro web arcade classics directly in your browser within seconds.</p>
           </div>
           <div class="feature-box">
-            <h3><i class="fa-solid fa-bolt"></i> Real-Time Tracking</h3>
-            <p>Integrated Cloud Firestore infrastructure monitors active playtime and stats instantly as you play.</p>
+            <i class="fa-solid fa-coins"></i>
+            <h3>Play & Earn</h3>
+            <p>Accumulate gameplay statistics, complete milestones, and redeem real value straight to your account.</p>
           </div>
           <div class="feature-box">
-            <h3><i class="fa-solid fa-mobile-screen-button"></i> Cross-Platform</h3>
-            <p>Optimized for low bandwidth and full responsiveness across desktop keyboards and mobile touchscreens.</p>
+            <i class="fa-solid fa-mobile-screen"></i>
+            <h3>Cross Platform</h3>
+            <p>Optimized for full touch-screen mobile devices and standard desktop mouse/keyboard setups.</p>
           </div>
           <div class="feature-box">
-            <h3><i class="fa-solid fa-money-bill-transfer"></i> Instant Withdrawals</h3>
-            <p>Easily manage your earnings with low minimum thresholds and simple payout requests right from your profile.</p>
+            <i class="fa-solid fa-lock"></i>
+            <h3>Secure Core</h3>
+            <p>Protected by secure cloud architecture ensuring fast, fair, and reliable user session management.</p>
           </div>
         </div>
 
-        <h2><i class="fa-solid fa-shield-halved"></i> Security & Transparency</h2>
-        <p>Our infrastructure utilizes industry-standard Firebase authentication and strict database security rules to safeguard player accounts, balances, and session history. Every payout request is reviewed to ensure fair play across our leaderboard community.</p>
+        <h2><i class="fa-solid fa-bullseye"></i> Our Mission</h2>
+        <p>We believe online gaming should be fun, accessible, and rewarding. Online Gamer® continues to expand its library of web titles and integrate responsive real-time player tracking to provide a lightweight, rewarding experience for gamers worldwide.</p>
 
-        <div class="cta-container">
-          <a href="index.html" class="cta-btn"><i class="fa-solid fa-play"></i> Start Playing Now</a>
+        <div class="cta-box">
+          <h3>Ready to test your skills?</h3>
+          <a href="index.html" class="play-btn"><i class="fa-solid fa-gamepad"></i> Explore Games Library</a>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Floating Support Button -->
+  <div class="floating-support-container">
+    <div id="supportOptions" class="support-options">
+      <a id="whatsappLink" href="#" target="_blank" class="support-link whatsapp">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
+      </a>
+      <a id="emailLink" href="#" target="_blank" class="support-link email">
+        <i class="fa-solid fa-envelope"></i> Email Support
+      </a>
+    </div>
+    <button id="supportToggleBtn" class="support-toggle-btn" title="Contact Support">
+      <i class="fa-solid fa-headset"></i>
+    </button>
+  </div>
+
   <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:47:09 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:24:00 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
 <script type="module">
-  import { auth } from './firebase.js';
-  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { auth, db } from './firebase.js';
+  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const appContent = document.getElementById('app-content');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const supportToggleBtn = document.getElementById('supportToggleBtn');
+  const supportOptions = document.getElementById('supportOptions');
+  const whatsappLink = document.getElementById('whatsappLink');
+  const emailLink = document.getElementById('emailLink');
 
-  // Check auth state
+  // Dynamic Auth State UI
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      appContent.style.display = 'flex'; // Uses Flexbox layout to align footer
       document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
     } else {
-      window.location.href = 'login.html'; 
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'inline-flex');
+    }
+  });
+
+  // Logout Action
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
+
+  // Floating Support Button Handler
+  let supportFetched = false;
+  supportToggleBtn.addEventListener('click', async () => {
+    supportOptions.classList.toggle('active');
+
+    if (!supportFetched) {
+      try {
+        const docRef = doc(db, 'settings', 'contact');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.whatsapp) {
+            const cleanNum = data.whatsapp.replace(/[^\d+]/g, '');
+            whatsappLink.href = `https://wa.me/${cleanNum}`;
+          }
+          if (data.email) {
+            emailLink.href = `mailto:${data.email}`;
+          }
+        }
+        supportFetched = true;
+      } catch (err) {
+        console.error('Error fetching support contact details:', err);
+      }
     }
   });
 </script>
