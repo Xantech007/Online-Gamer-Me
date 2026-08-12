@@ -195,17 +195,26 @@ nav a:hover, nav a.active, nav button:hover {
   word-break: break-all;
 }
 
-.badge-plan {
+.badge-momo {
   display: inline-block;
   padding: 5px 12px;
-  background-color: rgba(173, 255, 47, 0.15);
-  color: greenyellow;
-  border: 1px solid greenyellow;
   border-radius: 20px;
   font-weight: 700;
   font-size: 12px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+
+.badge-momo.connected {
+  background-color: rgba(173, 255, 47, 0.15);
+  color: greenyellow;
+  border: 1px solid greenyellow;
+}
+
+.badge-momo.disconnected {
+  background-color: rgba(255, 77, 77, 0.15);
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
 }
 
 /* Overview Data Items */
@@ -237,6 +246,14 @@ nav a:hover, nav a.active, nav button:hover {
 
 .stat-value.highlight {
   color: greenyellow;
+}
+
+.stat-value.connected {
+  color: greenyellow;
+}
+
+.stat-value.disconnected {
+  color: #ff4d4d;
 }
 
 /* Form Styles */
@@ -446,7 +463,7 @@ footer a:hover { color: greenyellow; background: transparent; }
     <div class="profile-container">
       <div class="page-title">
         <h1>Gamer Dashboard</h1>
-        <p>Manage your account settings, active subscription, and wallet balances.</p>
+        <p>Manage your account settings, MoMo connection, and wallet balances.</p>
       </div>
 
       <!-- Loading State -->
@@ -467,7 +484,7 @@ footer a:hover { color: greenyellow; background: transparent; }
             </div>
             <h3 id="displayUsername" class="user-display-name">Gamer</h3>
             <p id="displayEmail" class="user-email-text">user@example.com</p>
-            <span id="planBadge" class="badge-plan">Basic Plan</span>
+            <span id="momoBadge" class="badge-momo disconnected">MoMo Disconnected</span>
           </div>
 
           <!-- Quick Balance Summary Card -->
@@ -476,17 +493,17 @@ footer a:hover { color: greenyellow; background: transparent; }
             
             <div class="stat-item">
               <span class="stat-label"><i class="fa-solid fa-wallet"></i> Wallet Balance</span>
-              <span id="statBalance" class="stat-value highlight">$0.00</span>
+              <span id="statBalance" class="stat-value highlight">GHS 0.00</span>
             </div>
 
             <div class="stat-item">
-              <span class="stat-label"><i class="fa-solid fa-trophy"></i> Active Plan</span>
-              <span id="statPlan" class="stat-value">Basic Plan</span>
+              <span class="stat-label"><i class="fa-solid fa-mobile-screen-button"></i> MoMo Connected</span>
+              <span id="statMomoStatus" class="stat-value disconnected">Not Connected</span>
             </div>
 
             <div class="stat-item">
-              <span class="stat-label"><i class="fa-solid fa-gamepad"></i> Games Played</span>
-              <span id="statGames" class="stat-value">0</span>
+              <span class="stat-label"><i class="fa-solid fa-stopwatch"></i> Gaming Time</span>
+              <span id="statGamingTime" class="stat-value">0m</span>
             </div>
           </div>
         </div>
@@ -530,8 +547,18 @@ footer a:hover { color: greenyellow; background: transparent; }
             <h2><i class="fa-solid fa-lock"></i> Security & Password</h2>
             <form id="passwordForm">
               <div class="form-group">
+                <label for="oldPasswordInput">Current Password</label>
+                <input type="password" id="oldPasswordInput" placeholder="Enter old password" required>
+              </div>
+
+              <div class="form-group">
                 <label for="newPasswordInput">New Password</label>
                 <input type="password" id="newPasswordInput" placeholder="Minimum 6 characters" required>
+              </div>
+
+              <div class="form-group">
+                <label for="confirmPasswordInput">Confirm New Password</label>
+                <input type="password" id="confirmPasswordInput" placeholder="Re-enter new password" required>
               </div>
 
               <button type="submit" class="submit-btn" id="updatePasswordBtn">
@@ -566,14 +593,14 @@ footer a:hover { color: greenyellow; background: transparent; }
   <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:52:34 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 23:30:00 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
 <script type="module">
   import { auth, db } from './firebase.js';
-  import { onAuthStateChanged, signOut, updatePassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
   import { doc, getDoc, updateDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const logoutBtn = document.getElementById('logoutBtn');
@@ -587,10 +614,10 @@ footer a:hover { color: greenyellow; background: transparent; }
 
   const displayUsername = document.getElementById('displayUsername');
   const displayEmail = document.getElementById('displayEmail');
-  const planBadge = document.getElementById('planBadge');
+  const momoBadge = document.getElementById('momoBadge');
   const statBalance = document.getElementById('statBalance');
-  const statPlan = document.getElementById('statPlan');
-  const statGames = document.getElementById('statGames');
+  const statMomoStatus = document.getElementById('statMomoStatus');
+  const statGamingTime = document.getElementById('statGamingTime');
 
   const profileForm = document.getElementById('profileForm');
   const usernameInput = document.getElementById('usernameInput');
@@ -601,11 +628,25 @@ footer a:hover { color: greenyellow; background: transparent; }
   const profileStatusMsg = document.getElementById('profileStatusMsg');
 
   const passwordForm = document.getElementById('passwordForm');
+  const oldPasswordInput = document.getElementById('oldPasswordInput');
   const newPasswordInput = document.getElementById('newPasswordInput');
+  const confirmPasswordInput = document.getElementById('confirmPasswordInput');
   const updatePasswordBtn = document.getElementById('updatePasswordBtn');
   const passwordStatusMsg = document.getElementById('passwordStatusMsg');
 
   let currentUserDocRef = null;
+
+  // Formatting utility for gameTime (supports numbers as seconds/minutes or formatted strings)
+  function formatGamingTime(val) {
+    if (val === undefined || val === null || val === '') return '0m';
+    if (typeof val === 'number') {
+      if (val < 60) return `${val}m`;
+      const hrs = Math.floor(val / 60);
+      const mins = val % 60;
+      return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+    }
+    return String(val);
+  }
 
   // Dynamic Auth State Observer & Profile Loader
   onAuthStateChanged(auth, async (user) => {
@@ -616,7 +657,6 @@ footer a:hover { color: greenyellow; background: transparent; }
       currentUserDocRef = doc(db, 'users', user.uid);
       await loadUserProfile(user);
     } else {
-      // Redirect to login if user accesses profile while unauthenticated
       window.location.href = 'login.html';
     }
   });
@@ -630,30 +670,42 @@ footer a:hover { color: greenyellow; background: transparent; }
       if (docSnap.exists()) {
         userData = docSnap.data();
       } else {
-        // Fallback default setup if user document doesn't exist yet
         userData = {
           username: user.displayName || user.email.split('@')[0],
           fullName: user.displayName || '',
           email: user.email,
-          plan: 'Basic Plan',
           balance: 0,
-          gamesPlayed: 0
+          gameTime: 0,
+          momoConnected: false
         };
         await setDoc(currentUserDocRef, { ...userData, createdAt: serverTimestamp() }, { merge: true });
       }
 
-      // Populate UI Header & Stats
-      const activePlan = userData.plan || 'Basic Plan';
+      // MoMo Status Check
+      const isMomoConnected = Boolean(userData.momoConnected || userData.momoNumber || userData.momoAccount);
+      const momoText = isMomoConnected ? 'Connected' : 'Not Connected';
+
+      if (isMomoConnected) {
+        momoBadge.textContent = 'MoMo Connected';
+        momoBadge.className = 'badge-momo connected';
+        statMomoStatus.textContent = momoText;
+        statMomoStatus.className = 'stat-value connected';
+      } else {
+        momoBadge.textContent = 'MoMo Disconnected';
+        momoBadge.className = 'badge-momo disconnected';
+        statMomoStatus.textContent = momoText;
+        statMomoStatus.className = 'stat-value disconnected';
+      }
+
+      // Populate Header & Stats
       const username = userData.username || user.email.split('@')[0];
       const balance = userData.balance !== undefined ? userData.balance : 0;
-      const games = userData.gamesPlayed !== undefined ? userData.gamesPlayed : 0;
+      const gameTime = userData.gameTime;
 
       displayUsername.textContent = username;
       displayEmail.textContent = user.email;
-      planBadge.textContent = activePlan;
-      statPlan.textContent = activePlan;
-      statBalance.textContent = `$${parseFloat(balance).toFixed(2)}`;
-      statGames.textContent = games;
+      statBalance.textContent = `GHS ${parseFloat(balance).toFixed(2)}`;
+      statGamingTime.textContent = formatGamingTime(gameTime);
 
       // Populate Form Fields
       usernameInput.value = username;
@@ -686,7 +738,6 @@ footer a:hover { color: greenyellow; background: transparent; }
     try {
       await updateDoc(currentUserDocRef, updatedData);
       
-      // Update UI Header
       displayUsername.textContent = updatedData.username;
       
       profileStatusMsg.textContent = 'Profile details updated successfully!';
@@ -701,32 +752,50 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   });
 
-  // Handle Security Password Update
+  // Handle Security Password Update with Old Password Verification
   passwordForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const oldPassword = oldPasswordInput.value;
     const newPassword = newPasswordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value.trim();
+
+    passwordStatusMsg.className = 'status-msg';
 
     if (newPassword.length < 6) {
-      passwordStatusMsg.textContent = 'Password must be at least 6 characters long.';
-      passwordStatusMsg.className = 'status-msg error';
+      passwordStatusMsg.textContent = 'New password must be at least 6 characters long.';
+      passwordStatusMsg.classList.add('error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      passwordStatusMsg.textContent = 'New password and confirmation do not match.';
+      passwordStatusMsg.classList.add('error');
       return;
     }
 
     updatePasswordBtn.disabled = true;
     updatePasswordBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
-    passwordStatusMsg.className = 'status-msg';
 
     try {
-      if (auth.currentUser) {
-        await updatePassword(auth.currentUser, newPassword);
-        passwordStatusMsg.textContent = 'Password updated successfully!';
-        passwordStatusMsg.classList.add('success');
-        passwordForm.reset();
-      }
+      const user = auth.currentUser;
+      if (!user) throw new Error('No user authenticated');
+
+      // Re-authenticate user using old password
+      const credential = EmailAuthProvider.credential(user.email, oldPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      // Perform update
+      await updatePassword(user, newPassword);
+
+      passwordStatusMsg.textContent = 'Password updated successfully!';
+      passwordStatusMsg.classList.add('success');
+      passwordForm.reset();
     } catch (err) {
       console.error('Error updating password:', err);
-      if (err.code === 'auth/requires-recent-login') {
-        passwordStatusMsg.textContent = 'Security sensitivity: Please log out and log in again before changing your password.';
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        passwordStatusMsg.textContent = 'Incorrect old password. Please verify and try again.';
+      } else if (err.code === 'auth/requires-recent-login') {
+        passwordStatusMsg.textContent = 'Session timed out. Please log out and log in again.';
       } else {
         passwordStatusMsg.textContent = 'Failed to update password: ' + err.message;
       }
@@ -747,7 +816,7 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   });
 
-  // Floating Support Button Handler (Fetches from settings/contact document)
+  // Floating Support Button Handler
   let supportFetched = false;
   supportToggleBtn.addEventListener('click', async () => {
     supportOptions.classList.toggle('active');
