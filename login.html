@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login - Online Gamer®</title>
+<style>
+body { font-family: sans-serif; margin: 0; background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, linear-gradient(90deg, #1b1b1b 10px, transparent 10px), linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424); background-color: #131313; background-size: 20px 20px; }
+a, a:visited { color: greenyellow; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.headline { background-color: rgba(0, 0, 0, 0.60); color: honeydew; font-size: 120%; font-weight: bold; margin: 0; text-align: center; }
+.auth-container { display: flex; justify-content: center; margin: 40px 10px; }
+.auth-card { background-color: white; border: 1px solid black; padding: 20px; text-align: center; width: 280px; box-sizing: border-box; }
+.input-group { margin-bottom: 15px; text-align: left; }
+.input-group label { font-size: small; font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
+.input-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid darkgrey; font-size: 14px; }
+.btn { background-color: #1a1a1a; color: white; border: 1px solid black; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; }
+.btn:hover { background-color: greenyellow; color: black; }
+.error-msg { color: red; font-size: small; margin-top: 10px; display: none; }
+.switch-link { margin-top: 15px; font-size: small; color: #555; }
+footer { background-color: rgba(0, 0, 0, 0.70); color: slategrey; font-family: monospace; font-size: small; font-style: italic; padding: 20px; margin-top: 50px; }
+footer a, footer a:visited { color: lightblue; }
+footer a:hover { background-color: darkblue; }
+</style>
+</head>
+<body>
+
+<div class="headline">Online Gamer®</div>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <h3 style="margin-top:0;">Login</h3>
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required placeholder="gamer@example.com">
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn">LOGIN</button>
+      <div id="errorMsg" class="error-msg"></div>
+    </form>
+    <div class="switch-link">
+      Need an account? <a href="register.html">Register here</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Online Gamer®</p>
+  <p>last updated: <span style="white-space: nowrap;">2026-08-11 23:35:37 UTC</span></p>
+  <p>powered by Online Gamer® v4.0.8</p>
+</footer>
+
+<script type="module">
+  import { auth } from './firebase.js';
+  import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+  const loginForm = document.getElementById('loginForm');
+  const errorMsg = document.getElementById('errorMsg');
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.style.display = 'none';
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = 'index.html';
+    } catch (error) {
+      errorMsg.textContent = error.message;
+      errorMsg.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>
