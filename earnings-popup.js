@@ -1,4 +1,5 @@
-import { auth, db } from './firebase.js';
+// Fixed: Relative path to firebase.js
+import { auth, db } from './firebase.js'; 
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { doc, getDoc, setDoc, onSnapshot, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
@@ -62,10 +63,11 @@ widget.innerHTML = `
 `;
 document.body.appendChild(widget);
 
-// Auth & Realtime Sync Setup (Observes the active shared login session)
+// Auth & Realtime Sync Setup
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = '../login.html';
+    // Fixed: Standardized relative path to login.html
+    window.location.href = 'login.html';
     return;
   }
 
@@ -90,11 +92,14 @@ onAuthStateChanged(auth, async (user) => {
     if (docSnap.exists()) {
       currentBalance = docSnap.data().balance || 0;
     } else {
-      // Create user document if missing
-      setDoc(userDocRef, { balance: 0 }, { merge: true });
+      // Create default schema user document if missing
+      setDoc(userDocRef, { 
+        balance: 0,
+        plan: 'Basic Plan'
+      }, { merge: true });
       currentBalance = 0;
     }
-    document.getElementById('ew-balance').textContent = currentBalance.toFixed(2);
+    document.getElementById('ew-balance').textContent = Number(currentBalance).toFixed(2);
   });
 
   // 3. Start gameplay timer & balance synchronization
