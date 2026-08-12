@@ -2,9 +2,10 @@ import { auth, db } from '/firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { doc, getDoc, getDocs, collection, setDoc, onSnapshot, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-let secondsPlayed = 0;
+// Restore state from LocalStorage if available
+let secondsPlayed = parseInt(localStorage.getItem('secondsPlayed')) || 0;
+let sessionEarnings = parseFloat(localStorage.getItem('sessionEarnings')) || 0;
 let rate = 0; // rate per second
-let sessionEarnings = 0;
 let initialBalance = 0;
 let timerInterval = null;
 let userDocRef = null;
@@ -85,12 +86,10 @@ onAuthStateChanged(auth, async (user) => {
 
   // 1. Fetch earning rate from `games/settings/rate` collection or doc
   try {
-    // Attempt A: Read as a collection `games/settings/rate`
     const rateColRef = collection(db, 'games', 'settings', 'rate');
     const rateColSnap = await getDocs(rateColRef);
 
     if (!rateColSnap.empty) {
-      // Grab the first document in the rate collection
       for (const docItem of rateColSnap.docs) {
         const foundRate = parseRateFromDoc(docItem.data());
         if (foundRate !== null) {
@@ -101,7 +100,6 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    // Attempt B: Fallback if rate was created as a single document `games/settings`
     if (rate === 0) {
       const docSnap = await getDoc(doc(db, 'games', 'settings'));
       if (docSnap.exists()) {
@@ -113,14 +111,13 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    // Attempt C: Hard fallback if Firestore returned 0 or missing document
     if (rate <= 0) {
       console.warn('Firestore rate returned 0 or empty. Using default rate: 0.001');
-      rate = 0.001; // Default fallback: $0.001 per second
+      rate = 0.001; 
     }
   } catch (err) {
     console.error('Error fetching rate from Firestore, applying fallback rate:', err);
-    rate = 0.001; // Default fallback on network/permission errors
+    rate = 0.001; 
   }
 
   // 2. Initial balance load & listener
@@ -153,6 +150,10 @@ function startEarningTimer() {
     secondsPlayed++;
     sessionEarnings = secondsPlayed * rate;
 
+    // 1. UPDATE LOCAL STORAGE (Every 1 second)
+    localStorage.setItem('secondsPlayed', secondsPlayed);
+    localStorage.setItem('sessionEarnings', sessionEarnings.toFixed(4));
+
     // Format & Update UI Elements
     const mins = String(Math.floor(secondsPlayed / 60)).padStart(2, '0');
     const secs = String(secondsPlayed % 60).padStart(2, '0');
@@ -161,11 +162,11 @@ function startEarningTimer() {
     document.getElementById('ew-earned').textContent = sessionEarnings.toFixed(4);
     document.getElementById('ew-balance').textContent = (initialBalance + sessionEarnings).toFixed(4);
 
-    // Sync to Firestore every 5 seconds
-    if (rate > 0 && userDocRef && secondsPlayed % 5 === 0) {
+    // 2. UPDATE FIRESTORE (Every 10 seconds)
+    if (rate > 0 && userDocRef && secondsPlayed % 10 === 0) {
       setDoc(userDocRef, {
-        balance: increment(rate * 5),
-        timeSpent: increment(5)
+        balance: increment(rate * 10),
+        timeSpent: increment(10)
       }, { merge: true }).catch(err => console.error('Firestore sync error:', err));
     }
   }, 1000);
