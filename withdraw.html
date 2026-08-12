@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Withdraw Funds - Online Gamer®</title>
+<title>Withdraw Earnings - Online Gamer®</title>
 
 <!-- Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -38,7 +38,7 @@ a:hover { color: greenyellow; }
 
 /* Main Wrapper for Sticky Footer */
 #app-content { 
-  display: none; /* Controlled by Firebase Auth */
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
@@ -74,7 +74,7 @@ nav {
   border-bottom: 1px solid #333; 
 }
 
-nav a { 
+nav a, nav button { 
   color: #ccc; 
   padding: 8px 14px; 
   font-weight: 600; 
@@ -86,161 +86,357 @@ nav a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-nav a:hover, nav a.active { 
+nav a:hover, nav a.active, nav button:hover { 
   background-color: greenyellow; 
   color: black; 
   border-color: greenyellow; 
 }
 
-/* Page Layout */
-.content-wrapper {
-  max-width: 800px;
-  margin: 30px auto;
+.auth-only, .guest-only {
+  display: none; /* Controlled via JS Auth observer */
+}
+
+/* Withdraw Page Layout */
+.withdraw-container {
+  max-width: 950px;
+  margin: 40px auto;
   padding: 0 20px;
 }
 
-.card {
-  background-color: rgba(0, 0, 0, 0.85);
+.page-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-title h1 {
+  font-size: 200%;
+  color: #fff;
+  margin: 0 0 10px 0;
+  letter-spacing: 1px;
+}
+
+.page-title p {
+  color: #aaa;
+  font-size: 100%;
+  margin: 0;
+}
+
+.withdraw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 25px;
+}
+
+@media (max-width: 768px) {
+  .withdraw-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Info & Balance Cards */
+.info-card {
+  background-color: rgba(0, 0, 0, 0.75);
   border: 1px solid #333;
   border-radius: 8px;
-  padding: 30px;
+  padding: 25px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
   margin-bottom: 25px;
 }
 
-.card h1 {
-  color: #fff;
-  font-size: 180%;
+.info-card h2 {
+  color: greenyellow;
+  font-size: 130%;
   margin-top: 0;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
 }
 
-.card h1 i {
+.balance-box {
+  background: linear-gradient(135deg, #1e2612 0%, #12180a 100%);
+  border: 1px solid greenyellow;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.balance-box label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #aaa;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+
+.balance-box .amount {
+  font-size: 32px;
+  font-weight: 800;
   color: greenyellow;
 }
 
-/* Balance Overview */
-.balance-banner {
-  background: #181818;
-  border: 1px solid #2a2a2a;
-  border-left: 4px solid greenyellow;
-  padding: 18px 22px;
-  border-radius: 6px;
+.plan-info-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #333;
+  font-size: 14px;
 }
 
-.balance-banner .lbl {
-  color: #888;
-  font-size: 13px;
-  text-transform: uppercase;
+.plan-info-item:last-child {
+  border-bottom: none;
+}
+
+.plan-info-item span:first-child {
+  color: #aaa;
+}
+
+.plan-info-item span:last-child {
+  color: #fff;
   font-weight: 600;
 }
 
-.balance-banner .val {
-  color: #fff;
-  font-size: 170%;
-  font-weight: 800;
+/* Form Styles */
+.form-card {
+  background-color: rgba(0, 0, 0, 0.75);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 
-/* Form Controls */
-.form-group {
+.form-card h2 {
+  color: greenyellow;
+  font-size: 130%;
+  margin-top: 0;
   margin-bottom: 20px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+.form-group {
+  margin-bottom: 18px;
 }
 
 .form-group label {
   display: block;
+  margin-bottom: 6px;
   color: #ccc;
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 8px;
-  text-transform: uppercase;
 }
 
-.form-group label i {
-  color: greenyellow;
-  margin-right: 6px;
-}
-
-.form-control {
+.form-group input,
+.form-group select {
   width: 100%;
-  padding: 12px 14px;
-  background: #121212;
+  padding: 12px;
+  background-color: #1a1a1a;
   border: 1px solid #333;
   border-radius: 4px;
   color: #fff;
+  font-family: inherit;
   font-size: 14px;
-  outline: none;
   transition: border-color 0.2s;
 }
 
-.form-control:focus {
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
   border-color: greenyellow;
 }
 
-select.form-control {
-  cursor: pointer;
-}
-
-.alert-msg {
-  padding: 12px 15px;
-  border-radius: 4px;
-  font-size: 13px;
-  margin-bottom: 20px;
-  display: none;
-}
-
-.alert-error {
-  background-color: rgba(229, 57, 53, 0.15);
-  border: 1px solid #e53935;
-  color: #ff8a80;
-}
-
-.alert-success {
-  background-color: rgba(173, 255, 47, 0.15);
-  border: 1px solid greenyellow;
-  color: greenyellow;
-}
-
-.btn-submit {
+.submit-btn {
   width: 100%;
   background-color: greenyellow;
   color: #000;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 15px;
   padding: 14px;
   border: none;
   border-radius: 4px;
+  cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: inline-flex;
+  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
-.btn-submit:hover {
-  background-color: #bfff42;
-  transform: translateY(-1px);
+.submit-btn:hover {
+  background-color: #9eff1a;
+  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.4);
 }
 
-.btn-submit:disabled {
-  background-color: #444;
-  color: #888;
-  cursor: not-allowed;
-  transform: none;
+.status-msg {
+  display: none;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
 }
 
-/* Footer Section */
+.status-msg.success {
+  display: block;
+  background-color: rgba(173, 255, 47, 0.1);
+  color: greenyellow;
+  border: 1px solid greenyellow;
+}
+
+.status-msg.error {
+  display: block;
+  background-color: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+}
+
+/* History Section */
+.history-section {
+  margin-top: 35px;
+}
+
+.history-card {
+  background-color: rgba(0, 0, 0, 0.75);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.history-card h2 {
+  color: greenyellow;
+  font-size: 130%;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+table th {
+  background-color: #1a1a1a;
+  color: greenyellow;
+  padding: 12px;
+  border-bottom: 2px solid #333;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+table td {
+  padding: 12px;
+  border-bottom: 1px solid #222;
+  color: #ccc;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.pending { background-color: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid #ffc107; }
+.status-badge.approved, .status-badge.completed { background-color: rgba(173, 255, 47, 0.2); color: greenyellow; border: 1px solid greenyellow; }
+.status-badge.rejected { background-color: rgba(255, 77, 77, 0.2); color: #ff4d4d; border: 1px solid #ff4d4d; }
+
+/* Loader State */
+#withdrawLoader {
+  text-align: center;
+  padding: 40px 0;
+  color: greenyellow;
+}
+
+/* Floating Support Button & Widget */
+.floating-support-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.support-toggle-btn {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background-color: greenyellow;
+  color: #000;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.support-toggle-btn:hover {
+  transform: scale(1.08);
+  background-color: #9eff1a;
+}
+
+.support-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.support-options.active {
+  display: flex;
+}
+
+.support-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #222;
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.support-link:hover {
+  border-color: greenyellow;
+  background-color: #2a2a2a;
+}
+
+.support-link.whatsapp i { color: #25D366; font-size: 16px; }
+.support-link.email i { color: #ea4335; font-size: 16px; }
+
+/* Footer Section Locked to Bottom */
 footer { 
   flex-shrink: 0;
   background-color: rgba(0, 0, 0, 0.90); 
@@ -269,130 +465,318 @@ footer a:hover { color: greenyellow; background: transparent; }
       <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
       <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
       <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      
+      <!-- Authenticated User Links -->
       <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
-      <a href="withdraw.html" class="active auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <a href="withdraw.html" class="auth-only active"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <!-- Guest Links -->
       <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
       <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <!-- Content Container -->
-    <div class="content-wrapper">
-      <div class="card">
-        <h1><i class="fa-solid fa-money-bill-transfer"></i> Request Withdrawal</h1>
-        
-        <div class="balance-banner">
+    <!-- Withdraw Content -->
+    <div class="withdraw-container">
+      <div class="page-title">
+        <h1>Withdrawal Portal</h1>
+        <p>Transfer your gaming earnings directly to your preferred payment account.</p>
+      </div>
+
+      <!-- Loading State -->
+      <div id="withdrawLoader">
+        <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+        <p>Fetching account data...</p>
+      </div>
+
+      <!-- Main Layout Grid (Hidden until loaded) -->
+      <div id="withdrawContent" style="display: none;">
+        <div class="withdraw-grid">
+          
+          <!-- Balance Summary Info -->
           <div>
-            <div class="lbl">Available Balance</div>
-            <div style="font-size: 12px; color: #666; margin-top: 2px;">Plan: <span id="user-plan-label" style="color: greenyellow;">Basic Plan</span></div>
+            <div class="info-card">
+              <h2>Wallet Balance</h2>
+              <div class="balance-box">
+                <label>Withdrawable Amount</label>
+                <div class="amount" id="walletBalance">$0.00</div>
+              </div>
+
+              <div class="plan-info-item">
+                <span>Account Plan:</span>
+                <span id="userPlan">Basic Plan</span>
+              </div>
+              <div class="plan-info-item">
+                <span>Min. Withdrawal:</span>
+                <span>$10.00</span>
+              </div>
+              <div class="plan-info-item">
+                <span>Processing Time:</span>
+                <span>Instant - 24 Hours</span>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <h2><i class="fa-solid fa-circle-info"></i> Guidelines</h2>
+              <p style="font-size: 13px; color: #aaa; margin: 0 0 10px 0; line-height: 1.5;">
+                • Ensure your payout account details match your registered profile name.
+              </p>
+              <p style="font-size: 13px; color: #aaa; margin: 0; line-height: 1.5;">
+                • Requests are reviewed automatically by our payment gateway.
+              </p>
+            </div>
           </div>
-          <div class="val" id="user-balance">$0.00</div>
+
+          <!-- Withdrawal Request Form -->
+          <div class="form-card">
+            <h2>Request Payout</h2>
+            <form id="withdrawForm">
+              <div class="form-group">
+                <label for="paymentMethod">Payment Gateway / Bank</label>
+                <select id="paymentMethod" name="paymentMethod" required>
+                  <option value="" disabled selected>Select method</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Crypto (USDT)">Crypto (USDT - TRC20)</option>
+                  <option value="Flutterwave">Flutterwave Mobile Money</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="accountName">Account Holder Name</label>
+                <input type="text" id="accountName" name="accountName" placeholder="Name registered on account" required>
+              </div>
+
+              <div class="form-group">
+                <label for="accountDetails">Account Number / Wallet / Email</label>
+                <input type="text" id="accountDetails" name="accountDetails" placeholder="e.g. 1234567890 or user@paypal.com" required>
+              </div>
+
+              <div class="form-group">
+                <label for="amount">Withdrawal Amount ($)</label>
+                <input type="number" id="amount" name="amount" min="10" step="0.01" placeholder="Enter amount (Min $10.00)" required>
+              </div>
+
+              <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fa-solid fa-paper-plane"></i> Submit Request
+              </button>
+
+              <div id="statusMsg" class="status-msg"></div>
+            </form>
+          </div>
+
         </div>
 
-        <div id="alert-box" class="alert-msg"></div>
-
-        <form id="withdraw-form">
-          <div class="form-group">
-            <label for="payment-method"><i class="fa-solid fa-credit-card"></i> Payout Method</label>
-            <select id="payment-method" class="form-control" required>
-              <option value="" disabled selected>Select payout method...</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Crypto (USDT)">Crypto (USDT - TRC20)</option>
-              <option value="PayPal">PayPal</option>
-            </select>
+        <!-- Withdrawal History Section -->
+        <div class="history-section">
+          <div class="history-card">
+            <h2>Recent Withdrawals</h2>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Method</th>
+                    <th>Account</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: #888; padding: 20px;">No withdrawal history found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
+        </div>
 
-          <div class="form-group">
-            <label for="payout-details"><i class="fa-solid fa-file-invoice"></i> Account / Wallet Details</label>
-            <input type="text" id="payout-details" class="form-control" placeholder="Enter bank account no, USDT address, or PayPal email" required>
-          </div>
-
-          <div class="form-group">
-            <label for="withdraw-amount"><i class="fa-solid fa-dollar-sign"></i> Amount to Withdraw ($)</label>
-            <input type="number" id="withdraw-amount" class="form-control" min="1" step="0.01" placeholder="0.00" required>
-          </div>
-
-          <button type="submit" id="submit-btn" class="btn-submit">
-            <i class="fa-solid fa-paper-plane"></i> Submit Request
-          </button>
-        </form>
       </div>
     </div>
   </div>
 
-  <!-- Footer Aligned Bottom -->
+  <!-- Floating Support Button -->
+  <div class="floating-support-container">
+    <div id="supportOptions" class="support-options">
+      <a id="whatsappLink" href="#" target="_blank" class="support-link whatsapp">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
+      </a>
+      <a id="emailLink" href="#" target="_blank" class="support-link email">
+        <i class="fa-solid fa-envelope"></i> Email Support
+      </a>
+    </div>
+    <button id="supportToggleBtn" class="support-toggle-btn" title="Contact Support">
+      <i class="fa-solid fa-headset"></i>
+    </button>
+  </div>
+
+  <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 11:51:40 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:56:49 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
 <script type="module">
   import { auth, db } from './firebase.js';
-  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc, updateDoc, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const appContent = document.getElementById('app-content');
-  const elBalance = document.getElementById('user-balance');
-  const elPlanLabel = document.getElementById('user-plan-label');
-  const withdrawForm = document.getElementById('withdraw-form');
-  const alertBox = document.getElementById('alert-box');
-  const submitBtn = document.getElementById('submit-btn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const supportToggleBtn = document.getElementById('supportToggleBtn');
+  const supportOptions = document.getElementById('supportOptions');
+  const whatsappLink = document.getElementById('whatsappLink');
+  const emailLink = document.getElementById('emailLink');
 
-  let currentBalance = 0;
-  let currentUser = null;
+  const withdrawLoader = document.getElementById('withdrawLoader');
+  const withdrawContent = document.getElementById('withdrawContent');
+  const walletBalance = document.getElementById('walletBalance');
+  const userPlan = document.getElementById('userPlan');
 
-  function showAlert(msg, isSuccess = false) {
-    alertBox.textContent = msg;
-    alertBox.className = `alert-msg ${isSuccess ? 'alert-success' : 'alert-error'}`;
-    alertBox.style.display = 'block';
-  }
+  const withdrawForm = document.getElementById('withdrawForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const statusMsg = document.getElementById('statusMsg');
+  const historyTableBody = document.getElementById('historyTableBody');
 
-  function hideAlert() {
-    alertBox.style.display = 'none';
-  }
+  let currentUserId = null;
+  let userCurrentBalance = 0;
 
-  // Auth & Balance Fetching
+  // Dynamic Auth State UI Observer
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      currentUser = user;
-      appContent.style.display = 'flex';
-
-      try {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userDocRef);
-
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-          currentBalance = data.balance !== undefined ? parseFloat(data.balance) : 0;
-          
-          elBalance.textContent = `$${currentBalance.toFixed(2)}`;
-          elPlanLabel.textContent = data.plan || 'Basic Plan';
-        }
-      } catch (err) {
-        console.error('Error fetching balance:', err);
-      }
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
+      
+      currentUserId = user.uid;
+      await loadUserData(user);
+      await loadWithdrawalHistory(user.uid);
     } else {
+      // Redirect unauthenticated user to login page
       window.location.href = 'login.html';
     }
   });
 
-  // Handle Form Submission
+  // Load User Balance and Subscription Plan from Firestore
+  async function loadUserData(user) {
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        userCurrentBalance = data.balance !== undefined ? parseFloat(data.balance) : 0;
+        
+        // Exact database subscription plan format (Basic Plan, Silver Plan, Gold Plan, etc.)
+        const plan = data.plan || 'Basic Plan';
+
+        walletBalance.textContent = `$${userCurrentBalance.toFixed(2)}`;
+        userPlan.textContent = plan;
+      }
+
+      withdrawLoader.style.display = 'none';
+      withdrawContent.style.display = 'block';
+    } catch (err) {
+      console.error('Error fetching user details:', err);
+      withdrawLoader.innerHTML = '<p style="color: #ff4d4d;">Failed to load user data. Please refresh.</p>';
+    }
+  }
+
+  // Load Past Withdrawal Requests for Current User
+  async function loadWithdrawalHistory(uid) {
+    try {
+      const q = query(
+        collection(db, 'withdrawals'),
+        where('userId', '==', uid),
+        orderBy('timestamp', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        historyTableBody.innerHTML = '';
+        querySnapshot.forEach((docSnap) => {
+          const row = docSnap.data();
+          const dateStr = row.timestamp ? new Date(row.timestamp.toDate()).toLocaleDateString() : 'Pending';
+          
+          let statusClass = 'pending';
+          if (row.status === 'approved' || row.status === 'completed') statusClass = 'approved';
+          if (row.status === 'rejected') statusClass = 'rejected';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${dateStr}</td>
+            <td>${row.method || 'N/A'}</td>
+            <td>${row.accountDetails || 'N/A'}</td>
+            <td style="color: greenyellow; font-weight: bold;">$${parseFloat(row.amount).toFixed(2)}</td>
+            <td><span class="status-badge ${statusClass}">${row.status || 'pending'}</span></td>
+          `;
+          historyTableBody.appendChild(tr);
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching withdrawal history:', err);
+    }
+  }
+
+  // Logout Action
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.href = 'login.html';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
+
+  // Floating Support Button Handler (Fetches from settings/payment collection whatsappNumber)
+  let supportFetched = false;
+  supportToggleBtn.addEventListener('click', async () => {
+    supportOptions.classList.toggle('active');
+
+    if (!supportFetched) {
+      try {
+        const docRef = doc(db, 'settings', 'payment');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.whatsappNumber) {
+            const cleanNum = data.whatsappNumber.replace(/[^\d+]/g, '');
+            whatsappLink.href = `https://wa.me/${cleanNum}`;
+          }
+          if (data.email) {
+            emailLink.href = `mailto:${data.email}`;
+          }
+        }
+        supportFetched = true;
+      } catch (err) {
+        console.error('Error fetching support contact details:', err);
+      }
+    }
+  });
+
+  // Handle Withdrawal Form Submission to Firestore
   withdrawForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    hideAlert();
+    statusMsg.className = 'status-msg';
 
-    const method = document.getElementById('payment-method').value;
-    const details = document.getElementById('payout-details').value.trim();
-    const amount = parseFloat(document.getElementById('withdraw-amount').value);
+    const method = document.getElementById('paymentMethod').value;
+    const accountName = document.getElementById('accountName').value.trim();
+    const accountDetails = document.getElementById('accountDetails').value.trim();
+    const withdrawAmount = parseFloat(document.getElementById('amount').value);
 
-    if (!method || !details || isNaN(amount) || amount <= 0) {
-      showAlert('Please fill in all fields with valid information.');
+    // Validation checks
+    if (withdrawAmount < 10) {
+      statusMsg.textContent = 'Minimum withdrawal amount is $10.00';
+      statusMsg.classList.add('error');
       return;
     }
 
-    if (amount > currentBalance) {
-      showAlert(`Insufficient balance. Your current balance is $${currentBalance.toFixed(2)}.`);
+    if (withdrawAmount > userCurrentBalance) {
+      statusMsg.textContent = 'Insufficient wallet balance for this withdrawal request.';
+      statusMsg.classList.add('error');
       return;
     }
 
@@ -400,31 +784,38 @@ footer a:hover { color: greenyellow; background: transparent; }
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
 
     try {
-      // 1. Record withdrawal request in `withdrawals` collection
-      await addDoc(collection(db, 'withdrawals'), {
-        userId: currentUser.uid,
-        userEmail: currentUser.email,
+      // 1. Create withdrawal document
+      const withdrawalData = {
+        userId: currentUserId,
         method: method,
-        details: details,
-        amount: amount,
+        accountName: accountName,
+        accountDetails: accountDetails,
+        amount: withdrawAmount,
         status: 'pending',
-        createdAt: serverTimestamp()
-      });
+        timestamp: serverTimestamp()
+      };
 
-      // 2. Deduct balance in user document
-      const newBalance = currentBalance - amount;
-      await updateDoc(doc(db, 'users', currentUser.uid), {
-        balance: newBalance
-      });
+      await addDoc(collection(db, 'withdrawals'), withdrawalData);
 
-      currentBalance = newBalance;
-      elBalance.textContent = `$${currentBalance.toFixed(2)}`;
+      // 2. Deduct user balance in Firestore
+      const newBalance = userCurrentBalance - withdrawAmount;
+      const userRef = doc(db, 'users', currentUserId);
+      await updateDoc(userRef, { balance: newBalance });
 
-      showAlert('Withdrawal request submitted successfully! Your request is pending review.', true);
+      // 3. Refresh UI & Local State
+      userCurrentBalance = newBalance;
+      walletBalance.textContent = `$${userCurrentBalance.toFixed(2)}`;
+
+      statusMsg.textContent = 'Withdrawal request submitted successfully!';
+      statusMsg.classList.add('success');
       withdrawForm.reset();
+
+      // Refresh withdrawal history table
+      await loadWithdrawalHistory(currentUserId);
     } catch (err) {
-      console.error('Withdrawal error:', err);
-      showAlert('Failed to process request: ' + err.message);
+      console.error('Error submitting withdrawal:', err);
+      statusMsg.textContent = 'Failed to submit withdrawal request. Please try again.';
+      statusMsg.classList.add('error');
     } finally {
       submitBtn.disabled = false;
       submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Request';
