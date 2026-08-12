@@ -136,7 +136,6 @@ tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 #loader { text-align: center; padding: 40px 0; color: greenyellow; }
 
-/* Receipt Proof Preview Styling */
 .receipt-thumb {
   width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #444; cursor: pointer; transition: transform 0.2s;
 }
@@ -388,17 +387,56 @@ footer {
     loginSection.style.display = 'block';
   }
 
-  // Pre-fetch all user profiles into local cache to resolve email and fullname
+  // Fetch and cache user profiles by reading users/{userId}/fullname dynamically
   async function ensureUsersCached() {
     if (usersCache.size > 0) return;
     try {
       const snap = await getDocs(collection(db, 'users'));
-      snap.forEach(d => {
-        usersCache.set(d.id, { id: d.id, ...d.data() });
-      });
+      for (const userDoc of snap.docs) {
+        const uData = userDoc.data();
+        const userId = userDoc.id;
+        
+        // Retrieve fullname directly from users/UID document reference
+        let fullName = uData.fullname;
+        if (!fullName) {
+          const directUserSnap = await getDoc(doc(db, 'users', userId));
+          if (directUserSnap.exists()) {
+            fullName = directUserSnap.data().fullname;
+          }
+        }
+
+        usersCache.set(userId, {
+          id: userId,
+          email: uData.email || 'N/A',
+          fullname: fullName || 'N/A',
+          momoName: uData.momoName || 'N/A',
+          momoNumber: uData.momoNumber || 'N/A',
+          momoProvider: uData.momoProvider || 'N/A',
+          balance: uData.balance || 0
+        });
+      }
     } catch (e) {
       console.error("Error building user cache:", e);
     }
+  }
+
+  // Fetch individual user fullname directly by UID if missed in initial cache
+  async function getUserFullName(userId) {
+    if (!userId) return 'N/A';
+    if (usersCache.has(userId)) {
+      return usersCache.get(userId).fullname || 'N/A';
+    }
+    try {
+      const userSnap = await getDoc(doc(db, 'users', userId));
+      if (userSnap.exists()) {
+        const uData = userSnap.data();
+        usersCache.set(userId, { id: userId, ...uData });
+        return uData.fullname || 'N/A';
+      }
+    } catch (err) {
+      console.error(`Error fetching fullname for ${userId}:`, err);
+    }
+    return 'N/A';
   }
 
   // Search input listeners setup
@@ -540,13 +578,10 @@ footer {
   async function loadUsers() {
     const tbody = document.getElementById('usersTableBody');
     try {
-      const snap = await getDocs(collection(db, 'users'));
       const list = [];
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        usersCache.set(docSnap.id, { id: docSnap.id, ...d });
+      for (const [userId, d] of usersCache.entries()) {
         list.push({
-          id: docSnap.id,
+          id: userId,
           email: d.email || 'N/A',
           name: d.fullname || 'N/A',
           momoName: d.momoName || 'N/A',
@@ -554,7 +589,7 @@ footer {
           momoProvider: d.momoProvider || 'N/A',
           balance: d.balance || 0
         });
-      });
+      }
       
       tabState.usersSection.data = list;
       filterAndRender('usersSection', tabState.usersSection.search);
@@ -593,14 +628,16 @@ footer {
     try {
       const snap = await getDocs(collection(db, 'connectionRequests'));
       const list = [];
-      snap.forEach(docSnap => {
+      for (const docSnap of snap.docs) {
         const d = docSnap.data();
+        const userFullName = await getUserFullName(d.userId);
         const userInfo = getUserInfo(d.userId);
+        
         list.push({
           id: docSnap.id,
           userId: d.userId,
           email: userInfo.email,
-          name: userInfo.name,
+          name: userFullName !== 'N/A' ? userFullName : userInfo.name,
           accountDetails: `${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})`,
           receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
           status: d.status || 'pending',
@@ -608,7 +645,7 @@ footer {
           momoNumber: d.momoNumber || '',
           momoProvider: d.momoProvider || ''
         });
-      });
+      }
 
       tabState.requestsSection.data = list;
       filterAndRender('requestsSection', tabState.requestsSection.search);
@@ -659,20 +696,22 @@ footer {
     try {
       const snap = await getDocs(collection(db, 'withdrawals'));
       const list = [];
-      snap.forEach(docSnap => {
+      for (const docSnap of snap.docs) {
         const d = docSnap.data();
+        const userFullName = await getUserFullName(d.userId);
         const userInfo = getUserInfo(d.userId);
+
         list.push({
           id: docSnap.id,
           userId: d.userId,
           email: userInfo.email,
-          name: userInfo.name,
+          name: userFullName !== 'N/A' ? userFullName : userInfo.name,
           amount: d.amount || 0,
           destination: d.accountNumber || 'N/A',
           receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
           status: d.status || 'pending'
         });
-      });
+      }
 
       tabState.withdrawalsSection.data = list;
       filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
@@ -721,7 +760,7 @@ footer {
   // 4. Load Settings (Connection, Rate, Contact & MinWithdraw)
   async function loadSettings() {
     try {
-      // Load Connection Settings
+      // 1. Connection Settings
       const connSnap = await getDoc(doc(db, 'settings', 'connection'));
       if (connSnap.exists()) {
         const d = connSnap.data();
@@ -731,13 +770,13 @@ footer {
         document.getElementById('payNumber').value = d.accountNumber || '';
       }
 
-      // Load Game Rate (games/settings/rate)
+      // 2. Game Rate (stored under top-level collection games/settings/rate)
       const rateSnap = await getDoc(doc(db, 'games', 'settings', 'rate'));
       if (rateSnap.exists()) {
         document.getElementById('gameRate').value = rateSnap.data().rate || rateSnap.data().value || 0;
       }
 
-      // Load Support Contact (settings/contact)
+      // 3. Contact Support (stored under settings/contact/ collection)
       const contactSnap = await getDoc(doc(db, 'settings', 'contact'));
       if (contactSnap.exists()) {
         const c = contactSnap.data();
@@ -745,7 +784,7 @@ footer {
         document.getElementById('supportWhatsapp').value = c.whatsapp || '';
       }
 
-      // Load Min Withdrawal (settings/withdraw/minWithdraw)
+      // 4. Minimum Withdrawal (stored under settings/withdraw/minWithdraw collection)
       const withdrawSnap = await getDoc(doc(db, 'settings', 'withdraw', 'minWithdraw'));
       if (withdrawSnap.exists()) {
         const w = withdrawSnap.data();
@@ -767,18 +806,18 @@ footer {
         accountNumber: document.getElementById('payNumber').value
       }, { merge: true });
 
-      // 2. Game rate in games/settings/rate
+      // 2. Game rate in top-level collection games/settings/rate
       await setDoc(doc(db, 'games', 'settings', 'rate'), {
         rate: parseFloat(document.getElementById('gameRate').value)
       }, { merge: true });
 
-      // 3. Contact support in settings/contact
+      // 3. Contact support in settings/contact/ (email and whatsapp fields)
       await setDoc(doc(db, 'settings', 'contact'), {
         email: document.getElementById('supportEmail').value,
         whatsapp: document.getElementById('supportWhatsapp').value
       }, { merge: true });
 
-      // 4. Minimum withdrawal in settings/withdraw/minWithdraw
+      // 4. Minimum withdrawal in settings/withdraw/minWithdraw collection
       await setDoc(doc(db, 'settings', 'withdraw', 'minWithdraw'), {
         minWithdraw: parseFloat(document.getElementById('minWithdraw').value)
       }, { merge: true });
