@@ -35,7 +35,7 @@ a:hover { color: greenyellow; }
   color: greenyellow; 
   font-size: 140%; 
   font-weight: 800; 
-  padding: 15px 0; 
+  padding: 15px; 
   text-align: center; 
   letter-spacing: 1.5px;
   border-bottom: 2px solid #222;
@@ -60,24 +60,24 @@ nav button:hover, nav button.active {
   background-color: greenyellow; color: black; border-color: greenyellow; 
 }
 
-.admin-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+.admin-container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
 
 .card {
   background-color: rgba(0, 0, 0, 0.75);
   border: 1px solid #333;
   border-radius: 8px;
-  padding: 25px;
+  padding: 20px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
   margin-bottom: 25px;
 }
 
 .card h2 {
-  color: greenyellow; font-size: 130%; margin-top: 0; margin-bottom: 15px;
+  color: greenyellow; font-size: 120%; margin-top: 0; margin-bottom: 15px;
   border-bottom: 1px solid #333; padding-bottom: 10px;
   display: flex; align-items: center; justify-content: space-between;
 }
 
-.login-card { max-width: 420px; margin: 60px auto; }
+.login-card { max-width: 420px; margin: 40px auto; }
 
 .form-group { margin-bottom: 18px; }
 .form-group label { display: block; margin-bottom: 6px; color: #ccc; font-size: 13px; font-weight: 600; }
@@ -98,17 +98,18 @@ nav button:hover, nav button.active {
 .btn-danger { background-color: #ff4d4d; color: #fff; }
 .btn-danger:hover { background-color: #ff6666; }
 
-.btn-small { width: auto; padding: 6px 12px; font-size: 11px; text-transform: none; }
+.btn-small { width: auto; padding: 6px 10px; font-size: 11px; text-transform: none; }
+.actions-cell { display: flex; gap: 6px; align-items: center; }
 
-.table-responsive { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-th, td { padding: 12px; border-bottom: 1px solid #282828; }
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; white-space: nowrap; }
+th, td { padding: 10px 12px; border-bottom: 1px solid #282828; }
 th { background-color: #1a1a1a; color: greenyellow; font-weight: 600; }
 tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 .badge-pending { background: #554400; color: #ffcc00; }
-.badge-approved { background: #004400; color: greenyellow; }
+.badge-approved, .badge-completed { background: #004400; color: greenyellow; }
 .badge-rejected { background: #440000; color: #ff6666; }
 
 .status-msg {
@@ -123,6 +124,12 @@ footer {
   flex-shrink: 0; background-color: rgba(0, 0, 0, 0.90); color: #777; font-family: monospace; 
   font-size: 12px; padding: 20px; text-align: center; border-top: 1px solid #222;
 }
+
+@media (max-width: 600px) {
+  nav button { flex: 1 1 45%; justify-content: center; font-size: 12px; padding: 8px; }
+  .card { padding: 15px; }
+  .admin-container { padding: 0 10px; margin: 15px auto; }
+}
 </style>
 </head>
 <body>
@@ -134,9 +141,9 @@ footer {
     <!-- ADMIN NAVIGATION (Hidden until logged in) -->
     <nav id="adminNav" style="display: none;">
       <button class="nav-btn active" data-tab="usersSection"><i class="fa-solid fa-users"></i> Users</button>
-      <button class="nav-btn" data-tab="requestsSection"><i class="fa-solid fa-file-invoice-dollar"></i> Connection Requests</button>
+      <button class="nav-btn" data-tab="requestsSection"><i class="fa-solid fa-file-invoice-dollar"></i> Requests</button>
       <button class="nav-btn" data-tab="withdrawalsSection"><i class="fa-solid fa-money-bill-transfer"></i> Withdrawals</button>
-      <button class="nav-btn" data-tab="settingsSection"><i class="fa-solid fa-sliders"></i> Site Settings</button>
+      <button class="nav-btn" data-tab="settingsSection"><i class="fa-solid fa-sliders"></i> Settings</button>
       <button id="adminLogoutBtn" class="btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
     </nav>
 
@@ -177,7 +184,7 @@ footer {
                   <th>Name</th>
                   <th>MoMo Number</th>
                   <th>Provider</th>
-                  <th>Actions</th>
+                  <th>Balance</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
@@ -266,7 +273,7 @@ footer {
 
 <script type="module">
   import { db } from './firebase.js';
-  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const loader = document.getElementById('loader');
   const loginSection = document.getElementById('loginSection');
@@ -276,7 +283,8 @@ footer {
   const loginStatus = document.getElementById('loginStatus');
   const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-  // Check saved session state on initialization
+  const loadedTabs = new Set();
+
   window.addEventListener('DOMContentLoaded', () => {
     const isAuth = localStorage.getItem('adminLoggedIn');
     loader.style.display = 'none';
@@ -293,10 +301,8 @@ footer {
     adminNav.style.display = 'flex';
     dashboardSection.style.display = 'block';
 
-    loadUsers();
-    loadRequests();
-    loadWithdrawals();
-    loadSettings();
+    // Lazy load the default active tab (Users)
+    loadTabData('usersSection');
   }
 
   function showLogin() {
@@ -328,7 +334,6 @@ footer {
         localStorage.setItem('adminLoggedIn', 'true');
         showDashboard();
       } else {
-        // Fallback check: Check directly if a document with ID exists under admin/login collection
         const docRef = doc(db, 'admin', 'login');
         const docSnap = await getDoc(docRef);
 
@@ -349,19 +354,31 @@ footer {
   // Logout Handler
   adminLogoutBtn.addEventListener('click', () => {
     localStorage.removeItem('adminLoggedIn');
+    loadedTabs.clear();
     showLogin();
   });
 
-  // Navigation Tab Switcher
+  // Navigation Tab Switcher (With Lazy Loading for speed)
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
       
       btn.classList.add('active');
-      document.getElementById(btn.dataset.tab).style.display = 'block';
+      const targetTab = btn.dataset.tab;
+      document.getElementById(targetTab).style.display = 'block';
+      loadTabData(targetTab);
     });
   });
+
+  function loadTabData(tabId) {
+    if (loadedTabs.has(tabId)) return;
+    if (tabId === 'usersSection') loadUsers();
+    if (tabId === 'requestsSection') loadRequests();
+    if (tabId === 'withdrawalsSection') loadWithdrawals();
+    if (tabId === 'settingsSection') loadSettings();
+    loadedTabs.add(tabId);
+  }
 
   // Load Users
   async function loadUsers() {
@@ -377,7 +394,7 @@ footer {
             <td>${d.momoName || 'N/A'}</td>
             <td>${d.momoNumber || 'N/A'}</td>
             <td>${d.momoProvider || 'N/A'}</td>
-            <td><button class="action-btn btn-small">View</button></td>
+            <td>GHS ${d.balance || 0}</td>
           </tr>`;
       });
     } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
@@ -391,15 +408,20 @@ footer {
       tbody.innerHTML = '';
       snap.forEach(docSnap => {
         const d = docSnap.data();
+        const actions = d.status === 'pending' ? `
+          <div class="actions-cell">
+            <button class="action-btn btn-small" onclick="handleConnectionRequest('${docSnap.id}', '${d.userId}', '${d.momoName || ''}', '${d.momoNumber || ''}', '${d.momoProvider || ''}', 'approved')">Approve</button>
+            <button class="action-btn btn-small btn-danger" onclick="handleConnectionRequest('${docSnap.id}', '${d.userId}', '', '', '', 'rejected')">Reject</button>
+          </div>
+        ` : 'N/A';
+
         tbody.innerHTML += `
           <tr>
             <td>${d.userId}</td>
-            <td>${d.momoProvider} - ${d.momoNumber} (${d.momoName})</td>
-            <td><a href="${d.receiptPath}" target="_blank">View File</a></td>
+            <td>${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})</td>
+            <td><a href="${d.receiptPath || '#'}" target="_blank">View File</a></td>
             <td><span class="badge badge-${d.status}">${d.status}</span></td>
-            <td>
-              <button class="action-btn btn-small" onclick="updateStatus('connectionRequests', '${docSnap.id}', 'approved')">Approve</button>
-            </td>
+            <td>${actions}</td>
           </tr>`;
       });
     } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
@@ -413,15 +435,20 @@ footer {
       tbody.innerHTML = '';
       snap.forEach(docSnap => {
         const d = docSnap.data();
+        const actions = d.status === 'pending' ? `
+          <div class="actions-cell">
+            <button class="action-btn btn-small" onclick="handleWithdrawal('${docSnap.id}', '${d.userId}', ${d.amount || 0}, 'approved')">Approve</button>
+            <button class="action-btn btn-small btn-danger" onclick="handleWithdrawal('${docSnap.id}', '${d.userId}', ${d.amount || 0}, 'rejected')">Reject</button>
+          </div>
+        ` : 'N/A';
+
         tbody.innerHTML += `
           <tr>
             <td>${d.userId}</td>
             <td>GHS ${d.amount}</td>
             <td>${d.accountNumber || 'N/A'}</td>
             <td><span class="badge badge-${d.status}">${d.status}</span></td>
-            <td>
-              <button class="action-btn btn-small" onclick="updateStatus('withdrawals', '${docSnap.id}', 'approved')">Complete</button>
-            </td>
+            <td>${actions}</td>
           </tr>`;
       });
     } catch (err) { tbody.innerHTML = `<tr><td colspan="5">Error: ${err.message}</td></tr>`; }
@@ -460,11 +487,34 @@ footer {
     }
   });
 
-  // Global Document Status Helper
-  window.updateStatus = async (col, id, newStatus) => {
-    await updateDoc(doc(db, col, id), { status: newStatus });
-    if (col === 'connectionRequests') loadRequests();
-    if (col === 'withdrawals') loadWithdrawals();
+  // Handle Connection Request status changes
+  window.handleConnectionRequest = async (requestId, userId, momoName, momoNumber, momoProvider, newStatus) => {
+    try {
+      await updateDoc(doc(db, 'connectionRequests', requestId), { status: newStatus });
+      if (newStatus === 'approved' && userId) {
+        await setDoc(doc(db, 'users', userId), {
+          momoName,
+          momoNumber,
+          momoProvider
+        }, { merge: true });
+        loadedTabs.delete('usersSection');
+      }
+      loadRequests();
+    } catch (err) { alert('Error updating connection request: ' + err.message); }
+  };
+
+  // Handle Withdrawal status changes (Rejection refunds user balance)
+  window.handleWithdrawal = async (withdrawalId, userId, amount, newStatus) => {
+    try {
+      await updateDoc(doc(db, 'withdrawals', withdrawalId), { status: newStatus });
+      if (newStatus === 'rejected' && userId && amount > 0) {
+        await updateDoc(doc(db, 'users', userId), {
+          balance: increment(parseFloat(amount))
+        });
+        loadedTabs.delete('usersSection');
+      }
+      loadWithdrawals();
+    } catch (err) { alert('Error updating withdrawal status: ' + err.message); }
   };
 </script>
 
