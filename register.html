@@ -198,12 +198,11 @@ footer a:hover { color: greenyellow; background: transparent; }
         displayName: fullName
       });
 
-      // 3. Save details to 'users' collection in Firestore
+      // 3. Save details to 'users' collection in Firestore (plan field omitted)
       await setDoc(doc(db, 'users', user.uid), {
         fullName: fullName,
         email: email,
         phone: phone,
-        plan: 'Basic Plan',
         balance: 0,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
