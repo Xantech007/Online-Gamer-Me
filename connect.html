@@ -110,13 +110,13 @@ nav a:hover, nav a.active, nav button:hover {
 }
 .form-group input:focus, .form-group select:focus { outline: none; border-color: greenyellow; }
 
-.submit-btn {
+.action-btn {
   width: 100%; background-color: greenyellow; color: #000; font-weight: 800;
   font-size: 15px; padding: 14px; border: none; border-radius: 4px; cursor: pointer;
   text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(173, 255, 47, 0.2);
   transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-.submit-btn:hover { background-color: #9eff1a; box-shadow: 0 6px 20px rgba(173, 255, 47, 0.4); }
+.action-btn:hover { background-color: #9eff1a; box-shadow: 0 6px 20px rgba(173, 255, 47, 0.4); }
 
 .status-msg {
   display: none; padding: 12px; margin-top: 15px; border-radius: 4px; font-size: 14px; text-align: center;
@@ -163,58 +163,67 @@ footer a:hover { color: greenyellow; background: transparent; }
 
       <div class="form-card" id="connectContent" style="display: none;">
         <h2><i class="fa-solid fa-mobile-screen-button"></i> Connect MoMo Account</h2>
-        <p>Pay the one-time connection fee and link your Mobile Money payout account below.</p>
-
-        <!-- Dynamic Admin Payment Details -->
-        <div class="payment-instructions-box">
-          <h3><i class="fa-solid fa-hand-holding-dollar"></i> Required One-Time Connection Fee</h3>
-          <div class="fee-row">
-            <span>Fee Amount:</span>
-            <span id="displayFee">GHS --.--</span>
-          </div>
-          <div class="fee-row">
-            <span>Pay To Provider:</span>
-            <span id="displayAdminProvider">--</span>
-          </div>
-          <div class="fee-row">
-            <span>Pay To Name:</span>
-            <span id="displayAdminName">--</span>
-          </div>
-          <div class="fee-row">
-            <span>Pay To Number:</span>
-            <span id="displayAdminNumber" style="color: greenyellow;">--</span>
-          </div>
-        </div>
+        <p>Fill in your payout account details and proceed to make the one-time connection payment.</p>
 
         <form id="momoForm">
-          <div class="form-group">
-            <label for="momoProvider">Your Network Provider</label>
-            <select id="momoProvider" name="momoProvider" required>
-              <option value="" disabled selected>Select Provider</option>
-              <option value="MTN MoMo">MTN Mobile Money</option>
-              <option value="Telecel Cash">Telecel Cash</option>
-              <option value="AT Money">AT Money</option>
-            </select>
+          <!-- STEP 1: User MoMo Details -->
+          <div id="accountDetailsSection">
+            <div class="form-group">
+              <label for="momoProvider">Your Network Provider</label>
+              <select id="momoProvider" name="momoProvider" required>
+                <option value="" disabled selected>Select Provider</option>
+                <option value="MTN MoMo">MTN Mobile Money</option>
+                <option value="Telecel Cash">Telecel Cash</option>
+                <option value="AT Money">AT Money</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="momoName">Your Account Name</label>
+              <input type="text" id="momoName" name="momoName" placeholder="e.g. Kwadwo Mensah" required>
+            </div>
+
+            <div class="form-group">
+              <label for="momoNumber">Your MoMo Phone Number</label>
+              <input type="tel" id="momoNumber" name="momoNumber" placeholder="e.g. 0501234567" required>
+            </div>
+
+            <button type="button" class="action-btn" id="proceedBtn">
+              Proceed <i class="fa-solid fa-arrow-right"></i>
+            </button>
           </div>
 
-          <div class="form-group">
-            <label for="momoName">Your Account Name</label>
-            <input type="text" id="momoName" name="momoName" placeholder="e.g. Kwadwo Mensah" required>
-          </div>
+          <!-- STEP 2: Instructions & Payment Proof (Hidden until Proceed is clicked) -->
+          <div id="paymentStepSection" style="display: none; margin-top: 20px;">
+            <div class="payment-instructions-box">
+              <h3><i class="fa-solid fa-hand-holding-dollar"></i> Required One-Time Connection Fee</h3>
+              <div class="fee-row">
+                <span>Fee Amount:</span>
+                <span id="displayFee">GHS --.--</span>
+              </div>
+              <div class="fee-row">
+                <span>Pay To Provider:</span>
+                <span id="displayAdminProvider">--</span>
+              </div>
+              <div class="fee-row">
+                <span>Pay To Name:</span>
+                <span id="displayAdminName">--</span>
+              </div>
+              <div class="fee-row">
+                <span>Pay To Number:</span>
+                <span id="displayAdminNumber" style="color: greenyellow;">--</span>
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label for="momoNumber">Your MoMo Phone Number</label>
-            <input type="tel" id="momoNumber" name="momoNumber" placeholder="e.g. 0501234567" required>
-          </div>
+            <div class="form-group">
+              <label for="receiptFile">Upload Payment Receipt Screenshot</label>
+              <input type="file" id="receiptFile" name="receiptFile" accept="image/*">
+            </div>
 
-          <div class="form-group">
-            <label for="receiptFile">Upload Payment Receipt Screenshot</label>
-            <input type="file" id="receiptFile" name="receiptFile" accept="image/*" required>
+            <button type="submit" class="action-btn" id="submitBtn">
+              <i class="fa-solid fa-paper-plane"></i> Submit For Approval
+            </button>
           </div>
-
-          <button type="submit" class="submit-btn" id="submitBtn">
-            <i class="fa-solid fa-paper-plane"></i> Submit For Approval
-          </button>
 
           <div id="statusMsg" class="status-msg"></div>
         </form>
@@ -247,6 +256,8 @@ footer a:hover { color: greenyellow; background: transparent; }
   const momoProvider = document.getElementById('momoProvider');
   const momoName = document.getElementById('momoName');
   const momoNumber = document.getElementById('momoNumber');
+  const proceedBtn = document.getElementById('proceedBtn');
+  const paymentStepSection = document.getElementById('paymentStepSection');
   const receiptFileInput = document.getElementById('receiptFile');
   const submitBtn = document.getElementById('submitBtn');
   const statusMsg = document.getElementById('statusMsg');
@@ -267,7 +278,7 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   });
 
-  // Fetch Payment Instruction Details from settings/connection
+  // Fetch Connection Settings from settings/connection
   async function fetchConnectionSettings() {
     try {
       const configRef = doc(db, 'settings', 'connection');
@@ -281,7 +292,7 @@ footer a:hover { color: greenyellow; background: transparent; }
         displayAdminName.textContent = data.accountName || 'N/A';
         displayAdminNumber.textContent = data.accountNumber || 'N/A';
       } else {
-        statusMsg.textContent = 'Connection configuration details are missing. Contact support.';
+        statusMsg.textContent = 'Connection settings unavailable. Please contact support.';
         statusMsg.classList.add('error');
       }
     } catch (err) {
@@ -308,7 +319,31 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   }
 
-  // Convert image file to base64 string for direct Firestore persistence
+  // Reveal Payment Instructions and Proof Upload upon clicking Proceed
+  proceedBtn.addEventListener('click', () => {
+    statusMsg.className = 'status-msg';
+
+    const providerVal = momoProvider.value;
+    const nameVal = momoName.value.trim();
+    const numberVal = momoNumber.value.trim();
+
+    if (!providerVal || !nameVal || !numberVal) {
+      statusMsg.textContent = 'Please fill out all account details before proceeding.';
+      statusMsg.classList.add('error');
+      return;
+    }
+
+    // Disable inputs from step 1 and show step 2
+    momoProvider.disabled = true;
+    momoName.disabled = true;
+    momoNumber.disabled = true;
+    proceedBtn.style.display = 'none';
+
+    receiptFileInput.required = true;
+    paymentStepSection.style.display = 'block';
+  });
+
+  // Convert image file to base64 string
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -327,17 +362,15 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   });
 
+  // Final Form Submission
   momoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     statusMsg.className = 'status-msg';
 
-    const providerVal = momoProvider.value;
-    const nameVal = momoName.value.trim();
-    const numberVal = momoNumber.value.trim();
     const file = receiptFileInput.files[0];
 
-    if (!providerVal || !nameVal || !numberVal || !file) {
-      statusMsg.textContent = 'Please fill out all fields and attach receipt image.';
+    if (!file) {
+      statusMsg.textContent = 'Please attach your payment receipt screenshot.';
       statusMsg.classList.add('error');
       return;
     }
@@ -348,19 +381,19 @@ footer a:hover { color: greenyellow; background: transparent; }
     try {
       const base64Receipt = await fileToBase64(file);
 
-      // Create connection request document for Admin review
+      // Create connection request document for admin approval
       await addDoc(collection(db, 'connectionRequests'), {
         userId: currentUserId,
-        momoProvider: providerVal,
-        momoName: nameVal,
-        momoNumber: numberVal,
+        momoProvider: momoProvider.value,
+        momoName: momoName.value.trim(),
+        momoNumber: momoNumber.value.trim(),
         feeAmount: connectionFeeAmount,
         receiptImage: base64Receipt,
         status: 'pending',
         timestamp: serverTimestamp()
       });
 
-      statusMsg.textContent = 'Request submitted successfully! Admin will review your payment.';
+      statusMsg.textContent = 'Connection request submitted! An admin will review your payment shortly.';
       statusMsg.classList.add('success');
       momoForm.reset();
 
