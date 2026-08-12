@@ -301,6 +301,29 @@ nav a:hover, nav a.active, nav button:hover {
   color: #000;
 }
 
+.change-momo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background-color: #2a2a2a;
+  color: #ffc107;
+  border: 1px solid #ffc107;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  margin-top: 12px;
+  transition: all 0.2s ease;
+}
+
+.change-momo-btn:hover {
+  background-color: #ffc107;
+  color: #000;
+}
+
 .submit-btn {
   width: 100%;
   background-color: greenyellow;
@@ -603,6 +626,10 @@ footer a:hover { color: greenyellow; background: transparent; }
                 <span>Account Number:</span>
                 <span id="displayMomoNumber">-</span>
               </div>
+              <!-- Change MoMo Account Button -->
+              <a href="connect.html" class="change-momo-btn">
+                <i class="fa-solid fa-pen-to-square"></i> Change MoMo Account
+              </a>
             </div>
 
             <form id="withdrawForm">
@@ -721,17 +748,26 @@ footer a:hover { color: greenyellow; background: transparent; }
     }
   });
 
-  // Fetch minimum withdrawal limit from settings/withdraw/minWithdraw collection
+  // Fetch minimum withdrawal limit from settings/withdraw or settings/withdraw/minWithdraw
   async function fetchMinWithdraw() {
     try {
-      const minWithdrawRef = doc(db, 'settings', 'withdraw', 'minWithdraw');
-      const docSnap = await getDoc(minWithdrawRef);
+      // 1. Try doc settings/withdraw/minWithdraw
+      let docSnap = await getDoc(doc(db, 'settings', 'withdraw', 'minWithdraw', 'config'));
+      if (!docSnap.exists()) {
+        docSnap = await getDoc(doc(db, 'settings', 'withdraw'));
+      }
+      
       if (docSnap.exists()) {
         const data = docSnap.data();
-        if (data.amount !== undefined) {
-          minWithdrawAmount = parseFloat(data.amount);
-        } else if (data.minAmount !== undefined) {
-          minWithdrawAmount = parseFloat(data.minAmount);
+        const extractedMin = data.minWithdraw || data.minAmount || data.amount || data.min;
+        if (extractedMin !== undefined) {
+          minWithdrawAmount = parseFloat(extractedMin);
+        }
+      } else {
+        // Fallback check settings collection for a general withdraw doc
+        const genSnap = await getDoc(doc(db, 'settings', 'payment'));
+        if (genSnap.exists() && genSnap.data().minWithdraw) {
+          minWithdrawAmount = parseFloat(genSnap.data().minWithdraw);
         }
       }
     } catch (err) {
