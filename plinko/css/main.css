@@ -1,0 +1,396 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: white;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #1c1c1c;
+  color: white;
+}
+
+.header {
+  background: linear-gradient(135deg, #8e44ad, #2c3e50);
+  text-align: center;
+  padding: 5px;
+}
+
+span {
+  color: rgb(147, 9, 94);
+}
+
+.btn {
+  display: inline-block;
+  position: relative;
+  color: white;
+  font-family: "Neue Machina";
+  font-style: normal;
+
+  text-decoration: none;
+  text-transform: uppercase;
+
+  text-align: center;
+  clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+  background-image: linear-gradient(to right, #ba71f1, #da8ec7);
+
+  background-repeat: no-repeat;
+  transition: background-position-y ease-in-out 250ms;
+}
+
+.btn:hover {
+  background-position-y: -50px;
+  background-color: pink;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  place-items: start center;
+}
+
+.main .mainBg {
+  background-size: cover;
+  width: 100%;
+  height: 100vh;
+  grid-area: 1/1;
+}
+
+.main .title-mainBg {
+  margin-top: 10px;
+  background-size: cover;
+  width: 80%;
+  justify-content: start;
+  align-items: flex-start;
+  grid-area: 1/1;
+}
+
+.main .women-mainBg {
+  background-size: cover;
+  width: 100%;
+  grid-area: 1/1;
+  max-width: 600px;
+  z-index: 1;
+
+  justify-content: start;
+  align-items: flex-start;
+}
+
+.bittons-main {
+  background-size: cover;
+  width: 100%;
+  grid-area: 1/1;
+  width: 600px;
+  justify-self: flex-end;
+  align-self: flex-end;
+}
+
+.main .ribbon1 {
+  background-size: cover;
+  width: 100%;
+  grid-area: 1/1;
+  z-index: 2;
+  transform: rotate(5degree);
+  vertical-align: middle;
+  place-items: end center;
+  justify-self: center; /* Center horizontally */
+  align-self: end;
+}
+.main .ribbon2 {
+  background-size: cover;
+  width: 100%;
+  grid-area: 1/1;
+  z-index: 3;
+  transform: rotate(-5degree);
+  vertical-align: middle;
+  place-items: end center;
+  justify-self: center; /* Center horizontally */
+  align-self: end;
+}
+
+.footer {
+  background-color: #111;
+  text-align: center;
+  padding: 5px;
+  color: #777;
+}
+
+.images-size {
+  width: 300px;
+}
+
+@media (max-width: 576px) {
+  .images-size {
+    width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .images-size {
+    width: 10px;
+  }
+}
+
+.slider {
+  width: 100%;
+  height: var(--height);
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 10% 90%, transparent);
+}
+.slider .list {
+  display: flex;
+  width: 100%;
+  min-width: calc(var(--width) * var(--quantity));
+  position: relative;
+}
+.slider .list .item {
+  width: var(--width);
+  height: var(--height);
+  position: absolute;
+  left: 100%;
+  animation: autoRun 10s linear infinite;
+  transition: filter 0.5s;
+  animation-delay: calc(
+    (10s / var(--quantity)) * (var(--position) - 1) - 10s
+  ) !important;
+}
+.slider .list .item img {
+  width: 100%;
+}
+@keyframes autoRun {
+  from {
+    left: 100%;
+  }
+  to {
+    left: calc(var(--width) * -1);
+  }
+}
+.slider:hover .item {
+  animation-play-state: paused !important;
+  filter: grayscale(1);
+}
+.slider .item:hover {
+  filter: grayscale(0);
+}
+.slider[reverse="true"] .item {
+  animation: reversePlay 10s linear infinite;
+}
+@keyframes reversePlay {
+  from {
+    left: calc(var(--width) * -1);
+  }
+  to {
+    left: 100%;
+  }
+}
+/* Basic styling for the popup */
+.popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background-color: #111;
+  padding: 0;
+
+  width: 80%; /* Adjust width to make it responsive */
+  max-width: 600px; /* Max width */
+  text-align: center;
+  position: relative;
+}
+
+/* Close button */
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Cancel icon */
+.popup-cancel {
+  position: absolute;
+  top: 10px;
+  right: 10px; /* Positioning the cancel icon on the top-right corner */
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.popup-cancel:hover,
+.popup-close:hover {
+  color: white; /* Red color on hover */
+}
+
+/* Full image styling */
+.popup-image {
+  border-radius: 1px solid white;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.popup-img {
+  width: 98%;
+  height: 98%;
+  object-fit: cover; /* Ensures the image fills the space and keeps its aspect ratio */
+}
+
+/* Overlay text on image */
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  right: 10px; /* Move the text to the right */
+  transform: translateY(-50%); /* Vertically center the text */
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+.slider {
+  width: 100%;
+  height: var(--height);
+  overflow: hidden;
+  transform: rotate(-5degree);
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #d5dcdd 10% 90%,
+    transparent
+  );
+}
+.slider .list {
+  display: flex;
+  width: 100%;
+  min-width: calc(var(--width) * var(--quantity));
+  position: relative;
+}
+.slider .list .item {
+  min-width: 600px;
+  width: var(--width);
+  height: var(--height);
+  position: absolute;
+  left: 100%;
+  animation: autoRun 10s linear infinite;
+  transition: filter 0.5s;
+  animation-delay: calc(
+    (10s / var(--quantity)) * (var(--position) - 1) - 10s
+  ) !important;
+}
+.slider .list .item img {
+  width: 100%;
+}
+@keyframes autoRun {
+  from {
+    left: 100%;
+  }
+  to {
+    left: calc(var(--width) * -1);
+  }
+}
+.slider:hover .item {
+  animation-play-state: paused !important;
+  filter: grayscale(1);
+}
+.slider .item:hover {
+  filter: grayscale(0);
+}
+.slider[reverse="true"] .item {
+  animation: reversePlay 10s linear infinite;
+}
+@keyframes reversePlay {
+  from {
+    left: calc(var(--width) * -1);
+  }
+  to {
+    left: 100%;
+  }
+}
+
+.vbubble {
+  border: none;
+  height: 15px;
+  width: 15px;
+  border-radius: 25px;
+  background: linear-gradient(145deg, #ffd9f3, #d9a4c7);
+  box-shadow: 0px 2px 2px rgb(168, 168, 168);
+  margin-left: 25px;
+  margin-top: 25px;
+}
+
+@media (max-width: 700px) {
+  #new-sec1 {
+    padding-left: 40px;
+    height: 100vh !important;
+  }
+}
+
+.my-vbtn {
+  border: none;
+  background-color: rgb(20, 175, 20);
+  border-radius: 5px;
+  padding: 3px 8px !important;
+  margin-left: 3px;
+  margin-top: 10px;
+  box-shadow: 0px 5px 0px rgb(164, 255, 161);
+}
+.my-vbtn1 {
+  border: none;
+  background-color: orange;
+  border-radius: 5px;
+  padding: 3px 8px !important;
+  margin-left: 3px;
+  margin-top: 10px;
+  box-shadow: 0px 5px 0px rgb(243, 203, 128);
+}
+.my-vbtn2 {
+  border: none;
+  background-color: red;
+  border-radius: 5px;
+  padding: 3px 8px !important;
+  margin-left: 3px;
+  margin-top: 10px;
+  box-shadow: 0px 5px 0px rgb(255, 165, 165);
+}
+
+.bet-now-btn {
+  margin-top: 20px;
+  padding: 10px 25px;
+  background-color: orange;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 23px;
+  box-shadow: 0px 5px 0px rgb(121, 79, 3);
+}
+
+/* below both my-rotate-div classes css was written for sliders but removed class name from the slider divs */
+
+.my-rotated-div1 {
+  width: 200px;
+  background-color: #3498db;
+  transform: rotate(25deg); /* Rotate the div by 30 degrees */
+  transition: transform 0.3s; /* Optional: add transition for smooth effect */
+}
+.my-rotated-div2 {
+  width: 200px;
+  height: 200px;
+  background-color: #3498db;
+  transform: rotate(-25deg); /* Rotate the div by 30 degrees */
+  z-index: 1;
+  transition: transform 0.3s; /* Optional: add transition for smooth effect */
+}
