@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class='no-js'>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+        <title>Colorful Life</title>
+        <meta name='description' content='A massive, lightning fast Game of Life implementation in full color. Colorful Life uses WebGL and runs right in your browser.'>
+        <meta name='viewport' content='width=device-width'>
+
+        <link rel='stylesheet' href='css/normalize.min.css'>
+        <link rel='stylesheet' href='css/main.css'>
+
+        <script src='js/vendor/dat.gui.min.js'></script>
+        <script src='js/vendor/stats.js'></script>
+    </head>
+    <body>
+
+        <div id='overlay'>
+            <h1> Draw something. </h1>
+            <div id='controls-container'>
+                <span>
+                    <b>Pan:</b> Hold right click
+                    <br>
+                    <b>Eraser:</b> Hold Shift and draw
+                </span>
+                <span>
+                    <b>Zoom:</b> Use mousewheel
+                    <br>
+                    <b>Solid Brush:</b> Hold Ctrl and draw
+                </span>
+            </div>
+        </div>
+
+        <canvas id='canvas'></canvas>
+
+        <script type='text/javascript'>
+        
+            var canvas = document.getElementById('canvas');
+            
+            canvas.oncontextmenu = function() {
+                return false;
+            };
+
+            function hideOverlay(e) {
+                if (e.which === 1) {
+                    document.getElementById('overlay').classList.add('hidden');
+                    e.target.removeEventListener(e.type, hideOverlay);
+                }
+            }
+            canvas.addEventListener('mousedown', hideOverlay);
+        </script>
+
+        <script id='vertex-shader' type='x-shader/x-vertex'>
+            attribute vec2 a_position;
+
+            varying vec2 v_texCoord;
+
+
+            void main() {
+                vec2 clipSpace = a_position * 2.0 - 1.0;
+               
+                gl_Position = vec4(clipSpace, 0, 1);
+
+                v_texCoord = a_position;
+            }
+        </script>
+        
+        <script id='cell-life-shader' type='x-shader/x-fragment'>
+            precision mediump float;
+
+            uniform vec2 u_bufferResolution;
+            uniform vec4 u_surface;
+            uniform float u_colorDecay;
+            uniform sampler2D u_buffer;
+            uniform sampler2D u_rules; // a 9x1 texture containing alive states in the red channel and dead states in the green channel
+
+            varying vec2 v_texCoord;
+
+            #define TWO_PI 6.28318530718
+            #define RULES_COUNT 8.0
+            #define DECAY vec4(0, 0, 0.002, 1)
+            vec4 firstDecay = vec4(0, -1.0, u_colorDecay, 1.0);
+            vec2 onePixel = vec2(1.0, 1.0) / u_bufferResolution;
+
+            vec4 isAlive(int x, int y) {
+                vec4 pixel = texture2D(u_buffer, fract(v_texCoord + vec2(x, y) * onePixel));
+
+                // if cell is alive, calculate Cartesian coordinates of cell's hue for use in circular averaging.
+                return pixel.a > 0.0 ?
+                       vec4(cos(TWO_PI * pixel.r), sin(TWO_PI * pixel.r), pixel.g, 1.0) :
+                       vec4(0);
+            }
+
+            void main() {
+
+                vec4 n = isAlive(0, 1)
+                       + isAlive(1, 1)
+                       + isAlive(1, 0)
+                       + isAlive(1, -1)
+                       + isAlive(0, -1)
+                       + isAlive(-1, -1)
+                       + isAlive(-1, 0)
+                       + isAlive(-1, 1);
+
+                // alive
+                if (texture2D(u_buffer, fract(v_texCoord)).a == 1.0) {
+                    float state = texture2D(u_rules, vec2(n.a / RULES_COUNT, 0)).r;
+                    gl_FragColor = texture2D(u_buffer, v_texCoord) - (1.0 - state) * firstDecay;
+                }
+
+                // dead
+                else {
+                    float state = texture2D(u_rules, vec2(n.a / RULES_COUNT, 0) ).g;
+
+                    gl_FragColor = state > 0.0 ?
+                                   vec4(fract(1.0 + atan(n.y, n.x) / TWO_PI), n.b / n.a, 1, 1) : // circular average of colors
+                                   texture2D(u_buffer, v_texCoord) - DECAY;
+                }
+            }
+        </script>
+
+        <script id='cell-generations-shader' type='x-shader/x-fragment'>
+            precision mediump float;
+
+            uniform vec2 u_bufferResolution;
+            uniform vec4 u_surface;
+            uniform float u_colorDecay;
+            uniform int u_cellStates;
+            uniform sampler2D u_buffer;
+            uniform sampler2D u_rules;
+
+            varying vec2 v_texCoord;
+
+            #define TWO_PI 6.28318530718
+            #define RULES_COUNT 8.0
+
+            float singleState = 1.0 / float(u_cellStates - 1);
+            vec4 firstDecay = vec4(0, -1.0, u_colorDecay, singleState);
+            vec4 decay = vec4(0, 0, 0.002, singleState);
+            vec2 onePixel = vec2(1.0, 1.0) / u_bufferResolution;
+
+
+            vec4 isAlive(int x, int y) {
+                vec4 pixel = texture2D(u_buffer, fract(v_texCoord + vec2(x, y) * onePixel));
+
+                return pixel.a == 1.0 ?
+                       vec4(cos(TWO_PI * pixel.r), sin(TWO_PI * pixel.r), pixel.g, 1.0) :
+                       vec4(0, 0, 0, 0);
+            }
+
+            void main() {
+
+                vec4 n = isAlive(0, 1)
+                       + isAlive(1, 1)
+                       + isAlive(1, 0)
+                       + isAlive(1, -1)
+                       + isAlive(0, -1)
+                       + isAlive(-1, -1)
+                       + isAlive(-1, 0)
+                       + isAlive(-1, 1);
+
+                float currentCell = texture2D(u_buffer, fract(v_texCoord)).a;
+
+                // alive
+                if (currentCell == 1.0) {
+                    float state = texture2D(u_rules, vec2(n.a / RULES_COUNT, 0)).r;
+                    gl_FragColor = texture2D(u_buffer, v_texCoord) - (1.0 - state) * firstDecay;
+                }
+
+                // dead
+                else {
+                    float state = (1.0 - ceil(currentCell)) * texture2D(u_rules, vec2(n.a / RULES_COUNT, 0) ).g;
+
+                    gl_FragColor = state == 1.0 ?
+                                   vec4(fract(1.0 + atan(n.y, n.x) / TWO_PI), n.b / n.a, 1, 1) :
+                                   texture2D(u_buffer, v_texCoord) - decay;
+                }
+            }
+        </script>
+
+        <script id='mouse-shader' type='x-shader/x-fragment'>
+            precision mediump float;
+
+            uniform vec2 u_bufferResolution;
+            uniform vec2 u_mouse;
+            uniform vec4 u_color;
+            uniform float u_brushSize;
+            uniform bool u_brushErase;
+            uniform bool u_brushSolid;
+            uniform bool u_brushPixel;
+            uniform float u_colorDecay;
+            uniform float u_random;
+            uniform vec4 u_surface;
+            uniform sampler2D u_buffer;
+
+            varying vec2 v_texCoord;
+
+            vec4 firstDecay = vec4(0, -1.0, u_colorDecay, 1.0);
+
+            float rand(vec2 co) {
+                return fract(sin(dot(fract(co.xy + u_random), vec2(12.9898,78.233))) * 43758.5453);
+            }
+
+            void main() {
+
+                vec2 mouseCoord = fract(u_surface.wz + u_mouse * (u_surface.yx - u_surface.wz));
+                vec2 distance = abs(mouseCoord - v_texCoord);
+                
+                if (u_brushPixel) {
+
+                    distance *= u_bufferResolution;
+                    
+                    if ( dot(distance, distance) < 0.25 )
+                        gl_FragColor = u_brushErase ? vec4(0) : u_color;
+                    else 
+                        gl_FragColor = texture2D(u_buffer, v_texCoord);
+                }
+
+                else {
+
+                    distance = min(distance, 1. - distance);
+                    distance.x *= u_bufferResolution.x / u_bufferResolution.y;
+
+                    if ( dot(distance, distance) < u_brushSize )
+
+                        gl_FragColor = u_brushErase ? 
+                                       vec4(0.06, 0.06, 0.06, 0) : 
+                                       u_color - float(!u_brushSolid) * step(0.5, rand(gl_FragCoord.xy / u_bufferResolution)) * firstDecay;
+
+                    else 
+                        gl_FragColor = texture2D(u_buffer, v_texCoord);  
+                }  
+            }
+
+        </script>
+
+        <script id='screen-shader' type='x-shader/x-fragment'>
+            precision mediump float;
+
+            uniform sampler2D u_screenBuffer;
+            uniform vec4 u_surface; //top, right, bottom left
+
+            varying vec2 v_texCoord;
+
+            // http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
+            vec3 hsv2rgb(vec3 c) {
+                vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+                vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+                return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+            }
+
+            void main() {
+
+                vec2 uv = u_surface.wz + v_texCoord * (u_surface.yx - u_surface.wz);
+                gl_FragColor = vec4(hsv2rgb(texture2D(u_screenBuffer, fract(uv)).rgb), 1);
+            }
+
+        </script>
+
+        <script src='js/rule-presets.js'></script>
+        <script src='js/main.js'></script>
+    </body>
+</html>

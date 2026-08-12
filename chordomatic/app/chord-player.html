@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="chord-player.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="chord-namer.js"></script>
+<script src="chord-player.js"></script>
+<link rel="shortcut icon" href="img/favicon.png" type="image/png">
+<link rel="icon" href="img/favicon.png" type="image/png">
+<title>Chord-o-matic Chord Constructor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Milonga&family=Open+Sans:ital,wght@0,300;0,700;1,300;1,700&display=block" rel="stylesheet" />
+</head>
+<body>
+
+<div id="guitar-area" class="noselect">
+  <div id="guitar">
+    <div id="headstock" data-fret="0"></div>
+    <div id="fretboard">
+      <div class="fret fret-1" data-fret="1"></div>
+      <div class="fret fret-2" data-fret="2"></div>
+      <div class="fret fret-3" data-fret="3"></div>
+      <div class="fret fret-4" data-fret="4"></div>
+      <div class="fret fret-5" data-fret="5"></div>
+      <div class="fret fret-6" data-fret="6"></div>
+      <div class="fret fret-7" data-fret="7"></div>
+      <div class="fret fret-8" data-fret="8"></div>
+      <div class="fret fret-9" data-fret="9"></div>
+      <div class="fret fret-10" data-fret="10"></div>
+      <div class="fret fret-11" data-fret="11"></div>
+      <div class="fret fret-12" data-fret="12"></div>
+    </div>
+    <div id="pick-area">
+      <div id="pick"></div>
+    </div>
+    
+    <div id="strings"></div>
+  </div>
+</div>
+<div id="controls">
+  <div id="title">Chord-o-matic Chord Constructor</div>
+  
+  <div id="options">
+    <a href="#" id="showOptions">Options...</a><br/>
+    Instrument/Tuning:
+    <select id="instrument">
+      <option value="E2 A2 D3 G3 B3 E4" selected>Guitar - Standard</option>
+      <option value="D2 A2 D3 G3 B3 E4">Guitar - Drop D</option>
+      <option value="D2 A2 D3 G3 B3 D4">Guitar - Double Drop D</option>
+      <option value="D2 A2 D3 F#3 A3 D4">Guitar - Open D</option>
+      <option value="D2 A2 D3 G3 A3 D4">Guitar - DADGAD</option>
+      <option value="E3 A3 D4 G4 B3 E4">Guitar - Nashville</option>
+      <option value="B1 E2 A2 D3 G3 B3 E4">7-String Guitar - Standard</option>
+      <option value="B1 E2 A2 D3 F#3 B3">Baritone Guitar</option>
+      <option value="G4 C4 E4 A4">Ukulele - Standard</option>
+      <option value="A4 D4 F#4 B4">Ukulele - D6</option>
+      <option value="D3 G3 B3 E4">Ukulele - Baritone</option>
+      <option value="G3 D4 A4 E5">Mandolin - Standard</option>
+      <option value="E1 A1 D2 G2">Bass Guitar - Standard</option>
+      <option value="B0 E1 A1 D2 G2">5-String Bass - Standard</option>
+      <option value="CUSTOM">Custom</option>
+    </select>
+    <br/>
+    Alter tuning:
+    <select id="tuning">
+      <option value="-4">down two steps</option>
+      <option value="-3">down three half-steps</option>
+      <option value="-2">down whole step</option>
+      <option value="-1">down half-step</option>
+      <option value="0" selected>None</option>
+      <option value="1">up half-step</option>
+      <option value="2">up whole step</option>
+    </select>
+    <br/>
+    Capo:
+    <select id="capo">
+      <option value="0" selected>None</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+    </select>
+    <br/>
+  </div>
+  
+  <div id="chords-played"></div>
+  <div id="instructions">
+    &#128072;<br/>
+    To get started, click on some notes on the fretboard and drag the pick across the strings!<br/>
+    &#128072;
+  </div>
+  
+  <div id="copyright">&copy; Kip Robinson. Details at <a href="https://github.com/kiprobinson/chordomatic">GitHub</a>.</div>
+</div>
+
+<div id="optionsOverlay">
+  <div id="optionsModal">
+    <div class="header">Options</div>
+    <div class="body">
+      <div class="option">
+        <input type="checkbox" id="leftHanded" />
+        <label for="leftHanded">Left-Handed</label>
+      </div>
+      <div class="option">
+        <input type="checkbox" id="useFlats" />
+        <label for="useFlats">Prefer flats in chord names (i.e. D&#x266D; instead of C&#x266F;)</label>
+      </div>
+      <div class="option">
+        <input type="checkbox" id="unicodeAccidentals" checked />
+        <label for="unicodeAccidentals">Use unicode accidentals (i.e. &#x266D;/&#x266F; instead of b/#)</label>
+      </div>
+      <div class="option">
+        <select id="majorSymbol">
+          <option value="maj" selected>maj</option>
+          <option value="M">M</option>
+        </select>
+        Symbol for major chord.
+      </div>
+      <div class="option">
+        <input type="checkbox" id="omitMajor" checked />
+        <label for="omitMajor">Omit symbol for major chord when possible.</label>
+      </div>
+      <div class="option">
+        <select id="minorSymbol">
+          <option value="m" selected>m</option>
+          <option value="min">min</option>
+          <option value="-">-</option>
+        </select>
+        Symbol for minor chord.
+      </div>
+      <div class="option">
+        <input type="checkbox" id="omitMinor" />
+        <label for="omitMinor">Use lower-case root name instead of minor symbol.</label>
+      </div>
+      <div class="option">
+        <select id="augSymbol">
+          <option value="aug" selected>aug</option>
+          <option value="+">+</option>
+        </select>
+        Symbol for augmented chord.
+      </div>
+      <div class="option">
+        <select id="dimSymbol">
+          <option value="dim" selected>dim</option>
+          <option value="o">&#x1D52;</option>
+        </select>
+        Symbol for diminished chord.
+      </div>
+      <div class="option">
+        <select id="unicodeHalfDiminished">
+          <option value="false" selected>m7(&#x266D;5)</option>
+          <option value="true">&#x00F8;</option>
+        </select>
+        Symbol for half-diminished chord.
+      </div>
+    </div>
+    <div class="footer">
+      <button id="optionsDismiss">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="audio"></div>
+<script type="template" id="stringSvg">
+  <svg baseProfile="full" viewBox="0 0 20 1000" preserveAspectRatio="none">
+    <path class="wire" d="M10 0 Q 10 500, 10 1000" fill="transparent" />
+  </svg>
+</script>
+</body>
+</html>

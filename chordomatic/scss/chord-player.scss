@@ -1,0 +1,343 @@
+@use "sass:math";
+
+$guitarAreaWidth: 400px;
+$guitarWidth: 240px;
+$pickAreaHeight: 100px;
+$headstockHeight: 50px;
+$noteLabelRadius: 12px;
+$boldWeight: 700;
+
+$mobileBreak: 1024px;
+$mobileGuitarWidth: $guitarAreaWidth - math.div($pickAreaHeight, 2);
+$mobileHeadstockHeight: $headstockHeight*2;
+
+@mixin fretHeight($n){
+  height: 100% * 2 * (math.pow(2, math.div((1-$n), 12)) - math.pow(2, math.div(-$n, 12)));
+}
+
+*, :after, :before {
+  box-sizing: border-box;
+}
+input,textarea,select,button {
+  font-family:inherit;
+  font-size:inherit;
+  font-weight:inherit;
+}
+body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  font-family: 'Open Sans',sans;
+  font-weight: 300;
+  background-color: #222;
+  color: white;
+}
+
+.supsub {
+  display: inline-block;
+  font-size: 70%;
+  vertical-align: sub;
+  
+  >span {
+    display: block;
+  }
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+@media (max-width: $mobileBreak) {
+  body {
+    font-size: 1.75em;
+  }
+  input[type=checkbox] {
+    width: 1.75em;
+    height: 1.75em;
+  }
+  select {
+    font-size: inherit;
+  }
+}
+a, a:visited {
+  color: orange;
+  text-decoration: none;
+}
+
+.note-label {
+  display: block;
+  background-color: red;
+  color: white;
+  width: $noteLabelRadius * 2;
+  height: $noteLabelRadius * 2;
+  border-radius: $noteLabelRadius;
+  overflow: hidden;
+  font-size: $noteLabelRadius;
+  font-weight: $boldWeight;
+  
+  //to center text vertically and horizontally because CSS is dumb
+  line-height: $noteLabelRadius * 2;
+  text-align: center;
+  
+  //double size of note labels in mobile
+  @media (max-width: $mobileBreak) {
+    width: $noteLabelRadius * 2 * 2;
+    height: $noteLabelRadius * 2 * 2;
+    border-radius: $noteLabelRadius * 2;
+    font-size: $noteLabelRadius * 2;
+    line-height: $noteLabelRadius * 2 * 2;
+  }
+}
+
+#guitar-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: $guitarAreaWidth;
+  height: 100%;
+  
+  #guitar {
+    position: absolute;
+    margin: 0;
+    top: 0;
+    height: 100%;
+    left: math.div(($guitarAreaWidth - $guitarWidth), 2);
+    width: $guitarWidth;
+    
+    @media (max-width: $mobileBreak) {
+      left: math.div(($guitarAreaWidth - $mobileGuitarWidth), 2);
+      width: $mobileGuitarWidth;
+    }
+    
+    background-color: #482D25;
+    background-image: url('img/fretboard.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    
+    #headstock {
+      height: $headstockHeight;
+      @media (max-width: $mobileBreak) { height: $mobileHeadstockHeight; }
+      position: relative;
+      border-bottom: 10px solid black;
+      
+      #capo {
+        display: none;
+      }
+    }
+    
+    #fretboard {
+      height: calc(100% - #{$pickAreaHeight + $headstockHeight});
+      @media (max-width: $mobileBreak) { height: calc(100% - #{$pickAreaHeight + $mobileHeadstockHeight}); }
+      .fret {
+        border-bottom: 3px solid #dd9;
+        position: relative;
+        
+        @for $i from 1 through 12 {
+          &.fret-#{$i} { @include fretHeight($i) }
+        }
+        
+        &.fret-3, &.fret-5, &.fret-7, &.fret-9, &.fret-12 {
+          background-image: url('img/fretboard-dots-1.svg');
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: contain;
+        }
+        &.fret-12 {
+          background-image: url('img/fretboard-dots-2.svg');
+        }
+        
+        #capo {
+          position: absolute;
+          bottom: 0;
+          height: 20px;
+          max-height: 30%;
+          width: 100%;
+          background-color: black;
+          z-index: 150; //above the strings
+        }
+      }
+    }
+    
+    #headstock .note, #fretboard .note {
+      position: absolute;
+      height:100%;
+      top: 0;
+      z-index: 200; //push above the strings
+      .note-label {
+        display: none;
+        position: absolute;
+        top: calc(50% - #{$noteLabelRadius});
+        left: calc(50% - #{$noteLabelRadius});
+        cursor: default;
+        
+        //double size of note labels in mobile
+        @media (max-width: $mobileBreak) {
+          top: calc(50% - #{$noteLabelRadius}*2);
+          left: calc(50% - #{$noteLabelRadius}*2);
+        }
+      }
+      
+      &.active .note-label {
+        display: block;
+      }
+    }
+    
+    #headstock .note:not(.active) .note-label {
+      display: block;background-color: #ddd;
+      color: #bbb;
+    }
+    
+    #pick-area {
+      position: relative;
+      background-color: black;
+      height: $pickAreaHeight;
+      #pick {
+        width: $pickAreaHeight;
+        height: $pickAreaHeight;
+        background-image: url(img/pick-pic.png);
+        background-repeat: no-repeat;
+        background-size: contain;
+        position: absolute;
+        top: 0;
+        left: math.div(-$pickAreaHeight, 2);
+        z-index: 200; //put it above the strings
+      }
+    }
+  }
+  
+  #strings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 100;
+    width: $guitarWidth;
+    
+    @media (max-width: $mobileBreak) {
+      width: $mobileGuitarWidth;
+    }
+    .string {
+      position: absolute;
+      &.static {
+        top: 0;
+      }
+      
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    .string.bronze svg path.wire {
+      stroke: #daa520;
+    }
+    .string.steel svg path.wire {
+      stroke: #aaa;
+    }
+  }
+}
+
+#controls {
+  position: absolute;
+  top: 0;
+  left: $guitarAreaWidth;
+  width: calc(100% - #{$guitarAreaWidth});
+  height: 100%;
+  overflow: auto;
+  
+  text-align: center;
+  
+  #title {
+    font-family: 'Milonga',sans-serif;
+    font-size: 2.5em;
+    font-weight: $boldWeight;
+    margin-bottom: 10px;
+  }
+  
+  #options {
+    margin-bottom: 10px;
+  }
+  
+  #chords-played {
+    table {
+      border-collapse: collapse;
+      margin: auto;
+      
+      tbody td, tbody th {
+        border: 1px solid white;
+        padding: 10px 20px;
+        
+        .note-label {
+          margin: auto;
+          margin-bottom: 10px;
+        }
+      }
+    }
+  }
+  
+  #instructions {
+    font-size: 3rem;
+    font-weight: 600;
+    text-align: left;
+    max-width: 600px;
+    margin: auto;
+    margin-top: 1rem;
+  }
+  
+  #copyright {
+    position: absolute;
+    bottom: 0;
+    padding-bottom: 3px;
+    width: 100%;
+    font-size: 0.9em;
+  }
+}
+
+#audio {
+  display: none;
+}
+
+#optionsOverlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+  
+  #optionsModal {
+    width: $guitarAreaWidth;
+    margin: auto;
+    margin-top: 50px;
+    background-color: #ddd;
+    overflow: hidden;
+    border-radius: 5px;
+    
+    .header, .body, .footer {
+      padding: 10px;
+    }
+    .header {
+      font-weight: $boldWeight;
+      background-color: orange;
+    }
+    .body {
+      color: #222;
+      
+      .option {
+        margin-bottom: 5px;
+      }
+    }
+    .footer {
+      text-align: right;
+      padding-top: 0;
+    }
+  }
+}

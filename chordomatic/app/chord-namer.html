@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="shortcut icon" href="img/favicon.png" type="image/png">
+<link rel="icon" href="img/favicon.png" type="image/png">
+<title>Chord-o-matic Chord Namer</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="chord-namer.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Milonga&family=Fira+Code:wght@400;600&family=Open+Sans:ital,wght@0,300;0,700;1,300;1,700&display=block" rel="stylesheet" />
+<script>
+  $(function() {
+    const audioPitches = 'E2 F2 Gb2 G2 Ab2 A2 Bb2 B2 C3 Db3 D3 Eb3 E3 F3 Gb3 G3 Ab3 A3 Bb3 B3 C4 Db4 D4 Eb4'.split(/ /).map(n => new Pitch(n));
+    
+    const options = {useFlats:false, unicodeAccidentals:true};
+    $('#notes,#root,#bass').on('change', function() {
+      options.useFlats = $('#useFlats')[0].checked;
+      
+      var notes = [];
+      $('#notes .note input:checked').each(function(){ notes.push(new Note(this.id)) });
+      
+      if(notes.length == 0) {
+        $('#output').text('');
+        return;
+      }
+      
+      var rootNote = $('#root').val();
+      if(rootNote === '')
+        rootNote = null;
+      else
+        rootNote = new Note(rootNote);
+      
+      var bassNote = $('#bass').val();
+      if(bassNote === '')
+        bassNote = null;
+      else
+        bassNote = new Note(bassNote);
+      
+      var chord = new Chord(notes);
+      var names = chord.getNames(options, rootNote, bassNote);
+      
+      const $output = $('#output');
+      $output.empty();
+      names.forEach(function(nameInfo) {
+        let details = '';
+        
+        details += `Root=${nameInfo.notes[0].note.getName(options)}  =>  ${nameInfo.name}\n`;
+        details += `  Score: ${nameInfo.score}\n`;
+        details += `  Intervals found:\n`;
+        nameInfo.notes.forEach((note)=> details += `    ${note.interval}: ${note.note.getName(options)}\n`);
+        
+        details += `  Reason for name:\n`;
+        nameInfo.verbose.forEach((s)=> details += `    ${s}\n`);
+        
+        $output.append($('<button class="play-chord" />').text('\u25B6\uFE0F').data('pitches', getPitchesToPlay(nameInfo, bassNote)));
+        $output.append($('<div class="chord-details" />').text(details));
+      });
+    });
+    
+    $('#useFlats').on('change', function() {
+      options.useFlats = this.checked;
+      $('#notes .note label, #options #root>option, #options #bass>option').each(function() {
+        var $this = $(this);
+        var name = $this.text().trim();
+        if(name !== '--')
+          $this.text(new Note($this.text().trim()).getName(options));
+      });
+      $('#notes').trigger('change');
+    });
+    
+    $('#output').on('click', '.play-chord', function(e) {
+      $('#audio > audio').each(function() { this.pause(); this.currentTime=0;})
+      const delay = 40;
+      const pitches = $(this).data('pitches').split(/ /);
+      for(let i = 0; i < pitches.length; i++)
+        setTimeout(()=>{$(`#audio-${pitches[i]}`)[0].play()}, delay * i);
+    });
+    
+    function getPitchesToPlay(chordNameInfo, bassNote) {
+      if(!bassNote)
+        bassNote = chordNameInfo.notes[0].note; //if no bass note, use root as bass note
+      
+      let bassPitchIdx = audioPitches.findIndex(p => p.getNote().equals(bassNote));
+      let availablePictches = audioPitches.filter((p,i) => bassPitchIdx <= i && i < bassPitchIdx + 12);
+      
+      let pitches = [];
+      chordNameInfo.notes.forEach(note => pitches.push(availablePictches.find(pitch => pitch.getNote().equals(note.note))));
+      pitches.sort((a,b)=>a.compareTo(b));
+      return pitches.map(p => p.getName({useFlats:true, unicodeAccidentals:false})).join(' ');
+    }
+  });
+</script>
+<style>
+body {
+  font-family: 'Open Sans',sans-serif;
+  font-weight: 300;
+}
+
+input,textarea,select,button {
+  font-family:inherit;
+  font-size:inherit;
+  font-weight:inherit;
+}
+
+#title {
+  font-family: 'Milonga',sans-serif;
+  font-size: 2.5em;
+  font-weight: 700;
+}
+#options {
+  font-size: 30px;
+}
+#options input[type=checkbox] {
+  height: 20px;
+  width: 20px;
+  margin-bottom: 30px;
+}
+#notes {
+  font-family: "Fira Code",monospace,sans-serif;
+  font-weight: 600;
+  font-size: 40px;
+}
+#notes .note {
+  display: inline-block;
+  width: 50px;
+  height: 100px;
+}
+#notes .note label, #notes .note input {
+  display: block;
+  text-align: center;
+  width: 100%;
+  height: 50%;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+#output {
+  font-family: "Fira Code",monospace,sans-serif;
+  font-weight:  400;
+  white-space: pre;
+  margin-top: 1.0em;
+}
+#output .play-chord {
+  cursor: pointer;
+}
+#output .chord-details {
+  margin-bottom: 2.0em;
+}
+#audio {
+  display: none;
+}
+#copyright {
+  margin-top: 3.0em;
+}
+</style>
+</head>
+<body>
+<h1 id="title">Chord-o-matic Chord Namer</h1>
+
+<div id="options">
+  Options: <input type="checkbox" id="useFlats" /> <label for="useFlats">Flats</label>
+  |
+  Root:
+  <select id="root">
+    <option value="">--</option>
+    <option value="C" >C</option>
+    <option value="C#">C&sharp;</option>
+    <option value="D" >D</option>
+    <option value="D#">D&sharp;</option>
+    <option value="E" >E</option>
+    <option value="F" >F</option>
+    <option value="F#">F&sharp;</option>
+    <option value="G" >G</option>
+    <option value="G#">G&sharp;</option>
+    <option value="A" >A</option>
+    <option value="A#">A&sharp;</option>
+    <option value="B" >B</option>
+  </select>
+  |
+  Bass:
+  <select id="bass">
+    <option value="">--</option>
+    <option value="C" >C</option>
+    <option value="C#">C&sharp;</option>
+    <option value="D" >D</option>
+    <option value="D#">D&sharp;</option>
+    <option value="E" >E</option>
+    <option value="F" >F</option>
+    <option value="F#">F&sharp;</option>
+    <option value="G" >G</option>
+    <option value="G#">G&sharp;</option>
+    <option value="A" >A</option>
+    <option value="A#">A&sharp;</option>
+    <option value="B" >B</option>
+  </select>
+</div>
+
+<div id="notes">
+  <div class="note"><label for="C" >C       </label><input type="checkbox" id="C"  /></div>
+  <div class="note"><label for="C#">C&sharp;</label><input type="checkbox" id="C#" /></div>
+  <div class="note"><label for="D" >D       </label><input type="checkbox" id="D"  /></div>
+  <div class="note"><label for="D#">D&sharp;</label><input type="checkbox" id="D#" /></div>
+  <div class="note"><label for="E" >E       </label><input type="checkbox" id="E"  /></div>
+  <div class="note"><label for="F" >F       </label><input type="checkbox" id="F"  /></div>
+  <div class="note"><label for="F#">F&sharp;</label><input type="checkbox" id="F#" /></div>
+  <div class="note"><label for="G" >G       </label><input type="checkbox" id="G"  /></div>
+  <div class="note"><label for="G#">G&sharp;</label><input type="checkbox" id="G#" /></div>
+  <div class="note"><label for="A" >A       </label><input type="checkbox" id="A"  /></div>
+  <div class="note"><label for="A#">A&sharp;</label><input type="checkbox" id="A#" /></div>
+  <div class="note"><label for="B" >B       </label><input type="checkbox" id="B"  /></div>
+</div>
+
+
+<div id="output"></div>
+
+<div id="copyright">&copy; Kip Robinson. Details at <a href="https://github.com/kiprobinson/chordomatic">GitHub</a>.</div>
+<div id="audio">
+  <audio id="audio-E2"  preload="" src="audio/E2/00.mp3"></audio>
+  <audio id="audio-F2"  preload="" src="audio/E2/01.mp3"></audio>
+  <audio id="audio-Gb2" preload="" src="audio/E2/02.mp3"></audio>
+  <audio id="audio-G2"  preload="" src="audio/E2/03.mp3"></audio>
+  <audio id="audio-Ab2" preload="" src="audio/E2/04.mp3"></audio>
+  <audio id="audio-A2"  preload="" src="audio/A2/00.mp3"></audio>
+  <audio id="audio-Bb2" preload="" src="audio/A2/01.mp3"></audio>
+  <audio id="audio-B2"  preload="" src="audio/A2/02.mp3"></audio>
+  <audio id="audio-C3"  preload="" src="audio/A2/03.mp3"></audio>
+  <audio id="audio-Db3" preload="" src="audio/A2/04.mp3"></audio>
+  <audio id="audio-D3"  preload="" src="audio/D3/00.mp3"></audio>
+  <audio id="audio-Eb3" preload="" src="audio/D3/01.mp3"></audio>
+  <audio id="audio-E3"  preload="" src="audio/D3/02.mp3"></audio>
+  <audio id="audio-F3"  preload="" src="audio/D3/03.mp3"></audio>
+  <audio id="audio-Gb3" preload="" src="audio/D3/04.mp3"></audio>
+  <audio id="audio-G3"  preload="" src="audio/G3/00.mp3"></audio>
+  <audio id="audio-Ab3" preload="" src="audio/G3/01.mp3"></audio>
+  <audio id="audio-A3"  preload="" src="audio/G3/02.mp3"></audio>
+  <audio id="audio-Bb3" preload="" src="audio/G3/03.mp3"></audio>
+  <audio id="audio-B3"  preload="" src="audio/B3/00.mp3"></audio>
+  <audio id="audio-C4"  preload="" src="audio/B3/01.mp3"></audio>
+  <audio id="audio-Db4" preload="" src="audio/B3/02.mp3"></audio>
+  <audio id="audio-D4"  preload="" src="audio/B3/03.mp3"></audio>
+  <audio id="audio-Eb4" preload="" src="audio/B3/04.mp3"></audio>
+</div>
+</body>
+</html>

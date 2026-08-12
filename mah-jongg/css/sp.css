@@ -1,0 +1,111 @@
+#su1, #su2, #su3, #su4
+ {
+  border:0 none;
+  display:block;
+  position:relative;
+  width:530px;
+  height:60px;
+  padding:0;
+  margin:0 0 -60px;
+}
+
+#su1 {
+  -moz-transform:rotate(90deg);
+  -o-transform:rotate(90deg);
+  -webkit-transform:rotate(90deg);
+  -ms-transform:rotate(90deg);
+  transform:rotate(90deg);
+  top:240px;
+  left:-215px;
+}
+
+#su2 {
+  -moz-transform:rotate(180deg);
+  -o-transform:rotate(180deg);
+  -webkit-transform:rotate(180deg);
+  -ms-transform:rotate(180deg);
+  transform:rotate(180deg);
+  top:20px;
+  left:135px;
+}
+
+#su3 {
+  -moz-transform:rotate(270deg);
+  -o-transform:rotate(270deg);
+  -webkit-transform:rotate(270deg);
+  -ms-transform:rotate(270deg);
+  -transform-transform:rotate(270deg);
+  top:240px;
+  left:485px;
+}
+
+#su4 {
+  top:460px;
+  left:135px;
+}
+
+
+#su>.p0>:nth-child(14),
+#su>.p1>:nth-child(11),
+#su>.p2>:nth-child( 8),
+#su>.p3>:nth-child( 5),
+#su>.p4>:nth-child( 2)
+{
+  margin-left:16px;
+}
+
+#su>.p1>:nth-child(n+12),
+#su>.p2>:nth-child(n+9),
+#su>.p3>:nth-child(n+6),
+#su>.p4>:nth-child(n+3)
+{
+  margin-left:-8px;
+}
+
+#su>.p1>:nth-child(3n+12),
+#su>.p2>:nth-child(3n+9),
+#su>.p3>:nth-child(3n+6),
+#su>.p4>:nth-child(3n+3)
+{
+  margin-left:16px !important;
+}
+
+
+#act.p4:not(.mv)~#su>#su4.p0>div:hover,
+#act.p4:not(.mv)~#su>#su4.p1>div:nth-last-child(n+4):hover,
+#act.p4:not(.mv)~#su>#su4.p2>div:nth-last-child(n+7):hover,
+#act.p4:not(.mv)~#su>#su4.p3>div:nth-last-child(n+10):hover,
+#act.p4:not(.mv)~#su>#su4.p4>div:nth-last-child(n+13):hover
+{
+  background-position:0 0;
+  cursor:pointer;
+}
+
+#su:not(.xs)>:not(#su4):not(.xs).p0>div:not(.z9),
+#su:not(.xs)>:not(#su4):not(.xs).p1>div:not(.z9):nth-last-child(n+4),
+#su:not(.xs)>:not(#su4):not(.xs).p2>div:not(.z9):nth-last-child(n+7),
+#su:not(.xs)>:not(#su4):not(.xs).p3>div:not(.z9):nth-last-child(n+10),
+#su:not(.xs)>:not(#su4):not(.xs).p4>div:not(.z9):nth-last-child(n+13)
+{
+  background-image:url("../tp/z/8.png");
+}
+
+#act.p4~#xp>#xz {
+  display:block;
+}
+#act.apg~#xp>#xz {
+  display:block;
+}
+
+div.g2 {
+  display:inline;
+}
+div.g2>div:first-child {
+  margin-left:-11px;
+}
+div.g2>div:nth-child(2) {
+  margin-left:-19px;
+}
+div.g2+div {
+  margin-left:-19px !important;
+}

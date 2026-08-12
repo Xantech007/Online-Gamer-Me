@@ -1,0 +1,14 @@
+{
+  "name": "chordOMatic",
+  "version": "1.0.0",
+  "main": "Gulpfile.js",
+  "scripts": {
+    "build": "gulp",
+    "watch": "gulp watch"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-sass": "^5.0.0",
+    "sass": "^1.37.5"
+  }
+}
