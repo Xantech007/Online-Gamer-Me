@@ -39,7 +39,7 @@ img { border: 1px solid #444; border-radius: 4px; }
 
 /* Main Wrapper for Sticky Footer */
 #app-content { 
-  display: none; /* Controlled by Firebase Auth */
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
@@ -75,7 +75,7 @@ nav {
   border-bottom: 1px solid #333; 
 }
 
-nav a { 
+nav a, nav button { 
   color: #ccc; 
   padding: 8px 14px; 
   font-weight: 600; 
@@ -87,15 +87,21 @@ nav a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-nav a:hover, nav a.active { 
+nav a:hover, nav a.active, nav button:hover { 
   background-color: greenyellow; 
   color: black; 
   border-color: greenyellow; 
 }
 
-/* Hero Section (Ready to Play & Earn) */
+.auth-only, .guest-only {
+  display: none; /* Controlled via JS Auth observer */
+}
+
+/* Hero Section */
 #hero-section {
   text-align: center; 
   padding: 60px 20px; 
@@ -196,6 +202,76 @@ nav a:hover, nav a.active {
   gap: 6px;
 }
 
+/* Floating Support Button & Widget */
+.floating-support-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.support-toggle-btn {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background-color: greenyellow;
+  color: #000;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.support-toggle-btn:hover {
+  transform: scale(1.08);
+  background-color: #9eff1a;
+}
+
+.support-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.support-options.active {
+  display: flex;
+}
+
+.support-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #222;
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.support-link:hover {
+  border-color: greenyellow;
+  background-color: #2a2a2a;
+}
+
+.support-link.whatsapp i { color: #25D366; font-size: 16px; }
+.support-link.email i { color: #ea4335; font-size: 16px; }
+
 /* Footer Section Locked to Bottom */
 footer { 
   flex-shrink: 0;
@@ -225,20 +301,25 @@ footer a:hover { color: greenyellow; background: transparent; }
       <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
       <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
       <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      
+      <!-- Authenticated User Links -->
       <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
       <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <!-- Guest Links -->
       <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
       <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <!-- Hero Section (Hidden upon clicking Play Now) -->
+    <!-- Hero Section -->
     <div id="hero-section">
       <h1>Ready to Play & Earn?</h1>
       <p>Welcome to Online Gamer®. Enjoy our curated retro gaming arcade, track your live gameplay stats, and earn rewards as you climb the leaderboards.</p>
       <button id="playNowBtn" class="play-btn"><i class="fa-solid fa-play"></i> Play Now</button>
     </div>
 
-    <!-- Games Container (Visible after clicking Play Now) -->
+    <!-- Games Container -->
     <div id="games-container">
       <div class="list">
         <a href="hextris-lite/"><div class="game"><img src="_logo/hextris-lite.png" width="100" height="100" alt="Hextris"><br />Hextris<br /><small>hexagonal tetris</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
@@ -263,37 +344,95 @@ footer a:hover { color: greenyellow; background: transparent; }
     </div>
   </div>
 
+  <!-- Floating Support Button -->
+  <div class="floating-support-container">
+    <div id="supportOptions" class="support-options">
+      <a id="whatsappLink" href="#" target="_blank" class="support-link whatsapp">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
+      </a>
+      <a id="emailLink" href="#" target="_blank" class="support-link email">
+        <i class="fa-solid fa-envelope"></i> Email Support
+      </a>
+    </div>
+    <button id="supportToggleBtn" class="support-toggle-btn" title="Contact Support">
+      <i class="fa-solid fa-headset"></i>
+    </button>
+  </div>
+
   <!-- Footer Aligned to Bottom -->
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:01:04 UTC</span></p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:24:00 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
 <script type="module">
-  import { auth } from './firebase.js';
-  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { auth, db } from './firebase.js';
+  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const appContent = document.getElementById('app-content');
   const heroSection = document.getElementById('hero-section');
   const gamesContainer = document.getElementById('games-container');
   const playNowBtn = document.getElementById('playNowBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
 
-  // Handle Play Now Click: Hide details, show games
+  const supportToggleBtn = document.getElementById('supportToggleBtn');
+  const supportOptions = document.getElementById('supportOptions');
+  const whatsappLink = document.getElementById('whatsappLink');
+  const emailLink = document.getElementById('emailLink');
+
+  // Play Now toggle
   playNowBtn.addEventListener('click', () => {
     heroSection.style.display = 'none';
     gamesContainer.style.display = 'block';
   });
 
-  // Check auth state
+  // Dynamic Auth State UI
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      appContent.style.display = 'flex'; // Uses Flexbox layout to align footer
       document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-block');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
     } else {
-      window.location.href = 'login.html'; 
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'inline-flex');
+    }
+  });
+
+  // Logout Action
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
+
+  // Floating Support Button Handler
+  let supportFetched = false;
+  supportToggleBtn.addEventListener('click', async () => {
+    supportOptions.classList.toggle('active');
+
+    if (!supportFetched) {
+      try {
+        const docRef = doc(db, 'settings', 'contact');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.whatsapp) {
+            const cleanNum = data.whatsapp.replace(/[^\d+]/g, '');
+            whatsappLink.href = `https://wa.me/${cleanNum}`;
+          }
+          if (data.email) {
+            emailLink.href = `mailto:${data.email}`;
+          }
+        }
+        supportFetched = true;
+      } catch (err) {
+        console.error('Error fetching support contact details:', err);
+      }
     }
   });
 </script>
