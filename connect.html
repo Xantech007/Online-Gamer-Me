@@ -79,6 +79,20 @@ nav a:hover, nav a.active, nav button:hover {
 
 .form-card p { color: #aaa; font-size: 13px; margin-bottom: 20px; }
 
+.approved-banner {
+  background-color: rgba(173, 255, 47, 0.1);
+  border: 1px solid greenyellow;
+  border-radius: 6px;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  color: greenyellow;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .payment-instructions-box {
   background-color: #1a1a1a;
   border: 1px solid greenyellow;
@@ -171,7 +185,12 @@ footer a:hover { color: greenyellow; background: transparent; }
 
       <div class="form-card" id="connectContent" style="display: none;">
         <h2><i class="fa-solid fa-mobile-screen-button"></i> Connect MoMo Account</h2>
-        <p>Fill in your payout account details and proceed to make the one-time connection payment.</p>
+        <p id="subHeadlineText">Fill in your payout account details and proceed to make the one-time connection payment.</p>
+
+        <div id="approvedBanner" class="approved-banner" style="display: none;">
+          <i class="fa-solid fa-circle-check fa-lg"></i>
+          <span>Account Connected & Verified. You can update your payout info below.</span>
+        </div>
 
         <form id="momoForm">
           <!-- STEP 1: User MoMo Details -->
@@ -199,11 +218,15 @@ footer a:hover { color: greenyellow; background: transparent; }
             <button type="button" class="action-btn" id="proceedBtn">
               Proceed <i class="fa-solid fa-arrow-right"></i>
             </button>
+
+            <button type="submit" class="action-btn" id="updateDirectBtn" style="display: none;">
+              <i class="fa-solid fa-floppy-disk"></i> Update Account Info
+            </button>
           </div>
 
-          <!-- STEP 2: Instructions & Payment Proof (Hidden until Proceed is clicked) -->
+          <!-- STEP 2: Instructions & Payment Proof (Hidden until Proceed is clicked or completely suppressed if approved) -->
           <div id="paymentStepSection" style="display: none; margin-top: 20px;">
-            <div class="payment-instructions-box">
+            <div class="payment-instructions-box" id="paymentInstructionsBox">
               <h3><i class="fa-solid fa-hand-holding-dollar"></i> Connection Fee Payment Instructions</h3>
               
               <ol class="instruction-steps">
@@ -249,7 +272,6 @@ footer a:hover { color: greenyellow; background: transparent; }
 
   <footer>
     <p>Online Gamer®</p>
-    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:56:49 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
@@ -257,11 +279,13 @@ footer a:hover { color: greenyellow; background: transparent; }
 <script type="module">
   import { auth, db } from './firebase.js';
   import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { doc, getDoc, collection, addDoc, setDoc, query, where, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const logoutBtn = document.getElementById('logoutBtn');
   const loader = document.getElementById('loader');
   const connectContent = document.getElementById('connectContent');
+  const approvedBanner = document.getElementById('approvedBanner');
+  const subHeadlineText = document.getElementById('subHeadlineText');
   
   const displayFee = document.getElementById('displayFee');
   const displayAdminProvider = document.getElementById('displayAdminProvider');
@@ -273,6 +297,7 @@ footer a:hover { color: greenyellow; background: transparent; }
   const momoName = document.getElementById('momoName');
   const momoNumber = document.getElementById('momoNumber');
   const proceedBtn = document.getElementById('proceedBtn');
+  const updateDirectBtn = document.getElementById('updateDirectBtn');
   const paymentStepSection = document.getElementById('paymentStepSection');
   const receiptFileInput = document.getElementById('receiptFile');
   const submitBtn = document.getElementById('submitBtn');
@@ -280,6 +305,7 @@ footer a:hover { color: greenyellow; background: transparent; }
 
   let currentUserId = null;
   let connectionFeeAmount = 0;
+  let isApprovedUser = false;
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -287,12 +313,37 @@ footer a:hover { color: greenyellow; background: transparent; }
       document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
       
       currentUserId = user.uid;
-      await fetchConnectionSettings();
+      await checkIfApproved(user.uid);
       await loadExistingUserData(user.uid);
+      if (!isApprovedUser) {
+        await fetchConnectionSettings();
+      }
     } else {
       window.location.href = 'login.html';
     }
   });
+
+  async function checkIfApproved(uid) {
+    try {
+      const q = query(
+        collection(db, 'connectionRequests'),
+        where('userId', '==', uid),
+        where('status', '==', 'approved')
+      );
+      const querySnap = await getDocs(q);
+
+      if (!querySnap.empty) {
+        isApprovedUser = true;
+        approvedBanner.style.display = 'flex';
+        subHeadlineText.textContent = 'Your connection request has been approved. You can update your mobile money payout details here directly.';
+        proceedBtn.style.display = 'none';
+        updateDirectBtn.style.display = 'flex';
+        paymentStepSection.remove(); // Completely removes payment and proof elements from DOM
+      }
+    } catch (err) {
+      console.error('Error checking approval status:', err);
+    }
+  }
 
   async function fetchConnectionSettings() {
     try {
@@ -352,8 +403,8 @@ footer a:hover { color: greenyellow; background: transparent; }
     momoNumber.disabled = true;
     proceedBtn.style.display = 'none';
 
-    receiptFileInput.required = true;
-    paymentStepSection.style.display = 'block';
+    if (receiptFileInput) receiptFileInput.required = true;
+    if (paymentStepSection) paymentStepSection.style.display = 'block';
   });
 
   logoutBtn.addEventListener('click', async () => {
@@ -369,7 +420,32 @@ footer a:hover { color: greenyellow; background: transparent; }
     e.preventDefault();
     statusMsg.className = 'status-msg';
 
-    const file = receiptFileInput.files[0];
+    // DIRECT UPDATE IF ALREADY APPROVED
+    if (isApprovedUser) {
+      updateDirectBtn.disabled = true;
+      updateDirectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+      try {
+        await setDoc(doc(db, 'users', currentUserId), {
+          momoProvider: momoProvider.value,
+          momoName: momoName.value.trim(),
+          momoNumber: momoNumber.value.trim()
+        }, { merge: true });
+
+        statusMsg.textContent = 'Account details updated successfully!';
+        statusMsg.classList.add('success');
+      } catch (err) {
+        statusMsg.textContent = err.message || 'Failed to update account info.';
+        statusMsg.classList.add('error');
+      } finally {
+        updateDirectBtn.disabled = false;
+        updateDirectBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Account Info';
+      }
+      return;
+    }
+
+    // FIRST TIME / NON-APPROVED SUBMISSION WITH PAYMENT PROOF
+    const file = receiptFileInput ? receiptFileInput.files[0] : null;
 
     if (!file) {
       statusMsg.textContent = 'Please attach your payment receipt screenshot.';
@@ -381,7 +457,6 @@ footer a:hover { color: greenyellow; background: transparent; }
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading Receipt...';
 
     try {
-      // Step 1: Upload image to server script
       const formData = new FormData();
       formData.append('receipt', file);
 
@@ -398,7 +473,6 @@ footer a:hover { color: greenyellow; background: transparent; }
 
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting Request...';
 
-      // Step 2: Store file details in Firestore
       await addDoc(collection(db, 'connectionRequests'), {
         userId: currentUserId,
         momoProvider: momoProvider.value,
