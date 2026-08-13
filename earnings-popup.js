@@ -2,12 +2,17 @@ import { auth, db } from '/firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { doc, getDoc, getDocs, collection, setDoc, onSnapshot, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// Restore state from LocalStorage if available
-let secondsPlayed = parseInt(localStorage.getItem('secondsPlayed')) || 0;
-let sessionEarnings = parseFloat(localStorage.getItem('sessionEarnings')) || 0;
+// Reset session state on EVERY page load (Start from 0)
+localStorage.removeItem('secondsPlayed');
+localStorage.removeItem('sessionEarnings');
+
+let secondsPlayed = 0;
+let sessionEarnings = 0;
+let sessionEarningsSinceLastSync = 0; // Tracks unsynced earnings for UI balance
+
 let rate = 0; // rate per second
-let initialBalance = 0;
-let initialGameTime = 0;
+let currentDbBalance = 0;
+let currentDbGameTime = 0;
 let timerInterval = null;
 let userDocRef = null;
 
@@ -122,7 +127,7 @@ widget.innerHTML = `
   </div>
   <div id="earnings-widget-body">
     <div class="stat"><span>Time:</span> <span id="ew-time" class="value">0 secs</span></div>
-    <div class="stat"><span>Earned:</span> <span id="ew-earned" class="value earned">GHS 0.0000</span></div>
+    <div class="stat"><span>Earned:</span> <span id="ew-earned" class="value">GHS 0.0000</span></div>
     <div class="stat"><span>Balance:</span> <span id="ew-balance" class="value balance">Loading...</span></div>
   </div>
 `;
@@ -160,7 +165,6 @@ function startDrag(e) {
   offsetX = clientX - rect.left;
   offsetY = clientY - rect.top;
   
-  // Convert positioning from right/top to absolute pixel top/left on drag start
   widget.style.right = 'auto';
   widget.style.left = `${rect.left}px`;
   widget.style.top = `${rect.top}px`;
@@ -174,7 +178,6 @@ function moveDrag(e) {
   let newLeft = clientX - offsetX;
   let newTop = clientY - offsetY;
 
-  // Screen boundary clamping
   const maxLeft = window.innerWidth - widget.offsetWidth;
   const maxTop = window.innerHeight - widget.offsetHeight;
 
@@ -253,25 +256,20 @@ onAuthStateChanged(auth, async (user) => {
     rate = 0.001; 
   }
 
-  // 2. Initial balance & gameTime load & listener
-  let isFirstLoad = true;
+  // 2. Initial balance & gameTime load & realtime listener
   onSnapshot(userDocRef, (docSnap) => {
     if (docSnap.exists()) {
       const data = docSnap.data();
-      const dbBalance = parseFloat(data.balance) || 0;
-      const dbGameTime = parseInt(data.gameTime) || 0;
+      currentDbBalance = parseFloat(data.balance) || 0;
+      currentDbGameTime = parseInt(data.gameTime) || 0;
 
-      if (isFirstLoad) {
-        initialBalance = dbBalance;
-        initialGameTime = dbGameTime;
-        isFirstLoad = false;
-      }
-      document.getElementById('ew-balance').textContent = `GHS ${(initialBalance + sessionEarnings).toFixed(4)}`;
-      document.getElementById('ew-time').textContent = formatDisplayTime(initialGameTime + secondsPlayed);
+      // Update UI incorporating unsynced session additions
+      document.getElementById('ew-balance').textContent = `GHS ${(currentDbBalance + sessionEarningsSinceLastSync).toFixed(4)}`;
+      document.getElementById('ew-time').textContent = formatDisplayTime(currentDbGameTime + secondsPlayed);
     } else {
       setDoc(userDocRef, { balance: 0, gameTime: 0 }, { merge: true });
-      initialBalance = 0;
-      initialGameTime = 0;
+      currentDbBalance = 0;
+      currentDbGameTime = 0;
       document.getElementById('ew-balance').textContent = 'GHS 0.0000';
       document.getElementById('ew-time').textContent = '0 secs';
     }
@@ -288,23 +286,32 @@ function startEarningTimer() {
     if (document.hidden) return;
 
     secondsPlayed++;
-    sessionEarnings = secondsPlayed * rate;
+    const addedValue = rate;
+    sessionEarnings += addedValue;
+    sessionEarningsSinceLastSync += addedValue;
 
-    // 1. UPDATE LOCAL STORAGE (Every 1 second)
+    // 1. UPDATE LOCAL STORAGE FOR REFERENCE
     localStorage.setItem('secondsPlayed', secondsPlayed);
     localStorage.setItem('sessionEarnings', sessionEarnings.toFixed(4));
 
-    // Format & Update UI Elements
-    document.getElementById('ew-time').textContent = formatDisplayTime(initialGameTime + secondsPlayed);
+    // Update UI Elements dynamically
+    document.getElementById('ew-time').textContent = formatDisplayTime(currentDbGameTime + secondsPlayed);
     document.getElementById('ew-earned').textContent = `GHS ${sessionEarnings.toFixed(4)}`;
-    document.getElementById('ew-balance').textContent = `GHS ${(initialBalance + sessionEarnings).toFixed(4)}`;
+    document.getElementById('ew-balance').textContent = `GHS ${(currentDbBalance + sessionEarningsSinceLastSync).toFixed(4)}`;
 
-    // 2. UPDATE FIRESTORE (Every 10 seconds)
+    // 2. SYNC TO FIRESTORE (Every 10 seconds)
     if (rate > 0 && userDocRef && secondsPlayed % 10 === 0) {
+      const batchEarnings = rate * 10;
+      
       setDoc(userDocRef, {
-        balance: increment(rate * 10),
+        balance: increment(batchEarnings),
         gameTime: increment(10)
-      }, { merge: true }).catch(err => console.error('Firestore sync error:', err));
+      }, { merge: true })
+      .then(() => {
+        // Reset unsynced earnings batch once acknowledged
+        sessionEarningsSinceLastSync = Math.max(0, sessionEarningsSinceLastSync - batchEarnings);
+      })
+      .catch(err => console.error('Firestore sync error:', err));
     }
   }, 1000);
 }
