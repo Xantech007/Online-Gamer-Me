@@ -473,7 +473,7 @@ table td {
   animation: slideIn 0.3s ease-out forwards;
 }
 
-.notification-toast.approved, .notification-toast.completed {
+.notification-toast.approved, .notification-toast.completed, .notification-toast.connected {
   border-left-color: greenyellow;
 }
 
@@ -486,7 +486,7 @@ table td {
   margin-top: 2px;
 }
 
-.notification-toast.approved i, .notification-toast.completed i {
+.notification-toast.approved i, .notification-toast.completed i, .notification-toast.connected i {
   color: greenyellow;
 }
 
@@ -810,6 +810,7 @@ footer a:hover { color: greenyellow; background: transparent; }
   let minWithdrawAmount = 10;
   let userMomoData = null;
   let unsubscribeWithdrawals = null;
+  let unsubscribeUser = null;
 
   // Dynamic Auth State UI Observer
   onAuthStateChanged(auth, async (user) => {
@@ -819,10 +820,11 @@ footer a:hover { color: greenyellow; background: transparent; }
       
       currentUserId = user.uid;
       await fetchMinWithdraw();
-      await loadUserData(user);
+      listenToUserData(user.uid);
       listenToWithdrawalUpdates(user.uid);
     } else {
       if (unsubscribeWithdrawals) unsubscribeWithdrawals();
+      if (unsubscribeUser) unsubscribeUser();
       window.location.href = 'login.html';
     }
   });
@@ -849,6 +851,68 @@ footer a:hover { color: greenyellow; background: transparent; }
       toast.style.animation = 'fadeOut 0.3s ease-out forwards';
       setTimeout(() => toast.remove(), 300);
     }, 5000);
+  }
+
+  // Real-time listener for User Profile & MoMo details
+  function listenToUserData(uid) {
+    const userRef = doc(db, 'users', uid);
+
+    unsubscribeUser = onSnapshot(userRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        userCurrentBalance = data.balance !== undefined ? parseFloat(data.balance) : 0;
+        walletBalance.textContent = `GHS ${userCurrentBalance.toFixed(2)}`;
+
+        const momoProvider = data.momoProvider || data.provider || data.momoType;
+        const momoName = data.momoName || data.accountName;
+        const momoNumber = data.momoNumber || data.accountNumber;
+
+        const hadPreviousMomo = !!userMomoData;
+
+        if (momoName && momoNumber) {
+          const newMomoData = {
+            provider: momoProvider || 'MoMo',
+            name: momoName,
+            number: momoNumber
+          };
+
+          // Check if account was updated or newly added
+          if (
+            !hadPreviousMomo ||
+            userMomoData.number !== newMomoData.number ||
+            userMomoData.provider !== newMomoData.provider ||
+            userMomoData.name !== newMomoData.name
+          ) {
+            if (hadPreviousMomo) {
+              showNotification('MoMo Updated', 'Your Mobile Money details have been updated successfully!', 'connected');
+            } else {
+              showNotification('MoMo Connected', 'Your Mobile Money account was successfully connected!', 'connected');
+            }
+          }
+
+          userMomoData = newMomoData;
+
+          displayMomoProvider.textContent = userMomoData.provider;
+          displayMomoName.textContent = userMomoData.name;
+          displayMomoNumber.textContent = userMomoData.number;
+
+          momoDetailsDisplay.style.display = 'block';
+          connectMomoBtn.style.display = 'none';
+          submitBtn.disabled = false;
+        } else {
+          userMomoData = null;
+          momoDetailsDisplay.style.display = 'none';
+          connectMomoBtn.style.display = 'inline-flex';
+          submitBtn.disabled = true;
+        }
+      }
+
+      withdrawLoader.style.display = 'none';
+      withdrawContent.style.display = 'block';
+    }, (err) => {
+      console.error('Error listening to user data:', err);
+      withdrawLoader.innerHTML = '<p style="color: #ff4d4d;">Failed to load user data. Please refresh.</p>';
+    });
   }
 
   // Real-time listener for withdrawal updates
@@ -949,50 +1013,6 @@ footer a:hover { color: greenyellow; background: transparent; }
     document.getElementById('amount').min = minWithdrawAmount;
   }
 
-  // Load User Balance and MoMo Details
-  async function loadUserData(user) {
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        userCurrentBalance = data.balance !== undefined ? parseFloat(data.balance) : 0;
-        walletBalance.textContent = `GHS ${userCurrentBalance.toFixed(2)}`;
-
-        const momoProvider = data.momoProvider || data.provider || data.momoType;
-        const momoName = data.momoName || data.accountName;
-        const momoNumber = data.momoNumber || data.accountNumber;
-
-        if (momoName && momoNumber) {
-          userMomoData = {
-            provider: momoProvider || 'MoMo',
-            name: momoName,
-            number: momoNumber
-          };
-
-          displayMomoProvider.textContent = userMomoData.provider;
-          displayMomoName.textContent = userMomoData.name;
-          displayMomoNumber.textContent = userMomoData.number;
-
-          momoDetailsDisplay.style.display = 'block';
-          connectMomoBtn.style.display = 'none';
-          submitBtn.disabled = false;
-        } else {
-          momoDetailsDisplay.style.display = 'none';
-          connectMomoBtn.style.display = 'inline-flex';
-          submitBtn.disabled = true;
-        }
-      }
-
-      withdrawLoader.style.display = 'none';
-      withdrawContent.style.display = 'block';
-    } catch (err) {
-      console.error('Error fetching user details:', err);
-      withdrawLoader.innerHTML = '<p style="color: #ff4d4d;">Failed to load user data. Please refresh.</p>';
-    }
-  }
-
   // Logout Action
   logoutBtn.addEventListener('click', async () => {
     try {
@@ -1074,9 +1094,6 @@ footer a:hover { color: greenyellow; background: transparent; }
       const newBalance = userCurrentBalance - withdrawAmount;
       const userRef = doc(db, 'users', currentUserId);
       await updateDoc(userRef, { balance: newBalance });
-
-      userCurrentBalance = newBalance;
-      walletBalance.textContent = `GHS ${userCurrentBalance.toFixed(2)}`;
 
       statusMsg.textContent = 'Withdrawal request submitted successfully!';
       statusMsg.classList.add('success');
