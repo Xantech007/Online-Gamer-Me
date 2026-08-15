@@ -210,6 +210,7 @@ footer {
             <table>
               <thead>
                 <tr>
+                  <th>Created At</th>
                   <th>Email</th>
                   <th>Name</th>
                   <th>MoMo Name</th>
@@ -220,7 +221,7 @@ footer {
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <tr><td colspan="7">Loading users...</td></tr>
+                <tr><td colspan="8">Loading users...</td></tr>
               </tbody>
             </table>
           </div>
@@ -237,6 +238,7 @@ footer {
             <table>
               <thead>
                 <tr>
+                  <th>Date & Time</th>
                   <th>Email</th>
                   <th>Name</th>
                   <th>Account Details</th>
@@ -246,7 +248,7 @@ footer {
                 </tr>
               </thead>
               <tbody id="requestsTableBody">
-                <tr><td colspan="6">Loading requests...</td></tr>
+                <tr><td colspan="7">Loading requests...</td></tr>
               </tbody>
             </table>
           </div>
@@ -263,6 +265,7 @@ footer {
             <table>
               <thead>
                 <tr>
+                  <th>Date & Time</th>
                   <th>Email</th>
                   <th>Name</th>
                   <th>Amount</th>
@@ -273,7 +276,7 @@ footer {
                 </tr>
               </thead>
               <tbody id="withdrawalsTableBody">
-                <tr><td colspan="7">Loading withdrawals...</td></tr>
+                <tr><td colspan="8">Loading withdrawals...</td></tr>
               </tbody>
             </table>
           </div>
@@ -359,7 +362,7 @@ footer {
 
   const loadedTabs = new Set();
 
-  // Helper function to convert seconds to hh:mm:ss format
+  // Helper function to format seconds to hh:mm:ss format
   function formatSecondsToHMS(totalSeconds) {
     const secNum = parseInt(totalSeconds || 0, 10);
     const hours   = Math.floor(secNum / 3600);
@@ -371,6 +374,35 @@ footer {
     const s = String(seconds).padStart(2, '0');
 
     return `${h}:${m}:${s}`;
+  }
+
+  // Helper function to convert Firestore Timestamps / Dates into formatted strings
+  function formatDate(timestamp) {
+    if (!timestamp) return 'N/A';
+    let d;
+    if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+      d = timestamp.toDate();
+    } else if (timestamp.seconds) {
+      d = new Date(timestamp.seconds * 1000);
+    } else {
+      d = new Date(timestamp);
+    }
+
+    if (isNaN(d.getTime())) return 'N/A';
+    return d.toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Helper function to extract millisecond timestamp for sorting
+  function getMillis(timestamp) {
+    if (!timestamp) return 0;
+    if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+      return timestamp.toDate().getTime();
+    }
+    if (timestamp.seconds) {
+      return timestamp.seconds * 1000;
+    }
+    const d = new Date(timestamp);
+    return isNaN(d.getTime()) ? 0 : d.getTime();
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -555,8 +587,10 @@ footer {
         usersCache.set(docSnap.id, { id: docSnap.id, ...d });
         list.push({
           id: docSnap.id,
+          createdAt: d.createdAt,
+          createdAtFormatted: formatDate(d.createdAt),
           email: d.email || 'N/A',
-          name: d.fullName || d.fullname || 'N/A', // Updated to match fullName field
+          name: d.fullName || d.fullname || 'N/A',
           momoName: d.momoName || 'N/A',
           momoNumber: d.momoNumber || 'N/A',
           momoProvider: d.momoProvider || 'N/A',
@@ -565,9 +599,12 @@ footer {
         });
       });
       
+      // Sort most recent first
+      list.sort((a, b) => getMillis(b.createdAt) - getMillis(a.createdAt));
+
       tabState.usersSection.data = list;
       filterAndRender('usersSection', tabState.usersSection.search);
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`; }
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="8">Error: ${err.message}</td></tr>`; }
   }
 
   function renderUsersTable() {
@@ -577,13 +614,14 @@ footer {
     const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7">No users found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8">No users found.</td></tr>';
       renderPaginationControls('usersSection', 'usersPagination');
       return;
     }
 
     tbody.innerHTML = pageItems.map(d => `
       <tr>
+        <td>${d.createdAtFormatted}</td>
         <td>${d.email}</td>
         <td>${d.name}</td>
         <td>${d.momoName}</td>
@@ -609,6 +647,8 @@ footer {
         list.push({
           id: docSnap.id,
           userId: d.userId,
+          timestamp: d.timestamp,
+          timestampFormatted: formatDate(d.timestamp),
           email: userInfo.email,
           name: userInfo.name,
           accountDetails: `${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})`,
@@ -620,9 +660,12 @@ footer {
         });
       });
 
+      // Sort most recent first
+      list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+
       tabState.requestsSection.data = list;
       filterAndRender('requestsSection', tabState.requestsSection.search);
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="6">Error: ${err.message}</td></tr>`; }
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`; }
   }
 
   function renderRequestsTable() {
@@ -632,7 +675,7 @@ footer {
     const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6">No requests found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7">No requests found.</td></tr>';
       renderPaginationControls('requestsSection', 'requestsPagination');
       return;
     }
@@ -651,6 +694,7 @@ footer {
 
       return `
         <tr>
+          <td>${d.timestampFormatted}</td>
           <td>${d.email}</td>
           <td>${d.name}</td>
           <td>${d.accountDetails}</td>
@@ -675,6 +719,8 @@ footer {
         list.push({
           id: docSnap.id,
           userId: d.userId,
+          timestamp: d.timestamp,
+          timestampFormatted: formatDate(d.timestamp),
           email: userInfo.email,
           name: userInfo.name,
           amount: d.amount || 0,
@@ -684,9 +730,12 @@ footer {
         });
       });
 
+      // Sort most recent first
+      list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+
       tabState.withdrawalsSection.data = list;
       filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`; }
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="8">Error: ${err.message}</td></tr>`; }
   }
 
   function renderWithdrawalsTable() {
@@ -696,7 +745,7 @@ footer {
     const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7">No withdrawals found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8">No withdrawals found.</td></tr>';
       renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
       return;
     }
@@ -715,6 +764,7 @@ footer {
 
       return `
         <tr>
+          <td>${d.timestampFormatted}</td>
           <td>${d.email}</td>
           <td>${d.name}</td>
           <td>GHS ${d.amount}</td>
