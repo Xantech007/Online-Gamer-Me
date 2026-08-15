@@ -231,6 +231,19 @@ nav a:hover, nav a.active, nav button:hover {
   line-height: 1.4;
 }
 
+.notice-box {
+  background-color: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ffca28;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 /* Floating Support Button & Widget */
 .floating-support-container {
   position: fixed;
@@ -378,23 +391,27 @@ footer a:hover { color: greenyellow; background: transparent; }
           <div class="step-number">2</div>
           <div class="step-text">
             <strong>Enable Unknown Sources (If Prompted)</strong>
-            <p>If your device blocks installation, go to <strong>Settings &gt; Security / Privacy</strong> and enable <em>"Install Unknown Apps"</em> for your web browser.</p>
+            <p>If your browser warns that the file might be harmful or blocks the install, go to <strong>Settings &gt; Security / Privacy</strong> and enable <em>"Install Unknown Apps"</em> for your web browser.</p>
           </div>
         </div>
 
         <div class="step-item">
           <div class="step-number">3</div>
           <div class="step-text">
-            <strong>Open the File &amp; Install</strong>
-            <p>Tap the downloaded file from your browser downloads or File Manager to start the installation process.</p>
+            <strong>Google Play Protect Notice</strong>
+            <p>Since this APK is downloaded directly outside the Play Store, Google Play Protect may display a scan warning popup.</p>
+            <div class="notice-box">
+              <i class="fa-solid fa-triangle-exclamation" style="font-size: 16px;"></i>
+              <div>If Play Protect shows <strong>"Blocked by Play Protect"</strong> or a safety prompt, tap <strong>"More details"</strong> and then select <strong>"Install anyway"</strong> to proceed.</div>
+            </div>
           </div>
         </div>
 
         <div class="step-item">
           <div class="step-number">4</div>
           <div class="step-text">
-            <strong>Launch &amp; Play</strong>
-            <p>Once installation finishes, open Online Gamer® from your app menu, sign in, and enjoy your games!</p>
+            <strong>Open &amp; Finish Setup</strong>
+            <p>Tap the downloaded file in your browser or File Manager to finish installation, open Online Gamer®, and sign in to play!</p>
           </div>
         </div>
       </div>
