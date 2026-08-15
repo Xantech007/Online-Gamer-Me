@@ -215,11 +215,12 @@ footer {
                   <th>MoMo Name</th>
                   <th>MoMo Number</th>
                   <th>Provider</th>
+                  <th>Game Time</th>
                   <th>Balance</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <tr><td colspan="6">Loading users...</td></tr>
+                <tr><td colspan="7">Loading users...</td></tr>
               </tbody>
             </table>
           </div>
@@ -357,6 +358,20 @@ footer {
   };
 
   const loadedTabs = new Set();
+
+  // Helper function to convert seconds to hh:mm:ss format
+  function formatSecondsToHMS(totalSeconds) {
+    const secNum = parseInt(totalSeconds || 0, 10);
+    const hours   = Math.floor(secNum / 3600);
+    const minutes = Math.floor((secNum % 3600) / 60);
+    const seconds = secNum % 60;
+
+    const h = String(hours).padStart(2, '0');
+    const m = String(minutes).padStart(2, '0');
+    const s = String(seconds).padStart(2, '0');
+
+    return `${h}:${m}:${s}`;
+  }
 
   window.addEventListener('DOMContentLoaded', () => {
     const isAuth = localStorage.getItem('adminLoggedIn');
@@ -545,13 +560,14 @@ footer {
           momoName: d.momoName || 'N/A',
           momoNumber: d.momoNumber || 'N/A',
           momoProvider: d.momoProvider || 'N/A',
+          gameTime: d.gameTime || 0,
           balance: d.balance || 0
         });
       });
       
       tabState.usersSection.data = list;
       filterAndRender('usersSection', tabState.usersSection.search);
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="6">Error: ${err.message}</td></tr>`; }
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`; }
   }
 
   function renderUsersTable() {
@@ -561,7 +577,7 @@ footer {
     const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7">No users found.</td></tr>';
       renderPaginationControls('usersSection', 'usersPagination');
       return;
     }
@@ -573,6 +589,7 @@ footer {
         <td>${d.momoName}</td>
         <td>${d.momoNumber}</td>
         <td>${d.momoProvider}</td>
+        <td>${formatSecondsToHMS(d.gameTime)}</td>
         <td>GHS ${d.balance}</td>
       </tr>
     `).join('');
