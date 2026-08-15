@@ -203,7 +203,7 @@ footer {
         <div id="usersSection" class="tab-content card">
           <h2><span><i class="fa-solid fa-users"></i> Registered Users</span></h2>
           <div class="table-header-controls">
-            <input type="text" id="usersSearch" class="search-input" placeholder="Search by name, email, MoMo...">
+            <input type="text" id="usersSearch" class="search-input" placeholder="Search by name, email, phone, MoMo...">
             <div class="pagination-controls" id="usersPagination"></div>
           </div>
           <div class="table-responsive">
@@ -213,15 +213,17 @@ footer {
                   <th>Created At</th>
                   <th>Email</th>
                   <th>Name</th>
+                  <th>Phone</th>
                   <th>MoMo Name</th>
                   <th>MoMo Number</th>
                   <th>Provider</th>
                   <th>Game Time</th>
                   <th>Balance</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <tr><td colspan="8">Loading users...</td></tr>
+                <tr><td colspan="10">Loading users...</td></tr>
               </tbody>
             </table>
           </div>
@@ -341,7 +343,7 @@ footer {
 
 <script type="module">
   import { db } from './firebase.js';
-  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, increment, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, increment, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const loader = document.getElementById('loader');
   const loginSection = document.getElementById('loginSection');
@@ -591,6 +593,7 @@ footer {
           createdAtFormatted: formatDate(d.createdAt),
           email: d.email || 'N/A',
           name: d.fullName || d.fullname || 'N/A',
+          phone: d.phone || d.phoneNumber || 'N/A',
           momoName: d.momoName || 'N/A',
           momoNumber: d.momoNumber || 'N/A',
           momoProvider: d.momoProvider || 'N/A',
@@ -604,7 +607,7 @@ footer {
 
       tabState.usersSection.data = list;
       filterAndRender('usersSection', tabState.usersSection.search);
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="8">Error: ${err.message}</td></tr>`; }
+    } catch (err) { tbody.innerHTML = `<tr><td colspan="10">Error: ${err.message}</td></tr>`; }
   }
 
   function renderUsersTable() {
@@ -614,7 +617,7 @@ footer {
     const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8">No users found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10">No users found.</td></tr>';
       renderPaginationControls('usersSection', 'usersPagination');
       return;
     }
@@ -624,16 +627,36 @@ footer {
         <td>${d.createdAtFormatted}</td>
         <td>${d.email}</td>
         <td>${d.name}</td>
+        <td>${d.phone}</td>
         <td>${d.momoName}</td>
         <td>${d.momoNumber}</td>
         <td>${d.momoProvider}</td>
         <td>${formatSecondsToHMS(d.gameTime)}</td>
         <td>GHS ${d.balance}</td>
+        <td>
+          <button class="action-btn btn-small btn-danger" onclick="deleteUser('${d.id}')">Delete</button>
+        </td>
       </tr>
     `).join('');
 
     renderPaginationControls('usersSection', 'usersPagination');
   }
+
+  window.deleteUser = async (userId) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await deleteDoc(doc(db, 'users', userId));
+      usersCache.delete(userId);
+      tabState.usersSection.data = tabState.usersSection.data.filter(u => u.id !== userId);
+      filterAndRender('usersSection', tabState.usersSection.search);
+      alert('User deleted successfully.');
+    } catch (err) {
+      alert('Error deleting user: ' + err.message);
+    }
+  };
 
   // 2. Load Connection Requests
   async function loadRequests() {
@@ -777,11 +800,6 @@ footer {
 
     renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
   }
-
-  // Helper variables to track active document IDs within collections
-  let currentRateDocId = null;
-  let currentContactDocId = null;
-  let currentMinWithdrawDocId = null;
 
   // 4. Load Settings (Direct Document Fetching)
   async function loadSettings() {
