@@ -1,0 +1,69 @@
+<!-- Error Message Banner Component -->
+<div id="errorMessageBanner" class="error-msg-banner" style="display: none;">
+  <i class="fa-solid fa-circle-exclamation"></i>
+  <span id="errorMessageText"></span>
+</div>
+
+<style>
+.error-msg-banner {
+  background-color: rgba(255, 77, 77, 0.15);
+  border: 1px solid #ff4d4d;
+  color: #ff4d4d;
+  padding: 14px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(255, 77, 77, 0.1);
+}
+
+.error-msg-banner i {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+</style>
+
+<script type="module">
+  import { auth, db } from './firebase.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  let unsubscribeErrorListener = null;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      listenForUserErrorMsg(user.uid);
+    } else {
+      if (unsubscribeErrorListener) unsubscribeErrorListener();
+    }
+  });
+
+  function listenForUserErrorMsg(uid) {
+    const userDocRef = doc(db, 'users', uid);
+    
+    unsubscribeErrorListener = onSnapshot(userDocRef, (docSnap) => {
+      const bannerElement = document.getElementById('errorMessageBanner');
+      const textElement = document.getElementById('errorMessageText');
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        
+        // Check if errorMsg field exists and is non-empty
+        if (data.errorMsg && typeof data.errorMsg === 'string' && data.errorMsg.trim() !== '') {
+          textElement.textContent = data.errorMsg;
+          bannerElement.style.display = 'flex';
+        } else {
+          bannerElement.style.display = 'none';
+          textElement.textContent = '';
+        }
+      } else {
+        bannerElement.style.display = 'none';
+      }
+    }, (error) => {
+      console.error('Error fetching user errorMsg:', error);
+    });
+  }
+</script>
