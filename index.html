@@ -4,13 +4,22 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Portal - Online Gamer®</title>
+<title>Online Gamer®</title>
 
+<!-- Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <style>
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
+* {
+  box-sizing: border-box;
+}
+
+/* Sticky Footer Layout Structure */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
 body { 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
   background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, 
@@ -26,1050 +35,407 @@ body {
 
 a, a:visited { color: #888; text-decoration: none; }
 a:hover { color: greenyellow; }
+img { border: 1px solid #444; border-radius: 4px; }
 
-#app-content { display: flex; flex-direction: column; min-height: 100vh; }
-.main-body { flex: 1 0 auto; }
+/* Main Wrapper for Sticky Footer */
+#app-content { 
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
+.main-body {
+  flex: 1 0 auto;
+}
+
+/* Header & Navigation */
 .headline { 
   background-color: rgba(0, 0, 0, 0.85); 
   color: greenyellow; 
   font-size: 140%; 
   font-weight: 800; 
-  padding: 15px; 
+  padding: 15px 0; 
   text-align: center; 
   letter-spacing: 1.5px;
   border-bottom: 2px solid #222;
   text-transform: uppercase;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 nav { 
   background-color: rgba(0, 0, 0, 0.90); 
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; 
-  padding: 12px; border-bottom: 1px solid #333; 
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  gap: 8px; 
+  padding: 12px; 
+  border-bottom: 1px solid #333; 
 }
 
-nav button { 
-  color: #ccc; padding: 10px 16px; font-weight: 600; font-size: 13px; 
-  border: 1px solid #333; background: #1e1e1e; border-radius: 4px;
-  transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; gap: 8px;
-  cursor: pointer; font-family: inherit;
+nav a, nav button { 
+  color: #ccc; 
+  padding: 8px 14px; 
+  font-weight: 600; 
+  font-size: 13px; 
+  border: 1px solid #333; 
+  background: #1e1e1e; 
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out; 
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-nav button:hover, nav button.active { 
-  background-color: greenyellow; color: black; border-color: greenyellow; 
+nav a:hover, nav a.active, nav button:hover { 
+  background-color: greenyellow; 
+  color: black; 
+  border-color: greenyellow; 
 }
 
-.admin-container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+.auth-only, .guest-only {
+  display: none; /* Controlled via JS Auth observer */
+}
 
-.card {
-  background-color: rgba(0, 0, 0, 0.75);
+/* Hero Section */
+#hero-section {
+  text-align: center; 
+  padding: 60px 20px; 
+  max-width: 800px;
+  margin: 30px auto;
+  background-color: rgba(0, 0, 0, 0.75); 
   border: 1px solid #333;
   border-radius: 8px;
-  padding: 20px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-  margin-bottom: 25px;
 }
 
-.card h2 {
-  color: greenyellow; font-size: 120%; margin-top: 0; margin-bottom: 15px;
-  border-bottom: 1px solid #333; padding-bottom: 10px;
-  display: flex; align-items: center; justify-content: space-between;
+#hero-section h1 { 
+  margin: 0 0 15px 0; 
+  font-size: 220%; 
+  color: #ffffff; 
+  letter-spacing: 1px;
 }
 
-.login-card { max-width: 420px; margin: 40px auto; }
-
-.form-group { margin-bottom: 18px; }
-.form-group label { display: block; margin-bottom: 6px; color: #ccc; font-size: 13px; font-weight: 600; }
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%; padding: 12px; background-color: #1a1a1a; border: 1px solid #333;
-  border-radius: 4px; color: #fff; font-family: inherit; font-size: 14px;
-}
-.form-group textarea { resize: vertical; min-height: 80px; }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: greenyellow; }
-
-.action-btn {
-  width: 100%; background-color: greenyellow; color: #000; font-weight: 800;
-  font-size: 14px; padding: 12px; border: none; border-radius: 4px; cursor: pointer;
-  text-transform: uppercase; letter-spacing: 1px;
-  transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-}
-.action-btn:hover { background-color: #9eff1a; }
-
-.btn-secondary { background-color: #333; color: #fff; }
-.btn-secondary:hover { background-color: #444; }
-
-.btn-danger { background-color: #ff4d4d; color: #fff; }
-.btn-danger:hover { background-color: #ff6666; }
-
-.btn-small { width: auto; padding: 6px 10px; font-size: 11px; text-transform: none; }
-.actions-cell { display: flex; gap: 6px; align-items: center; }
-
-/* Search & Pagination UI */
-.table-header-controls {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap;
-}
-.search-input {
-  padding: 8px 12px; background: #1e1e1e; border: 1px solid #333; color: #fff; border-radius: 4px; font-size: 13px; width: 250px;
-}
-.pagination-controls {
-  display: flex; align-items: center; gap: 8px; font-size: 13px; color: #aaa;
-}
-.pagination-controls button {
-  background: #1e1e1e; border: 1px solid #333; color: #fff; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
-}
-.pagination-controls button:disabled { opacity: 0.4; cursor: not-allowed; }
-.pagination-controls button:hover:not(:disabled) { background: greenyellow; color: #000; }
-
-.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; white-space: nowrap; }
-th, td { padding: 10px 12px; border-bottom: 1px solid #282828; vertical-align: middle; }
-th { background-color: #1a1a1a; color: greenyellow; font-weight: 600; }
-tr:hover { background-color: rgba(255, 255, 255, 0.02); }
-
-/* Firestore-style Flash Update Animation */
-@keyframes flashYellow {
-  0% { background-color: rgba(255, 230, 0, 0.6); }
-  100% { background-color: transparent; }
-}
-tr.row-updated {
-  animation: flashYellow 1.5s ease-out;
+#hero-section p { 
+  color: #aaa; 
+  font-size: 110%; 
+  line-height: 1.6;
+  margin-bottom: 30px; 
 }
 
-.badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-.badge-pending { background: #554400; color: #ffcc00; }
-.badge-approved, .badge-completed { background: #004400; color: greenyellow; }
-.badge-rejected { background: #440000; color: #ff6666; }
-
-.status-msg {
-  display: none; padding: 12px; margin-top: 15px; border-radius: 4px; font-size: 13px; text-align: center;
-}
-.status-msg.success { display: block; background-color: rgba(173, 255, 47, 0.1); color: greenyellow; border: 1px solid greenyellow; }
-.status-msg.error { display: block; background-color: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid #ff4d4d; }
-
-#loader { text-align: center; padding: 40px 0; color: greenyellow; }
-
-.receipt-thumb {
-  width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #444; cursor: pointer; transition: transform 0.2s;
-}
-.receipt-thumb:hover { transform: scale(1.1); border-color: greenyellow; }
-
-.section-title {
-  color: greenyellow; font-size: 15px; border-bottom: 1px solid #333; padding-bottom: 6px; margin: 20px 0 15px 0; font-weight: 700;
+.play-btn { 
+  background-color: greenyellow; 
+  color: #000; 
+  font-weight: 800; 
+  font-size: 18px; 
+  padding: 16px 40px; 
+  border: none; 
+  border-radius: 4px;
+  cursor: pointer; 
+  text-transform: uppercase; 
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(173, 255, 47, 0.3); 
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
-/* Modal UI */
-.modal-overlay {
-  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.85); z-index: 1000; justify-content: center; align-items: center;
-  padding: 15px; overflow-y: auto;
+.play-btn:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(173, 255, 47, 0.5);
 }
-.modal-content {
-  background: #181818; border: 1px solid #333; border-radius: 8px;
-  width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto;
-  padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-}
-.modal-header {
-  display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 15px;
-}
-.modal-header h3 { margin: 0; color: greenyellow; font-size: 18px; }
-.close-btn { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; }
-.close-btn:hover { color: #fff; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
+.play-btn:active { 
+  transform: translateY(1px); 
+}
+
+/* Games Grid Container */
+#games-container { 
+  display: none; 
+  padding: 20px 10px;
+}
+
+.list { 
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  margin: 0; 
+}
+
+.game { 
+  background-color: #1a1a1a; 
+  border: 1px solid #333; 
+  border-radius: 6px;
+  margin: 8px; 
+  padding: 12px 8px 8px 8px; 
+  text-align: center; 
+  width: 130px;
+  color: #eee;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.game:hover { 
+  background-color: #242424; 
+  border-color: greenyellow;
+  transform: translateY(-3px);
+}
+
+.game small {
+  color: #888;
+  display: block;
+  margin-top: 2px;
+}
+
+.platform { 
+  background-color: transparent; 
+  color: #666; 
+  font-size: 12px; 
+  padding-top: 6px; 
+  text-align: right; 
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* Floating Support Button & Widget */
+.floating-support-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.support-toggle-btn {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background-color: greenyellow;
+  color: #000;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.support-toggle-btn:hover {
+  transform: scale(1.08);
+  background-color: #9eff1a;
+}
+
+.support-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.support-options.active {
+  display: flex;
+}
+
+.support-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #222;
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.support-link:hover {
+  border-color: greenyellow;
+  background-color: #2a2a2a;
+}
+
+.support-link.whatsapp i { color: #25D366; font-size: 16px; }
+.support-link.email i { color: #ea4335; font-size: 16px; }
+
+/* Footer Section Locked to Bottom */
 footer { 
-  flex-shrink: 0; background-color: rgba(0, 0, 0, 0.90); color: #777; font-family: monospace; 
-  font-size: 12px; padding: 20px; text-align: center; border-top: 1px solid #222;
+  flex-shrink: 0;
+  background-color: rgba(0, 0, 0, 0.90); 
+  color: #777; 
+  font-family: monospace; 
+  font-size: 12px; 
+  padding: 20px; 
+  text-align: center;
+  border-top: 1px solid #222;
 }
 
-@media (max-width: 600px) {
-  nav button { flex: 1 1 45%; justify-content: center; font-size: 12px; padding: 8px; }
-  .card { padding: 15px; }
-  .admin-container { padding: 0 10px; margin: 15px auto; }
-  .search-input { width: 100%; }
-  .grid-2 { grid-template-columns: 1fr; }
-}
+footer a, footer a:visited { color: #aaa; }
+footer a:hover { color: greenyellow; background: transparent; }
 </style>
 </head>
 <body>
 
 <div id="app-content">
   <div class="main-body">
-    <div class="headline"><i class="fa-solid fa-user-shield"></i> Online Gamer® Admin</div>
+    <div class="headline"><i class="fa-solid fa-gamepad"></i> Online Gamer®</div>
 
-    <!-- ADMIN NAVIGATION -->
-    <nav id="adminNav" style="display: none;">
-      <button class="nav-btn active" data-tab="usersSection"><i class="fa-solid fa-users"></i> Users</button>
-      <button class="nav-btn" data-tab="requestsSection"><i class="fa-solid fa-file-invoice-dollar"></i> Requests</button>
-      <button class="nav-btn" data-tab="withdrawalsSection"><i class="fa-solid fa-money-bill-transfer"></i> Withdrawals</button>
-      <button class="nav-btn" data-tab="settingsSection"><i class="fa-solid fa-sliders"></i> Settings</button>
-      <button id="adminLogoutBtn" class="btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    <!-- Navigation Header -->
+    <nav>
+      <a href="index.html" class="active"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="faq.html"><i class="fa-solid fa-circle-question"></i> FAQ</a>
+      <a href="terms.html"><i class="fa-solid fa-file-contract"></i> Terms</a>
+      <a href="download.html"><i class="fa-brands fa-android"></i> App Download</a>
+      
+      <!-- Authenticated User Links -->
+      <a href="profile.html" class="auth-only"><i class="fa-solid fa-user"></i> Profile</a>
+      <a href="withdraw.html" class="auth-only"><i class="fa-solid fa-wallet"></i> Withdraw</a>
+      <button id="logoutBtn" class="auth-only"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
+      <!-- Guest Links -->
+      <a href="login.html" class="guest-only"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+      <a href="register.html" class="guest-only"><i class="fa-solid fa-user-plus"></i> Register</a>
     </nav>
 
-    <div class="admin-container">
-      <div id="loader">
-        <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
-        <p>Checking admin authorization...</p>
-      </div>
+    <!-- Hero Section -->
+    <div id="hero-section">
+      <h1>Ready to Play & Earn?</h1>
+      <p>Welcome to Online Gamer®. Enjoy our curated retro gaming arcade, track your live gameplay stats, and earn rewards as you climb the leaderboards.</p>
+      <button id="playNowBtn" class="play-btn"><i class="fa-solid fa-play"></i> Play Now</button>
+    </div>
 
-      <!-- LOGIN FORM SECTION -->
-      <div id="loginSection" class="card login-card" style="display: none;">
-        <h2><i class="fa-solid fa-lock"></i> Admin Authentication</h2>
-        <form id="adminLoginForm">
-          <div class="form-group">
-            <label for="adminUsername">Username</label>
-            <input type="text" id="adminUsername" required placeholder="Enter username">
-          </div>
-          <div class="form-group">
-            <label for="adminPassword">Password</label>
-            <input type="password" id="adminPassword" required placeholder="Enter password">
-          </div>
-          <button type="submit" class="action-btn" id="loginBtn">Login to Panel</button>
-          <div id="loginStatus" class="status-msg"></div>
-        </form>
-      </div>
-
-      <!-- DASHBOARD MAIN PANEL -->
-      <div id="dashboardSection" style="display: none;">
-
-        <!-- TAB 1: USERS OVERVIEW -->
-        <div id="usersSection" class="tab-content card">
-          <h2><span><i class="fa-solid fa-users"></i> Registered Users</span></h2>
-          <div class="table-header-controls">
-            <input type="text" id="usersSearch" class="search-input" placeholder="Search by name, email, phone...">
-            <div class="pagination-controls" id="usersPagination"></div>
-          </div>
-          <div class="table-responsive">
-            <table>
-              <thead>
-                <tr>
-                  <th>Created At</th>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Game Time</th>
-                  <th>Balance</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="usersTableBody">
-                <tr><td colspan="7">Loading users...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- TAB 2: CONNECTION REQUESTS -->
-        <div id="requestsSection" class="tab-content card" style="display: none;">
-          <h2><span><i class="fa-solid fa-file-invoice-dollar"></i> Connection Requests</span></h2>
-          <div class="table-header-controls">
-            <input type="text" id="requestsSearch" class="search-input" placeholder="Search requests...">
-            <div class="pagination-controls" id="requestsPagination"></div>
-          </div>
-          <div class="table-responsive">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date & Time</th>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Account Details</th>
-                  <th>Receipt Proof</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="requestsTableBody">
-                <tr><td colspan="7">Loading requests...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- TAB 3: WITHDRAWALS -->
-        <div id="withdrawalsSection" class="tab-content card" style="display: none;">
-          <h2><span><i class="fa-solid fa-money-bill-transfer"></i> Payout Withdrawals</span></h2>
-          <div class="table-header-controls">
-            <input type="text" id="withdrawalsSearch" class="search-input" placeholder="Search withdrawals...">
-            <div class="pagination-controls" id="withdrawalsPagination"></div>
-          </div>
-          <div class="table-responsive">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date & Time</th>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Amount</th>
-                  <th>Destination</th>
-                  <th>Receipt Proof</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="withdrawalsTableBody">
-                <tr><td colspan="8">Loading withdrawals...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- TAB 4: SITE SETTINGS -->
-        <div id="settingsSection" class="tab-content card" style="display: none;">
-          <h2><span><i class="fa-solid fa-sliders"></i> Global Platform Settings</span></h2>
-          <form id="settingsForm">
-            <div class="section-title">Connection Settings</div>
-            <div class="form-group">
-              <label for="connectionFee">Connection Fee (GHS)</label>
-              <input type="number" step="0.01" id="connectionFee" required>
-            </div>
-            <div class="form-group">
-              <label for="payProvider">Payment Receiver Provider</label>
-              <input type="text" id="payProvider" required>
-            </div>
-            <div class="form-group">
-              <label for="payName">Payment Receiver Account Name</label>
-              <input type="text" id="payName" required>
-            </div>
-            <div class="form-group">
-              <label for="payNumber">Payment Receiver MoMo Number</label>
-              <input type="text" id="payNumber" required>
-            </div>
-
-            <div class="section-title">General Platform Settings</div>
-            <div class="form-group">
-              <label for="gameRate">Earning Rate per secs</label>
-              <input type="number" step="0.01" id="gameRate" required>
-            </div>
-            <div class="form-group">
-              <label for="minWithdraw">Minimum Withdrawal</label>
-              <input type="number" step="0.01" id="minWithdraw" required>
-            </div>
-
-            <div class="section-title">Contact Support Settings</div>
-            <div class="form-group">
-              <label for="supportEmail">Support Email</label>
-              <input type="email" id="supportEmail" required>
-            </div>
-            <div class="form-group">
-              <label for="supportWhatsapp">Support WhatsApp Number</label>
-              <input type="text" id="supportWhatsapp" required>
-            </div>
-
-            <button type="submit" class="action-btn" style="margin-top: 15px;">Save All Settings</button>
-            <div id="settingsStatus" class="status-msg"></div>
-          </form>
-        </div>
-
+    <!-- Games Container -->
+    <div id="games-container">
+      <div class="list">
+        <a href="hextris-lite/"><div class="game"><img src="_logo/hextris-lite.png" width="100" height="100" alt="Hextris"><br />Hextris<br /><small>hexagonal tetris</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="pond/"><div class="game"><img src="_logo/pond.png" width="100" height="100" alt="The Pond"><br />The Pond<br /><small>eat, swim, love</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="2048-lite/"><div class="game"><img src="_logo/2048-lite.png" width="100" height="100" alt="2048"><br />2048<br /><small>2, 4, 8, swipe</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="taptaptap/play/"><div class="game"><img src="_logo/taptaptap.png" width="100" height="100" alt="Tap Tap Tap"><br />Tap Tap Tap<br /><small>tap the blue</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="particle-clicker/"><div class="game"><img src="_logo/particle-clicker.png" width="100" height="100" alt="Particle Clicker"><br />Particle Clicker<br /><small>be like CERN</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="tower/"><div class="game"><img src="_logo/tower.png" width="100" height="100" alt="Tower"><br />Tower<br /><small>build up</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="clumsy-bird/"><div class="game"><img src="_logo/clumsy-bird.png" width="100" height="100" alt="Clumsy Bird"><br />Clumsy Bird<br /><small>happy happy</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="hyperspace-garbage-collection/"><div class="game"><img src="_logo/hyperspace-garbage-collection.png" width="100" height="100" alt="Hyperspace G"><br />Hyperspace G<br /><small>collect garbage</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="pacman-lite/"><div class="game"><img src="_logo/pacman-lite.png" width="100" height="100" alt="pacman"><br />pacman<br /><small>another pacman</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="snakisms/"><div class="game"><img src="_logo/snakisms.png" width="100" height="100" alt="Snakisms"><br />Snakisms<br /><small>philosophy snake</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="EightQueens/"><div class="game"><img src="_logo/EightQueens.png" width="100" height="100" alt="Eight Queens"><br />Eight Queens<br /><small>chess puzzle</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="chess/"><div class="game"><img src="_logo/chess.png" width="100" height="100" alt="Chess"><br />Chess<br /><small>e2 to e4</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="missile-game/"><div class="game"><img src="_logo/missile-game.png" width="100" height="100" alt="Missile Game"><br />Missile Game<br /><small>fly thru it</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="ns-shaft/"><div class="game"><img src="_logo/ns-shaft.png" width="100" height="100" alt="NS-Shaft"><br />NS-Shaft<br /><small>fall safely</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="colorful-life/"><div class="game"><img src="_logo/colorful-life.png" width="100" height="100" alt="Colorful Life"><br />Colorful Life<br /><small>life with color</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="life/"><div class="game"><img src="_logo/life.png" width="100" height="100" alt="Life"><br />Life<br /><small>conway's game</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="javascript-piano/"><div class="game"><img src="_logo/javascript-piano.png" width="100" height="100" alt="Piano J"><br />Piano J<br /><small>synthy javascript</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
+        <a href="virtual-piano/"><div class="game"><img src="_logo/virtual-piano.png" width="100" height="100" alt="Piano V"><br />Piano V<br /><small>virtually classic</small><div class="platform"><i class="fa-solid fa-keyboard"></i> <i class="fa-solid fa-mobile-screen-button"></i></div></div></a>
       </div>
     </div>
   </div>
 
+  <!-- Floating Support Button -->
+  <div class="floating-support-container">
+    <div id="supportOptions" class="support-options">
+      <a id="whatsappLink" href="#" target="_blank" class="support-link whatsapp">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp Support
+      </a>
+      <a id="emailLink" href="#" target="_blank" class="support-link email">
+        <i class="fa-solid fa-envelope"></i> Email Support
+      </a>
+    </div>
+    <button id="supportToggleBtn" class="support-toggle-btn" title="Contact Support">
+      <i class="fa-solid fa-headset"></i>
+    </button>
+  </div>
+
+  <!-- Footer Aligned to Bottom -->
   <footer>
-    <p>Online Gamer® Control Panel</p>
+    <p>Online Gamer®</p>
+    <p>last updated: <span style="white-space: nowrap;">2026-08-12 12:24:00 UTC</span></p>
     <p>powered by Online Gamer® v4.0.8</p>
   </footer>
 </div>
 
-<!-- EDIT USER MODAL -->
-<div id="editUserModal" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-user-pen"></i> Edit User Profile</h3>
-      <button class="close-btn" id="closeUserModalBtn">&times;</button>
-    </div>
-    <form id="editUserForm">
-      <input type="hidden" id="editUserId">
-
-      <div class="section-title" style="margin-top:0;">Account Information</div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="editEmail">Email Address</label>
-          <input type="email" id="editEmail" required>
-        </div>
-        <div class="form-group">
-          <label for="editFullName">Full Name</label>
-          <input type="text" id="editFullName" required>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="editPhone">Phone Number</label>
-          <input type="text" id="editPhone">
-        </div>
-        <div class="form-group">
-          <label for="editPassword">Set New Password (Leave blank to keep existing)</label>
-          <input type="password" id="editPassword" placeholder="Enter new password">
-        </div>
-      </div>
-
-      <div class="section-title">Stats & Balance</div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="editGameTime">Game Time (Seconds)</label>
-          <input type="number" id="editGameTime" min="0">
-        </div>
-        <div class="form-group">
-          <label for="editBalance">Balance (GHS)</label>
-          <input type="number" step="0.01" id="editBalance" min="0">
-        </div>
-      </div>
-
-      <div class="section-title">User Error Message Field</div>
-      <div class="form-group">
-        <label for="editErrorMsg">Stored Error Message (`errorMsg` field)</label>
-        <textarea id="editErrorMsg" placeholder="Write custom user message or notice here..."></textarea>
-      </div>
-
-      <div class="grid-2" style="margin-top: 15px;">
-        <button type="submit" class="action-btn">Save Changes</button>
-        <button type="button" class="action-btn btn-secondary" id="cancelUserModalBtn">Cancel</button>
-      </div>
-      <div id="editUserStatus" class="status-msg"></div>
-    </form>
-  </div>
-</div>
-
 <script type="module">
-  import { db } from './firebase.js';
-  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, increment, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { auth, db } from './firebase.js';
+  import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const loader = document.getElementById('loader');
-  const loginSection = document.getElementById('loginSection');
-  const dashboardSection = document.getElementById('dashboardSection');
-  const adminNav = document.getElementById('adminNav');
-  const adminLoginForm = document.getElementById('adminLoginForm');
-  const loginStatus = document.getElementById('loginStatus');
-  const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+  const heroSection = document.getElementById('hero-section');
+  const gamesContainer = document.getElementById('games-container');
+  const playNowBtn = document.getElementById('playNowBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
 
-  // Edit Modal UI Elements
-  const editUserModal = document.getElementById('editUserModal');
-  const closeUserModalBtn = document.getElementById('closeUserModalBtn');
-  const cancelUserModalBtn = document.getElementById('cancelUserModalBtn');
-  const editUserForm = document.getElementById('editUserForm');
-  const editUserStatus = document.getElementById('editUserStatus');
+  const supportToggleBtn = document.getElementById('supportToggleBtn');
+  const supportOptions = document.getElementById('supportOptions');
+  const whatsappLink = document.getElementById('whatsappLink');
+  const emailLink = document.getElementById('emailLink');
 
-  const usersCache = new Map();
-  const PAGE_SIZE = 20;
-
-  const tabState = {
-    usersSection: { data: [], filtered: [], page: 1, search: '' },
-    requestsSection: { data: [], filtered: [], page: 1, search: '' },
-    withdrawalsSection: { data: [], filtered: [], page: 1, search: '' }
-  };
-
-  const loadedTabs = new Set();
-  const activeUnsubscribers = [];
-  const updatedDocIds = new Set();
-  const previousDataSnapshots = new Map();
-
-  // Helper function to format seconds to hh:mm:ss format
-  function formatSecondsToHMS(totalSeconds) {
-    const secNum = parseInt(totalSeconds || 0, 10);
-    const hours   = Math.floor(secNum / 3600);
-    const minutes = Math.floor((secNum % 3600) / 60);
-    const seconds = secNum % 60;
-
-    const h = String(hours).padStart(2, '0');
-    const m = String(minutes).padStart(2, '0');
-    const s = String(seconds).padStart(2, '0');
-
-    return `${h}:${m}:${s}`;
-  }
-
-  // Helper function to convert Firestore Timestamps / Dates into formatted strings
-  function formatDate(timestamp) {
-    if (!timestamp) return 'N/A';
-    let d;
-    if (timestamp.toDate && typeof timestamp.toDate === 'function') {
-      d = timestamp.toDate();
-    } else if (timestamp.seconds) {
-      d = new Date(timestamp.seconds * 1000);
-    } else {
-      d = new Date(timestamp);
-    }
-
-    if (isNaN(d.getTime())) return 'N/A';
-    return d.toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
-
-  // Helper function to extract millisecond timestamp for sorting
-  function getMillis(timestamp) {
-    if (!timestamp) return 0;
-    if (timestamp.toDate && typeof timestamp.toDate === 'function') {
-      return timestamp.toDate().getTime();
-    }
-    if (timestamp.seconds) {
-      return timestamp.seconds * 1000;
-    }
-    const d = new Date(timestamp);
-    return isNaN(d.getTime()) ? 0 : d.getTime();
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    const isAuth = localStorage.getItem('adminLoggedIn');
-    loader.style.display = 'none';
-
-    if (isAuth === 'true') {
-      showDashboard();
-    } else {
-      showLogin();
-    }
-
-    setupSearchListeners();
+  // Play Now toggle
+  playNowBtn.addEventListener('click', () => {
+    heroSection.style.display = 'none';
+    gamesContainer.style.display = 'block';
   });
 
-  function showDashboard() {
-    loginSection.style.display = 'none';
-    adminNav.style.display = 'flex';
-    dashboardSection.style.display = 'block';
+  // Dynamic Auth State UI
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'inline-flex');
+    } else {
+      document.querySelectorAll('.auth-only').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'inline-flex');
+    }
+  });
 
-    initRealtimeListeners();
-  }
-
-  function showLogin() {
-    adminNav.style.display = 'none';
-    dashboardSection.style.display = 'none';
-    loginSection.style.display = 'block';
-  }
-
-  function setupSearchListeners() {
-    document.getElementById('usersSearch').addEventListener('input', (e) => {
-      filterAndRender('usersSection', e.target.value);
-    });
-    document.getElementById('requestsSearch').addEventListener('input', (e) => {
-      filterAndRender('requestsSection', e.target.value);
-    });
-    document.getElementById('withdrawalsSearch').addEventListener('input', (e) => {
-      filterAndRender('withdrawalsSection', e.target.value);
-    });
-  }
-
-  function filterAndRender(tabId, queryText) {
-    const state = tabState[tabId];
-    state.search = queryText.toLowerCase().trim();
-    state.page = 1;
-
-    state.filtered = state.data.filter(item => {
-      return Object.values(item).some(val => 
-        String(val || '').toLowerCase().includes(state.search)
-      );
-    });
-
-    if (tabId === 'usersSection') renderUsersTable();
-    if (tabId === 'requestsSection') renderRequestsTable();
-    if (tabId === 'withdrawalsSection') renderWithdrawalsTable();
-  }
-
-  function renderPaginationControls(tabId, containerId) {
-    const state = tabState[tabId];
-    const totalPages = Math.ceil(state.filtered.length / PAGE_SIZE) || 1;
-    const container = document.getElementById(containerId);
-
-    container.innerHTML = `
-      <button ${state.page <= 1 ? 'disabled' : ''} id="${tabId}_prev">Prev</button>
-      <span>Page ${state.page} of ${totalPages} (${state.filtered.length} total)</span>
-      <button ${state.page >= totalPages ? 'disabled' : ''} id="${tabId}_next">Next</button>
-    `;
-
-    const prevBtn = document.getElementById(`${tabId}_prev`);
-    const nextBtn = document.getElementById(`${tabId}_next`);
-
-    if (prevBtn) prevBtn.onclick = () => { if (state.page > 1) { state.page--; renderTabBy(tabId); } };
-    if (nextBtn) nextBtn.onclick = () => { if (state.page < totalPages) { state.page++; renderTabBy(tabId); } };
-  }
-
-  function renderTabBy(tabId) {
-    if (tabId === 'usersSection') renderUsersTable();
-    if (tabId === 'requestsSection') renderRequestsTable();
-    if (tabId === 'withdrawalsSection') renderWithdrawalsTable();
-  }
-
-  adminLoginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loginStatus.className = 'status-msg';
-    loginStatus.style.display = 'none';
-
-    const inputUsername = document.getElementById('adminUsername').value.trim();
-    const inputPassword = document.getElementById('adminPassword').value.trim();
-
+  // Logout Action
+  logoutBtn.addEventListener('click', async () => {
     try {
-      const loginRef = collection(db, 'admin', 'login', 'users');
-      const q = query(
-        loginRef, 
-        where('username', '==', inputUsername), 
-        where('password', '==', inputPassword)
-      );
-      
-      const snapshot = await getDocs(q);
+      await signOut(auth);
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
 
-      if (!snapshot.empty) {
-        localStorage.setItem('adminLoggedIn', 'true');
-        showDashboard();
-      } else {
-        const docRef = doc(db, 'admin', 'login');
+  // Floating Support Button Handler (Fetches from settings/contact document)
+  let supportFetched = false;
+  supportToggleBtn.addEventListener('click', async () => {
+    supportOptions.classList.toggle('active');
+
+    if (!supportFetched) {
+      try {
+        const docRef = doc(db, 'settings', 'contact');
         const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists() && docSnap.data().username === inputUsername && docSnap.data().password === inputPassword) {
-          localStorage.setItem('adminLoggedIn', 'true');
-          showDashboard();
-        } else {
-          loginStatus.textContent = 'Invalid username or password.';
-          loginStatus.classList.add('error');
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.whatsapp) {
+            const cleanNum = data.whatsapp.replace(/[^\d+]/g, '');
+            whatsappLink.href = `https://wa.me/${cleanNum}`;
+          }
+          if (data.email) {
+            emailLink.href = `mailto:${data.email}`;
+          }
         }
+        supportFetched = true;
+      } catch (err) {
+        console.error('Error fetching support contact details:', err);
       }
-    } catch (err) {
-      loginStatus.textContent = 'Authentication error: ' + err.message;
-      loginStatus.classList.add('error');
     }
   });
-
-  adminLogoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('adminLoggedIn');
-    activeUnsubscribers.forEach(unsub => unsub());
-    activeUnsubscribers.length = 0;
-    loadedTabs.clear();
-    usersCache.clear();
-    previousDataSnapshots.clear();
-    showLogin();
-  });
-
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
-      
-      btn.classList.add('active');
-      const targetTab = btn.dataset.tab;
-      document.getElementById(targetTab).style.display = 'block';
-      if (targetTab === 'settingsSection') loadSettings();
-    });
-  });
-
-  // Setup Real-Time Listeners Across Firestore Collections
-  function initRealtimeListeners() {
-    activeUnsubscribers.forEach(unsub => unsub());
-    activeUnsubscribers.length = 0;
-
-    // 1. Users Listener
-    const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => {
-      const list = [];
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        const docId = docSnap.id;
-        usersCache.set(docId, { id: docId, ...d });
-
-        const serialized = JSON.stringify(d);
-        if (previousDataSnapshots.has(docId) && previousDataSnapshots.get(docId) !== serialized) {
-          triggerRowFlash(docId);
-        }
-        previousDataSnapshots.set(docId, serialized);
-
-        list.push({
-          id: docId,
-          createdAt: d.createdAt,
-          createdAtFormatted: formatDate(d.createdAt),
-          email: d.email || 'N/A',
-          name: d.fullName || d.fullname || 'N/A',
-          phone: d.phone || d.phoneNumber || 'N/A',
-          gameTime: d.gameTime || 0,
-          balance: d.balance || 0,
-          errorMsg: d.errorMsg || ''
-        });
-      });
-
-      list.sort((a, b) => getMillis(b.createdAt) - getMillis(a.createdAt));
-      tabState.usersSection.data = list;
-      filterAndRender('usersSection', tabState.usersSection.search);
-
-      // Re-render dependent requests and withdrawals to reflect user name/email updates
-      if (tabState.requestsSection.data.length > 0) filterAndRender('requestsSection', tabState.requestsSection.search);
-      if (tabState.withdrawalsSection.data.length > 0) filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
-    }, (err) => {
-      document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="7">Error listening to users: ${err.message}</td></tr>`;
-    });
-
-    // 2. Connection Requests Listener
-    const unsubRequests = onSnapshot(collection(db, 'connectionRequests'), (snap) => {
-      const list = [];
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        const docId = docSnap.id;
-        const userInfo = getUserInfo(d.userId);
-
-        const serialized = JSON.stringify(d);
-        if (previousDataSnapshots.has(docId) && previousDataSnapshots.get(docId) !== serialized) {
-          triggerRowFlash(docId);
-        }
-        previousDataSnapshots.set(docId, serialized);
-
-        list.push({
-          id: docId,
-          userId: d.userId,
-          timestamp: d.timestamp,
-          timestampFormatted: formatDate(d.timestamp),
-          email: userInfo.email,
-          name: userInfo.name,
-          accountDetails: `${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})`,
-          receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
-          status: d.status || 'pending',
-          momoName: d.momoName || '',
-          momoNumber: d.momoNumber || '',
-          momoProvider: d.momoProvider || ''
-        });
-      });
-
-      list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
-      tabState.requestsSection.data = list;
-      filterAndRender('requestsSection', tabState.requestsSection.search);
-    }, (err) => {
-      document.getElementById('requestsTableBody').innerHTML = `<tr><td colspan="7">Error listening to requests: ${err.message}</td></tr>`;
-    });
-
-    // 3. Withdrawals Listener
-    const unsubWithdrawals = onSnapshot(collection(db, 'withdrawals'), (snap) => {
-      const list = [];
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        const docId = docSnap.id;
-        const userInfo = getUserInfo(d.userId);
-
-        const serialized = JSON.stringify(d);
-        if (previousDataSnapshots.has(docId) && previousDataSnapshots.get(docId) !== serialized) {
-          triggerRowFlash(docId);
-        }
-        previousDataSnapshots.set(docId, serialized);
-
-        list.push({
-          id: docId,
-          userId: d.userId,
-          timestamp: d.timestamp,
-          timestampFormatted: formatDate(d.timestamp),
-          email: userInfo.email,
-          name: userInfo.name,
-          amount: d.amount || 0,
-          destination: d.accountNumber || 'N/A',
-          receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
-          status: d.status || 'pending'
-        });
-      });
-
-      list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
-      tabState.withdrawalsSection.data = list;
-      filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
-    }, (err) => {
-      document.getElementById('withdrawalsTableBody').innerHTML = `<tr><td colspan="8">Error listening to withdrawals: ${err.message}</td></tr>`;
-    });
-
-    activeUnsubscribers.push(unsubUsers, unsubRequests, unsubWithdrawals);
-  }
-
-  function triggerRowFlash(docId) {
-    updatedDocIds.add(docId);
-    setTimeout(() => {
-      updatedDocIds.delete(docId);
-    }, 1600);
-  }
-
-  // Updated User Info Helper
-  function getUserInfo(userId) {
-    const user = usersCache.get(userId) || {};
-    return {
-      email: user.email || 'N/A',
-      name: user.fullName || user.fullname || 'N/A'
-    };
-  }
-
-  function renderUsersTable() {
-    const tbody = document.getElementById('usersTableBody');
-    const state = tabState.usersSection;
-    const start = (state.page - 1) * PAGE_SIZE;
-    const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
-
-    if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7">No users found.</td></tr>';
-      renderPaginationControls('usersSection', 'usersPagination');
-      return;
-    }
-
-    tbody.innerHTML = pageItems.map(d => {
-      const isUpdated = updatedDocIds.has(d.id) ? 'row-updated' : '';
-      return `
-        <tr class="${isUpdated}">
-          <td>${d.createdAtFormatted}</td>
-          <td>${d.email}</td>
-          <td>${d.name}</td>
-          <td>${d.phone}</td>
-          <td>${formatSecondsToHMS(d.gameTime)}</td>
-          <td>GHS ${d.balance}</td>
-          <td>
-            <div class="actions-cell">
-              <button class="action-btn btn-small" onclick="openEditUserModal('${d.id}')">Edit</button>
-              <button class="action-btn btn-small btn-danger" onclick="deleteUser('${d.id}')">Delete</button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    renderPaginationControls('usersSection', 'usersPagination');
-  }
-
-  // Open & populate Edit User Modal
-  window.openEditUserModal = (userId) => {
-    const user = usersCache.get(userId);
-    if (!user) return alert('User data not found.');
-
-    document.getElementById('editUserId').value = userId;
-    document.getElementById('editEmail').value = user.email || '';
-    document.getElementById('editFullName').value = user.fullName || user.fullname || '';
-    document.getElementById('editPhone').value = user.phone || user.phoneNumber || '';
-    document.getElementById('editPassword').value = '';
-    document.getElementById('editGameTime').value = user.gameTime || 0;
-    document.getElementById('editBalance').value = user.balance || 0;
-    document.getElementById('editErrorMsg').value = user.errorMsg || '';
-
-    editUserStatus.className = 'status-msg';
-    editUserStatus.style.display = 'none';
-    editUserModal.style.display = 'flex';
-  };
-
-  function closeEditModal() {
-    editUserModal.style.display = 'none';
-  }
-
-  closeUserModalBtn.addEventListener('click', closeEditModal);
-  cancelUserModalBtn.addEventListener('click', closeEditModal);
-
-  // Submit User Profile Updates
-  editUserForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    editUserStatus.className = 'status-msg';
-    editUserStatus.style.display = 'none';
-
-    const userId = document.getElementById('editUserId').value;
-    const email = document.getElementById('editEmail').value.trim();
-    const fullName = document.getElementById('editFullName').value.trim();
-    const phone = document.getElementById('editPhone').value.trim();
-    const newPassword = document.getElementById('editPassword').value.trim();
-    const gameTime = parseInt(document.getElementById('editGameTime').value, 10) || 0;
-    const balance = parseFloat(document.getElementById('editBalance').value) || 0;
-    const errorMsg = document.getElementById('editErrorMsg').value.trim();
-
-    const updatePayload = {
-      email,
-      fullName,
-      fullname: fullName,
-      phone,
-      phoneNumber: phone,
-      gameTime,
-      balance,
-      errorMsg
-    };
-
-    if (newPassword !== '') {
-      updatePayload.password = newPassword;
-    }
-
-    try {
-      await updateDoc(doc(db, 'users', userId), updatePayload);
-
-      editUserStatus.textContent = 'User updated successfully!';
-      editUserStatus.className = 'status-msg success';
-
-      setTimeout(() => {
-        closeEditModal();
-      }, 1000);
-    } catch (err) {
-      editUserStatus.textContent = 'Error updating user: ' + err.message;
-      editUserStatus.className = 'status-msg error';
-    }
-  });
-
-  window.deleteUser = async (userId) => {
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      await deleteDoc(doc(db, 'users', userId));
-      alert('User deleted successfully.');
-    } catch (err) {
-      alert('Error deleting user: ' + err.message);
-    }
-  };
-
-  function renderRequestsTable() {
-    const tbody = document.getElementById('requestsTableBody');
-    const state = tabState.requestsSection;
-    const start = (state.page - 1) * PAGE_SIZE;
-    const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
-
-    if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7">No requests found.</td></tr>';
-      renderPaginationControls('requestsSection', 'requestsPagination');
-      return;
-    }
-
-    tbody.innerHTML = pageItems.map(d => {
-      const isUpdated = updatedDocIds.has(d.id) ? 'row-updated' : '';
-      const actions = d.status === 'pending' ? `
-        <div class="actions-cell">
-          <button class="action-btn btn-small" onclick="handleConnectionRequest('${d.id}', '${d.userId}', '${d.momoName}', '${d.momoNumber}', '${d.momoProvider}', 'approved')">Approve</button>
-          <button class="action-btn btn-small btn-danger" onclick="handleConnectionRequest('${d.id}', '${d.userId}', '', '', '', 'rejected')">Reject</button>
-        </div>
-      ` : 'N/A';
-
-      const receiptCell = d.receiptPath 
-        ? `<a href="${d.receiptPath}" target="_blank"><img src="${d.receiptPath}" class="receipt-thumb" alt="Proof" title="Click to view full image"/></a>` 
-        : 'No Proof';
-
-      return `
-        <tr class="${isUpdated}">
-          <td>${d.timestampFormatted}</td>
-          <td>${d.email}</td>
-          <td>${d.name}</td>
-          <td>${d.accountDetails}</td>
-          <td>${receiptCell}</td>
-          <td><span class="badge badge-${d.status}">${d.status}</span></td>
-          <td>${actions}</td>
-        </tr>`;
-    }).join('');
-
-    renderPaginationControls('requestsSection', 'requestsPagination');
-  }
-
-  function renderWithdrawalsTable() {
-    const tbody = document.getElementById('withdrawalsTableBody');
-    const state = tabState.withdrawalsSection;
-    const start = (state.page - 1) * PAGE_SIZE;
-    const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
-
-    if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8">No withdrawals found.</td></tr>';
-      renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
-      return;
-    }
-
-    tbody.innerHTML = pageItems.map(d => {
-      const isUpdated = updatedDocIds.has(d.id) ? 'row-updated' : '';
-      const actions = d.status === 'pending' ? `
-        <div class="actions-cell">
-          <button class="action-btn btn-small" onclick="handleWithdrawal('${d.id}', '${d.userId}', ${d.amount}, 'approved')">Approve</button>
-          <button class="action-btn btn-small btn-danger" onclick="handleWithdrawal('${d.id}', '${d.userId}', ${d.amount}, 'rejected')">Reject</button>
-        </div>
-      ` : 'N/A';
-
-      const receiptCell = d.receiptPath 
-        ? `<a href="${d.receiptPath}" target="_blank"><img src="${d.receiptPath}" class="receipt-thumb" alt="Proof" title="Click to view full image"/></a>` 
-        : 'No Proof';
-
-      return `
-        <tr class="${isUpdated}">
-          <td>${d.timestampFormatted}</td>
-          <td>${d.email}</td>
-          <td>${d.name}</td>
-          <td>GHS ${d.amount}</td>
-          <td>${d.destination}</td>
-          <td>${receiptCell}</td>
-          <td><span class="badge badge-${d.status}">${d.status}</span></td>
-          <td>${actions}</td>
-        </tr>`;
-    }).join('');
-
-    renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
-  }
-
-  // Load Settings
-  async function loadSettings() {
-    try {
-      const connSnap = await getDoc(doc(db, 'settings', 'connection'));
-      if (connSnap.exists()) {
-        const d = connSnap.data();
-        document.getElementById('connectionFee').value = d.fee || 0;
-        document.getElementById('payProvider').value = d.provider || '';
-        document.getElementById('payName').value = d.accountName || '';
-        document.getElementById('payNumber').value = d.accountNumber || '';
-      }
-  
-      const rateSnap = await getDoc(doc(db, 'games', 'settings'));
-      if (rateSnap.exists()) {
-        const data = rateSnap.data();
-        document.getElementById('gameRate').value = data.rate !== undefined ? data.rate : 0;
-      }
-  
-      const contactSnap = await getDoc(doc(db, 'settings', 'contact'));
-      if (contactSnap.exists()) {
-        const data = contactSnap.data();
-        document.getElementById('supportEmail').value = data.email || '';
-        document.getElementById('supportWhatsapp').value = data.whatsapp || '';
-      }
-  
-      const withdrawSnap = await getDoc(doc(db, 'settings', 'withdraw'));
-      if (withdrawSnap.exists()) {
-        const data = withdrawSnap.data();
-        document.getElementById('minWithdraw').value = data.minWithdraw !== undefined ? data.minWithdraw : 0;
-      }
-    } catch (err) { console.error("Error loading settings:", err); }
-  }
-  
-  // Save Settings Form Handler
-  document.getElementById('settingsForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const status = document.getElementById('settingsStatus');
-    try {
-      await setDoc(doc(db, 'settings', 'connection'), {
-        fee: parseFloat(document.getElementById('connectionFee').value),
-        provider: document.getElementById('payProvider').value,
-        accountName: document.getElementById('payName').value,
-        accountNumber: document.getElementById('payNumber').value
-      }, { merge: true });
-  
-      await setDoc(doc(db, 'games', 'settings'), {
-        rate: parseFloat(document.getElementById('gameRate').value)
-      }, { merge: true });
-  
-      await setDoc(doc(db, 'settings', 'contact'), {
-        email: document.getElementById('supportEmail').value,
-        whatsapp: document.getElementById('supportWhatsapp').value
-      }, { merge: true });
-  
-      await setDoc(doc(db, 'settings', 'withdraw'), {
-        minWithdraw: parseFloat(document.getElementById('minWithdraw').value)
-      }, { merge: true });
-  
-      status.textContent = 'All settings saved successfully!';
-      status.className = 'status-msg success';
-    } catch (err) {
-      status.textContent = 'Error saving settings: ' + err.message;
-      status.className = 'status-msg error';
-    }
-  });
-
-  window.handleConnectionRequest = async (requestId, userId, momoName, momoNumber, momoProvider, newStatus) => {
-    try {
-      await updateDoc(doc(db, 'connectionRequests', requestId), { status: newStatus });
-      if (newStatus === 'approved' && userId) {
-        await setDoc(doc(db, 'users', userId), {
-          momoName,
-          momoNumber,
-          momoProvider
-        }, { merge: true });
-      }
-    } catch (err) { alert('Error updating connection request: ' + err.message); }
-  };
-
-  window.handleWithdrawal = async (withdrawalId, userId, amount, newStatus) => {
-    try {
-      await updateDoc(doc(db, 'withdrawals', withdrawalId), { status: newStatus });
-      if (newStatus === 'rejected' && userId && amount > 0) {
-        await updateDoc(doc(db, 'users', userId), {
-          balance: increment(parseFloat(amount))
-        });
-      }
-    } catch (err) { alert('Error updating withdrawal status: ' + err.message); }
-  };
 </script>
 
 </body>
