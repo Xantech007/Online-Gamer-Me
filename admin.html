@@ -227,7 +227,7 @@ footer {
         <div id="usersSection" class="tab-content card">
           <h2><span><i class="fa-solid fa-users"></i> Registered Users</span></h2>
           <div class="table-header-controls">
-            <input type="text" id="usersSearch" class="search-input" placeholder="Search by name, email, phone, MoMo...">
+            <input type="text" id="usersSearch" class="search-input" placeholder="Search by name, email, phone...">
             <div class="pagination-controls" id="usersPagination"></div>
           </div>
           <div class="table-responsive">
@@ -395,22 +395,6 @@ footer {
         </div>
       </div>
 
-      <div class="section-title">Mobile Money Details</div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="editMomoName">MoMo Name</label>
-          <input type="text" id="editMomoName">
-        </div>
-        <div class="form-group">
-          <label for="editMomoNumber">MoMo Number</label>
-          <input type="text" id="editMomoNumber">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="editMomoProvider">MoMo Provider</label>
-        <input type="text" id="editMomoProvider" placeholder="e.g. MTN, Vodafone, AirtelTigo">
-      </div>
-
       <div class="section-title">Stats & Balance</div>
       <div class="grid-2">
         <div class="form-group">
@@ -440,7 +424,7 @@ footer {
 
 <script type="module">
   import { db } from './firebase.js';
-  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, increment, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { doc, getDoc, setDoc, collection, onSnapshot, query, where, updateDoc, increment, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const loader = document.getElementById('loader');
   const loginSection = document.getElementById('loginSection');
@@ -466,7 +450,7 @@ footer {
     withdrawalsSection: { data: [], filtered: [], page: 1, search: '' }
   };
 
-  const loadedTabs = new Set();
+  const unsubscribes = new Map();
 
   // Helper function to format seconds to hh:mm:ss format
   function formatSecondsToHMS(totalSeconds) {
@@ -529,26 +513,13 @@ footer {
     adminNav.style.display = 'flex';
     dashboardSection.style.display = 'block';
 
-    loadTabData('usersSection');
+    initRealtimeListeners();
   }
 
   function showLogin() {
     adminNav.style.display = 'none';
     dashboardSection.style.display = 'none';
     loginSection.style.display = 'block';
-  }
-
-  // Pre-fetch all user profiles into local cache to resolve email and fullname
-  async function ensureUsersCached() {
-    if (usersCache.size > 0) return;
-    try {
-      const snap = await getDocs(collection(db, 'users'));
-      snap.forEach(d => {
-        usersCache.set(d.id, { id: d.id, ...d.data() });
-      });
-    } catch (e) {
-      console.error("Error building user cache:", e);
-    }
   }
 
   function setupSearchListeners() {
@@ -566,7 +537,6 @@ footer {
   function filterAndRender(tabId, queryText) {
     const state = tabState[tabId];
     state.search = queryText.toLowerCase().trim();
-    state.page = 1;
 
     state.filtered = state.data.filter(item => {
       return Object.values(item).some(val => 
@@ -644,7 +614,8 @@ footer {
 
   adminLogoutBtn.addEventListener('click', () => {
     localStorage.removeItem('adminLoggedIn');
-    loadedTabs.clear();
+    unsubscribes.forEach(unsub => unsub());
+    unsubscribes.clear();
     usersCache.clear();
     showLogin();
   });
@@ -657,36 +628,28 @@ footer {
       btn.classList.add('active');
       const targetTab = btn.dataset.tab;
       document.getElementById(targetTab).style.display = 'block';
-      loadTabData(targetTab);
     });
   });
 
-  async function loadTabData(tabId) {
-    await ensureUsersCached();
-    if (loadedTabs.has(tabId)) return;
-
-    if (tabId === 'usersSection') loadUsers();
-    if (tabId === 'requestsSection') loadRequests();
-    if (tabId === 'withdrawalsSection') loadWithdrawals();
-    if (tabId === 'settingsSection') loadSettings();
-    
-    loadedTabs.add(tabId);
+  function initRealtimeListeners() {
+    listenUsers();
+    listenRequests();
+    listenWithdrawals();
+    listenSettings();
   }
 
-  // Updated User Info Helper
   function getUserInfo(userId) {
     const user = usersCache.get(userId) || {};
     return {
       email: user.email || 'N/A',
-      name: user.fullName || user.fullname || 'N/A' // Fallback to fullName
+      name: user.fullName || user.fullname || 'N/A'
     };
   }
-  
-  // Updated loadUsers Function
-  async function loadUsers() {
-    const tbody = document.getElementById('usersTableBody');
-    try {
-      const snap = await getDocs(collection(db, 'users'));
+
+  // 1. Real-time Users Listener
+  function listenUsers() {
+    if (unsubscribes.has('users')) return;
+    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
       const list = [];
       snap.forEach(docSnap => {
         const d = docSnap.data();
@@ -698,21 +661,23 @@ footer {
           email: d.email || 'N/A',
           name: d.fullName || d.fullname || 'N/A',
           phone: d.phone || d.phoneNumber || 'N/A',
-          momoName: d.momoName || 'N/A',
-          momoNumber: d.momoNumber || 'N/A',
-          momoProvider: d.momoProvider || 'N/A',
           gameTime: d.gameTime || 0,
           balance: d.balance || 0,
           errorMsg: d.errorMsg || ''
         });
       });
-      
-      // Sort most recent first
-      list.sort((a, b) => getMillis(b.createdAt) - getMillis(a.createdAt));
 
+      list.sort((a, b) => getMillis(b.createdAt) - getMillis(a.createdAt));
       tabState.usersSection.data = list;
       filterAndRender('usersSection', tabState.usersSection.search);
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="10">Error: ${err.message}</td></tr>`; }
+
+      // Re-render requests & withdrawals to update cached user details
+      filterAndRender('requestsSection', tabState.requestsSection.search);
+      filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
+    }, (err) => {
+      document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`;
+    });
+    unsubscribes.set('users', unsub);
   }
 
   function renderUsersTable() {
@@ -722,7 +687,7 @@ footer {
     const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
 
     if (pageItems.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10">No users found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7">No users found.</td></tr>';
       renderPaginationControls('usersSection', 'usersPagination');
       return;
     }
@@ -733,9 +698,6 @@ footer {
         <td>${d.email}</td>
         <td>${d.name}</td>
         <td>${d.phone}</td>
-        <td>${d.momoName}</td>
-        <td>${d.momoNumber}</td>
-        <td>${d.momoProvider}</td>
         <td>${formatSecondsToHMS(d.gameTime)}</td>
         <td>GHS ${d.balance}</td>
         <td>
@@ -760,9 +722,6 @@ footer {
     document.getElementById('editFullName').value = user.fullName || user.fullname || '';
     document.getElementById('editPhone').value = user.phone || user.phoneNumber || '';
     document.getElementById('editPassword').value = '';
-    document.getElementById('editMomoName').value = user.momoName || '';
-    document.getElementById('editMomoNumber').value = user.momoNumber || '';
-    document.getElementById('editMomoProvider').value = user.momoProvider || '';
     document.getElementById('editGameTime').value = user.gameTime || 0;
     document.getElementById('editBalance').value = user.balance || 0;
     document.getElementById('editErrorMsg').value = user.errorMsg || '';
@@ -790,9 +749,6 @@ footer {
     const fullName = document.getElementById('editFullName').value.trim();
     const phone = document.getElementById('editPhone').value.trim();
     const newPassword = document.getElementById('editPassword').value.trim();
-    const momoName = document.getElementById('editMomoName').value.trim();
-    const momoNumber = document.getElementById('editMomoNumber').value.trim();
-    const momoProvider = document.getElementById('editMomoProvider').value.trim();
     const gameTime = parseInt(document.getElementById('editGameTime').value, 10) || 0;
     const balance = parseFloat(document.getElementById('editBalance').value) || 0;
     const errorMsg = document.getElementById('editErrorMsg').value.trim();
@@ -803,9 +759,6 @@ footer {
       fullname: fullName,
       phone,
       phoneNumber: phone,
-      momoName,
-      momoNumber,
-      momoProvider,
       gameTime,
       balance,
       errorMsg
@@ -817,14 +770,6 @@ footer {
 
     try {
       await updateDoc(doc(db, 'users', userId), updatePayload);
-
-      // Update cache
-      const cachedData = usersCache.get(userId) || {};
-      usersCache.set(userId, { ...cachedData, ...updatePayload });
-
-      // Refresh view
-      loadedTabs.delete('usersSection');
-      await loadUsers();
 
       editUserStatus.textContent = 'User updated successfully!';
       editUserStatus.className = 'status-msg success';
@@ -845,20 +790,16 @@ footer {
 
     try {
       await deleteDoc(doc(db, 'users', userId));
-      usersCache.delete(userId);
-      tabState.usersSection.data = tabState.usersSection.data.filter(u => u.id !== userId);
-      filterAndRender('usersSection', tabState.usersSection.search);
       alert('User deleted successfully.');
     } catch (err) {
       alert('Error deleting user: ' + err.message);
     }
   };
 
-  // 2. Load Connection Requests
-  async function loadRequests() {
-    const tbody = document.getElementById('requestsTableBody');
-    try {
-      const snap = await getDocs(collection(db, 'connectionRequests'));
+  // 2. Real-time Connection Requests Listener
+  function listenRequests() {
+    if (unsubscribes.has('requests')) return;
+    const unsub = onSnapshot(collection(db, 'connectionRequests'), (snap) => {
       const list = [];
       snap.forEach(docSnap => {
         const d = docSnap.data();
@@ -879,12 +820,13 @@ footer {
         });
       });
 
-      // Sort most recent first
       list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
-
       tabState.requestsSection.data = list;
       filterAndRender('requestsSection', tabState.requestsSection.search);
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`; }
+    }, (err) => {
+      document.getElementById('requestsTableBody').innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`;
+    });
+    unsubscribes.set('requests', unsub);
   }
 
   function renderRequestsTable() {
@@ -926,11 +868,10 @@ footer {
     renderPaginationControls('requestsSection', 'requestsPagination');
   }
 
-  // 3. Load Withdrawals
-  async function loadWithdrawals() {
-    const tbody = document.getElementById('withdrawalsTableBody');
-    try {
-      const snap = await getDocs(collection(db, 'withdrawals'));
+  // 3. Real-time Withdrawals Listener
+  function listenWithdrawals() {
+    if (unsubscribes.has('withdrawals')) return;
+    const unsub = onSnapshot(collection(db, 'withdrawals'), (snap) => {
       const list = [];
       snap.forEach(docSnap => {
         const d = docSnap.data();
@@ -949,12 +890,13 @@ footer {
         });
       });
 
-      // Sort most recent first
       list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
-
       tabState.withdrawalsSection.data = list;
       filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
-    } catch (err) { tbody.innerHTML = `<tr><td colspan="8">Error: ${err.message}</td></tr>`; }
+    }, (err) => {
+      document.getElementById('withdrawalsTableBody').innerHTML = `<tr><td colspan="8">Error: ${err.message}</td></tr>`;
+    });
+    unsubscribes.set('withdrawals', unsub);
   }
 
   function renderWithdrawalsTable() {
@@ -997,72 +939,76 @@ footer {
     renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
   }
 
-  // 4. Load Settings (Direct Document Fetching)
-  async function loadSettings() {
-    try {
-      // 1. Connection Settings (Document: settings/connection)
-      const connSnap = await getDoc(doc(db, 'settings', 'connection'));
-      if (connSnap.exists()) {
-        const d = connSnap.data();
+  // 4. Real-time Settings Listener
+  function listenSettings() {
+    if (unsubscribes.has('conn')) return;
+
+    // Connection settings
+    const unsubConn = onSnapshot(doc(db, 'settings', 'connection'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
         document.getElementById('connectionFee').value = d.fee || 0;
         document.getElementById('payProvider').value = d.provider || '';
         document.getElementById('payName').value = d.accountName || '';
         document.getElementById('payNumber').value = d.accountNumber || '';
       }
-  
-      // 2. Game Rate (Document: games/settings -> rate field)
-      const rateSnap = await getDoc(doc(db, 'games', 'settings'));
-      if (rateSnap.exists()) {
-        const data = rateSnap.data();
+    });
+    unsubscribes.set('conn', unsubConn);
+
+    // Rate settings
+    const unsubRate = onSnapshot(doc(db, 'games', 'settings'), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
         document.getElementById('gameRate').value = data.rate !== undefined ? data.rate : 0;
       }
-  
-      // 3. Contact Support (Document: settings/contact -> email & whatsapp fields)
-      const contactSnap = await getDoc(doc(db, 'settings', 'contact'));
-      if (contactSnap.exists()) {
-        const data = contactSnap.data();
+    });
+    unsubscribes.set('rate', unsubRate);
+
+    // Contact settings
+    const unsubContact = onSnapshot(doc(db, 'settings', 'contact'), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
         document.getElementById('supportEmail').value = data.email || '';
         document.getElementById('supportWhatsapp').value = data.whatsapp || '';
       }
-  
-      // 4. Min Withdrawal (Document: settings/withdraw -> minWithdraw field)
-      const withdrawSnap = await getDoc(doc(db, 'settings', 'withdraw'));
-      if (withdrawSnap.exists()) {
-        const data = withdrawSnap.data();
+    });
+    unsubscribes.set('contact', unsubContact);
+
+    // Withdraw settings
+    const unsubWithdraw = onSnapshot(doc(db, 'settings', 'withdraw'), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
         document.getElementById('minWithdraw').value = data.minWithdraw !== undefined ? data.minWithdraw : 0;
       }
-    } catch (err) { console.error("Error loading settings:", err); }
+    });
+    unsubscribes.set('withdraw', unsubWithdraw);
   }
-  
+
   // Save Settings Form Handler
   document.getElementById('settingsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const status = document.getElementById('settingsStatus');
     try {
-      // 1. Connection settings (Document: settings/connection)
       await setDoc(doc(db, 'settings', 'connection'), {
         fee: parseFloat(document.getElementById('connectionFee').value),
         provider: document.getElementById('payProvider').value,
         accountName: document.getElementById('payName').value,
         accountNumber: document.getElementById('payNumber').value
       }, { merge: true });
-  
-      // 2. Save Game Rate (Document: games/settings)
+
       await setDoc(doc(db, 'games', 'settings'), {
         rate: parseFloat(document.getElementById('gameRate').value)
       }, { merge: true });
-  
-      // 3. Save Contact Support (Document: settings/contact)
+
       await setDoc(doc(db, 'settings', 'contact'), {
         email: document.getElementById('supportEmail').value,
         whatsapp: document.getElementById('supportWhatsapp').value
       }, { merge: true });
-  
-      // 4. Save Minimum Withdrawal (Document: settings/withdraw)
+
       await setDoc(doc(db, 'settings', 'withdraw'), {
         minWithdraw: parseFloat(document.getElementById('minWithdraw').value)
       }, { merge: true });
-  
+
       status.textContent = 'All settings saved successfully!';
       status.className = 'status-msg success';
     } catch (err) {
@@ -1080,11 +1026,7 @@ footer {
           momoNumber,
           momoProvider
         }, { merge: true });
-        usersCache.clear();
-        loadedTabs.delete('usersSection');
       }
-      loadedTabs.delete('requestsSection');
-      loadRequests();
     } catch (err) { alert('Error updating connection request: ' + err.message); }
   };
 
@@ -1095,11 +1037,7 @@ footer {
         await updateDoc(doc(db, 'users', userId), {
           balance: increment(parseFloat(amount))
         });
-        usersCache.clear();
-        loadedTabs.delete('usersSection');
       }
-      loadedTabs.delete('withdrawalsSection');
-      loadWithdrawals();
     } catch (err) { alert('Error updating withdrawal status: ' + err.message); }
   };
 </script>
