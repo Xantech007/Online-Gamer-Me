@@ -1,2 +1,0 @@
-# plinko
-plinko
