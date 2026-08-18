@@ -127,6 +127,15 @@ th, td { padding: 10px 12px; border-bottom: 1px solid #282828; vertical-align: m
 th { background-color: #1a1a1a; color: greenyellow; font-weight: 600; }
 tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
+/* Firestore-style Flash Update Animation */
+@keyframes flashYellow {
+  0% { background-color: rgba(255, 230, 0, 0.6); }
+  100% { background-color: transparent; }
+}
+tr.row-updated {
+  animation: flashYellow 1.5s ease-out;
+}
+
 .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 .badge-pending { background: #554400; color: #ffcc00; }
 .badge-approved, .badge-completed { background: #004400; color: greenyellow; }
@@ -424,7 +433,7 @@ footer {
 
 <script type="module">
   import { db } from './firebase.js';
-  import { doc, getDoc, setDoc, collection, onSnapshot, query, where, updateDoc, increment, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, increment, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const loader = document.getElementById('loader');
   const loginSection = document.getElementById('loginSection');
@@ -450,7 +459,10 @@ footer {
     withdrawalsSection: { data: [], filtered: [], page: 1, search: '' }
   };
 
-  const unsubscribes = new Map();
+  const loadedTabs = new Set();
+  const activeUnsubscribers = [];
+  const updatedDocIds = new Set();
+  const previousDataSnapshots = new Map();
 
   // Helper function to format seconds to hh:mm:ss format
   function formatSecondsToHMS(totalSeconds) {
@@ -537,6 +549,7 @@ footer {
   function filterAndRender(tabId, queryText) {
     const state = tabState[tabId];
     state.search = queryText.toLowerCase().trim();
+    state.page = 1;
 
     state.filtered = state.data.filter(item => {
       return Object.values(item).some(val => 
@@ -614,9 +627,11 @@ footer {
 
   adminLogoutBtn.addEventListener('click', () => {
     localStorage.removeItem('adminLoggedIn');
-    unsubscribes.forEach(unsub => unsub());
-    unsubscribes.clear();
+    activeUnsubscribers.forEach(unsub => unsub());
+    activeUnsubscribers.length = 0;
+    loadedTabs.clear();
     usersCache.clear();
+    previousDataSnapshots.clear();
     showLogin();
   });
 
@@ -628,34 +643,31 @@ footer {
       btn.classList.add('active');
       const targetTab = btn.dataset.tab;
       document.getElementById(targetTab).style.display = 'block';
+      if (targetTab === 'settingsSection') loadSettings();
     });
   });
 
+  // Setup Real-Time Listeners Across Firestore Collections
   function initRealtimeListeners() {
-    listenUsers();
-    listenRequests();
-    listenWithdrawals();
-    listenSettings();
-  }
+    activeUnsubscribers.forEach(unsub => unsub());
+    activeUnsubscribers.length = 0;
 
-  function getUserInfo(userId) {
-    const user = usersCache.get(userId) || {};
-    return {
-      email: user.email || 'N/A',
-      name: user.fullName || user.fullname || 'N/A'
-    };
-  }
-
-  // 1. Real-time Users Listener
-  function listenUsers() {
-    if (unsubscribes.has('users')) return;
-    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
+    // 1. Users Listener
+    const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => {
       const list = [];
       snap.forEach(docSnap => {
         const d = docSnap.data();
-        usersCache.set(docSnap.id, { id: docSnap.id, ...d });
+        const docId = docSnap.id;
+        usersCache.set(docId, { id: docId, ...d });
+
+        const serialized = JSON.stringify(d);
+        if (previousDataSnapshots.has(docId) && previousDataSnapshots.get(docId) !== serialized) {
+          triggerRowFlash(docId);
+        }
+        previousDataSnapshots.set(docId, serialized);
+
         list.push({
-          id: docSnap.id,
+          id: docId,
           createdAt: d.createdAt,
           createdAtFormatted: formatDate(d.createdAt),
           email: d.email || 'N/A',
@@ -671,13 +683,102 @@ footer {
       tabState.usersSection.data = list;
       filterAndRender('usersSection', tabState.usersSection.search);
 
-      // Re-render requests & withdrawals to update cached user details
+      // Re-render dependent requests and withdrawals to reflect user name/email updates
+      if (tabState.requestsSection.data.length > 0) filterAndRender('requestsSection', tabState.requestsSection.search);
+      if (tabState.withdrawalsSection.data.length > 0) filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
+    }, (err) => {
+      document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="7">Error listening to users: ${err.message}</td></tr>`;
+    });
+
+    // 2. Connection Requests Listener
+    const unsubRequests = onSnapshot(collection(db, 'connectionRequests'), (snap) => {
+      const list = [];
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const docId = docSnap.id;
+        const userInfo = getUserInfo(d.userId);
+
+        const serialized = JSON.stringify(d);
+        if (previousDataSnapshots.has(docId) && previousDataSnapshots.get(docId) !== serialized) {
+          triggerRowFlash(docId);
+        }
+        previousDataSnapshots.set(docId, serialized);
+
+        list.push({
+          id: docId,
+          userId: d.userId,
+          timestamp: d.timestamp,
+          timestampFormatted: formatDate(d.timestamp),
+          email: userInfo.email,
+          name: userInfo.name,
+          accountDetails: `${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})`,
+          receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
+          status: d.status || 'pending',
+          momoName: d.momoName || '',
+          momoNumber: d.momoNumber || '',
+          momoProvider: d.momoProvider || ''
+        });
+      });
+
+      list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+      tabState.requestsSection.data = list;
       filterAndRender('requestsSection', tabState.requestsSection.search);
+    }, (err) => {
+      document.getElementById('requestsTableBody').innerHTML = `<tr><td colspan="7">Error listening to requests: ${err.message}</td></tr>`;
+    });
+
+    // 3. Withdrawals Listener
+    const unsubWithdrawals = onSnapshot(collection(db, 'withdrawals'), (snap) => {
+      const list = [];
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const docId = docSnap.id;
+        const userInfo = getUserInfo(d.userId);
+
+        const serialized = JSON.stringify(d);
+        if (previousDataSnapshots.has(docId) && previousDataSnapshots.get(docId) !== serialized) {
+          triggerRowFlash(docId);
+        }
+        previousDataSnapshots.set(docId, serialized);
+
+        list.push({
+          id: docId,
+          userId: d.userId,
+          timestamp: d.timestamp,
+          timestampFormatted: formatDate(d.timestamp),
+          email: userInfo.email,
+          name: userInfo.name,
+          amount: d.amount || 0,
+          destination: d.accountNumber || 'N/A',
+          receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
+          status: d.status || 'pending'
+        });
+      });
+
+      list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
+      tabState.withdrawalsSection.data = list;
       filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
     }, (err) => {
-      document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`;
+      document.getElementById('withdrawalsTableBody').innerHTML = `<tr><td colspan="8">Error listening to withdrawals: ${err.message}</td></tr>`;
     });
-    unsubscribes.set('users', unsub);
+
+    activeUnsubscribers.push(unsubUsers, unsubRequests, unsubWithdrawals);
+  }
+
+  function triggerRowFlash(docId) {
+    updatedDocIds.add(docId);
+    setTimeout(() => {
+      updatedDocIds.delete(docId);
+    }, 1600);
+  }
+
+  // Updated User Info Helper
+  function getUserInfo(userId) {
+    const user = usersCache.get(userId) || {};
+    return {
+      email: user.email || 'N/A',
+      name: user.fullName || user.fullname || 'N/A'
+    };
   }
 
   function renderUsersTable() {
@@ -692,22 +793,25 @@ footer {
       return;
     }
 
-    tbody.innerHTML = pageItems.map(d => `
-      <tr>
-        <td>${d.createdAtFormatted}</td>
-        <td>${d.email}</td>
-        <td>${d.name}</td>
-        <td>${d.phone}</td>
-        <td>${formatSecondsToHMS(d.gameTime)}</td>
-        <td>GHS ${d.balance}</td>
-        <td>
-          <div class="actions-cell">
-            <button class="action-btn btn-small" onclick="openEditUserModal('${d.id}')">Edit</button>
-            <button class="action-btn btn-small btn-danger" onclick="deleteUser('${d.id}')">Delete</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = pageItems.map(d => {
+      const isUpdated = updatedDocIds.has(d.id) ? 'row-updated' : '';
+      return `
+        <tr class="${isUpdated}">
+          <td>${d.createdAtFormatted}</td>
+          <td>${d.email}</td>
+          <td>${d.name}</td>
+          <td>${d.phone}</td>
+          <td>${formatSecondsToHMS(d.gameTime)}</td>
+          <td>GHS ${d.balance}</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn btn-small" onclick="openEditUserModal('${d.id}')">Edit</button>
+              <button class="action-btn btn-small btn-danger" onclick="deleteUser('${d.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
 
     renderPaginationControls('usersSection', 'usersPagination');
   }
@@ -796,39 +900,6 @@ footer {
     }
   };
 
-  // 2. Real-time Connection Requests Listener
-  function listenRequests() {
-    if (unsubscribes.has('requests')) return;
-    const unsub = onSnapshot(collection(db, 'connectionRequests'), (snap) => {
-      const list = [];
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        const userInfo = getUserInfo(d.userId);
-        list.push({
-          id: docSnap.id,
-          userId: d.userId,
-          timestamp: d.timestamp,
-          timestampFormatted: formatDate(d.timestamp),
-          email: userInfo.email,
-          name: userInfo.name,
-          accountDetails: `${d.momoProvider || ''} - ${d.momoNumber || ''} (${d.momoName || ''})`,
-          receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
-          status: d.status || 'pending',
-          momoName: d.momoName || '',
-          momoNumber: d.momoNumber || '',
-          momoProvider: d.momoProvider || ''
-        });
-      });
-
-      list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
-      tabState.requestsSection.data = list;
-      filterAndRender('requestsSection', tabState.requestsSection.search);
-    }, (err) => {
-      document.getElementById('requestsTableBody').innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`;
-    });
-    unsubscribes.set('requests', unsub);
-  }
-
   function renderRequestsTable() {
     const tbody = document.getElementById('requestsTableBody');
     const state = tabState.requestsSection;
@@ -842,6 +913,7 @@ footer {
     }
 
     tbody.innerHTML = pageItems.map(d => {
+      const isUpdated = updatedDocIds.has(d.id) ? 'row-updated' : '';
       const actions = d.status === 'pending' ? `
         <div class="actions-cell">
           <button class="action-btn btn-small" onclick="handleConnectionRequest('${d.id}', '${d.userId}', '${d.momoName}', '${d.momoNumber}', '${d.momoProvider}', 'approved')">Approve</button>
@@ -854,7 +926,7 @@ footer {
         : 'No Proof';
 
       return `
-        <tr>
+        <tr class="${isUpdated}">
           <td>${d.timestampFormatted}</td>
           <td>${d.email}</td>
           <td>${d.name}</td>
@@ -866,37 +938,6 @@ footer {
     }).join('');
 
     renderPaginationControls('requestsSection', 'requestsPagination');
-  }
-
-  // 3. Real-time Withdrawals Listener
-  function listenWithdrawals() {
-    if (unsubscribes.has('withdrawals')) return;
-    const unsub = onSnapshot(collection(db, 'withdrawals'), (snap) => {
-      const list = [];
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        const userInfo = getUserInfo(d.userId);
-        list.push({
-          id: docSnap.id,
-          userId: d.userId,
-          timestamp: d.timestamp,
-          timestampFormatted: formatDate(d.timestamp),
-          email: userInfo.email,
-          name: userInfo.name,
-          amount: d.amount || 0,
-          destination: d.accountNumber || 'N/A',
-          receiptPath: d.receiptPath || d.receiptUrl || d.proofUrl || '',
-          status: d.status || 'pending'
-        });
-      });
-
-      list.sort((a, b) => getMillis(b.timestamp) - getMillis(a.timestamp));
-      tabState.withdrawalsSection.data = list;
-      filterAndRender('withdrawalsSection', tabState.withdrawalsSection.search);
-    }, (err) => {
-      document.getElementById('withdrawalsTableBody').innerHTML = `<tr><td colspan="8">Error: ${err.message}</td></tr>`;
-    });
-    unsubscribes.set('withdrawals', unsub);
   }
 
   function renderWithdrawalsTable() {
@@ -912,6 +953,7 @@ footer {
     }
 
     tbody.innerHTML = pageItems.map(d => {
+      const isUpdated = updatedDocIds.has(d.id) ? 'row-updated' : '';
       const actions = d.status === 'pending' ? `
         <div class="actions-cell">
           <button class="action-btn btn-small" onclick="handleWithdrawal('${d.id}', '${d.userId}', ${d.amount}, 'approved')">Approve</button>
@@ -924,7 +966,7 @@ footer {
         : 'No Proof';
 
       return `
-        <tr>
+        <tr class="${isUpdated}">
           <td>${d.timestampFormatted}</td>
           <td>${d.email}</td>
           <td>${d.name}</td>
@@ -939,51 +981,39 @@ footer {
     renderPaginationControls('withdrawalsSection', 'withdrawalsPagination');
   }
 
-  // 4. Real-time Settings Listener
-  function listenSettings() {
-    if (unsubscribes.has('conn')) return;
-
-    // Connection settings
-    const unsubConn = onSnapshot(doc(db, 'settings', 'connection'), (snap) => {
-      if (snap.exists()) {
-        const d = snap.data();
+  // Load Settings
+  async function loadSettings() {
+    try {
+      const connSnap = await getDoc(doc(db, 'settings', 'connection'));
+      if (connSnap.exists()) {
+        const d = connSnap.data();
         document.getElementById('connectionFee').value = d.fee || 0;
         document.getElementById('payProvider').value = d.provider || '';
         document.getElementById('payName').value = d.accountName || '';
         document.getElementById('payNumber').value = d.accountNumber || '';
       }
-    });
-    unsubscribes.set('conn', unsubConn);
-
-    // Rate settings
-    const unsubRate = onSnapshot(doc(db, 'games', 'settings'), (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
+  
+      const rateSnap = await getDoc(doc(db, 'games', 'settings'));
+      if (rateSnap.exists()) {
+        const data = rateSnap.data();
         document.getElementById('gameRate').value = data.rate !== undefined ? data.rate : 0;
       }
-    });
-    unsubscribes.set('rate', unsubRate);
-
-    // Contact settings
-    const unsubContact = onSnapshot(doc(db, 'settings', 'contact'), (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
+  
+      const contactSnap = await getDoc(doc(db, 'settings', 'contact'));
+      if (contactSnap.exists()) {
+        const data = contactSnap.data();
         document.getElementById('supportEmail').value = data.email || '';
         document.getElementById('supportWhatsapp').value = data.whatsapp || '';
       }
-    });
-    unsubscribes.set('contact', unsubContact);
-
-    // Withdraw settings
-    const unsubWithdraw = onSnapshot(doc(db, 'settings', 'withdraw'), (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
+  
+      const withdrawSnap = await getDoc(doc(db, 'settings', 'withdraw'));
+      if (withdrawSnap.exists()) {
+        const data = withdrawSnap.data();
         document.getElementById('minWithdraw').value = data.minWithdraw !== undefined ? data.minWithdraw : 0;
       }
-    });
-    unsubscribes.set('withdraw', unsubWithdraw);
+    } catch (err) { console.error("Error loading settings:", err); }
   }
-
+  
   // Save Settings Form Handler
   document.getElementById('settingsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -995,20 +1025,20 @@ footer {
         accountName: document.getElementById('payName').value,
         accountNumber: document.getElementById('payNumber').value
       }, { merge: true });
-
+  
       await setDoc(doc(db, 'games', 'settings'), {
         rate: parseFloat(document.getElementById('gameRate').value)
       }, { merge: true });
-
+  
       await setDoc(doc(db, 'settings', 'contact'), {
         email: document.getElementById('supportEmail').value,
         whatsapp: document.getElementById('supportWhatsapp').value
       }, { merge: true });
-
+  
       await setDoc(doc(db, 'settings', 'withdraw'), {
         minWithdraw: parseFloat(document.getElementById('minWithdraw').value)
       }, { merge: true });
-
+  
       status.textContent = 'All settings saved successfully!';
       status.className = 'status-msg success';
     } catch (err) {
