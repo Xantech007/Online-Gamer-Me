@@ -1,69 +1,71 @@
-<!-- Error Message Banner Component -->
-<div id="errorMessageBanner" class="error-msg-banner" style="display: none;">
-  <i class="fa-solid fa-circle-exclamation"></i>
-  <span id="errorMessageText"></span>
-</div>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error Message Component</title>
 <style>
-.error-msg-banner {
-  background-color: rgba(255, 77, 77, 0.15);
-  border: 1px solid #ff4d4d;
-  color: #ff4d4d;
-  padding: 14px 18px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 4px 12px rgba(255, 77, 77, 0.1);
-}
-
-.error-msg-banner i {
-  font-size: 18px;
-  flex-shrink: 0;
-}
+  .user-error-banner {
+    display: none;
+    background-color: rgba(255, 77, 77, 0.15);
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.4;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-error-banner.active {
+    display: flex;
+  }
+  .user-error-banner i {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
 </style>
+</head>
+<body>
+
+<!-- Error Banner Container -->
+<div id="userErrorBanner" class="user-error-banner">
+  <i class="fa-solid fa-circle-exclamation"></i>
+  <span id="userErrorText"></span>
+</div>
 
 <script type="module">
   import { auth, db } from './firebase.js';
   import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
   import { doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  let unsubscribeErrorListener = null;
+  const userErrorBanner = document.getElementById('userErrorBanner');
+  const userErrorText = document.getElementById('userErrorText');
+  let unsubscribeUserError = null;
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      listenForUserErrorMsg(user.uid);
+      const userRef = doc(db, 'users', user.uid);
+      unsubscribeUserError = onSnapshot(userRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.errorMsg && typeof data.errorMsg === 'string' && data.errorMsg.trim() !== '') {
+            userErrorText.textContent = data.errorMsg;
+            userErrorBanner.classList.add('active');
+          } else {
+            userErrorText.textContent = '';
+            userErrorBanner.classList.remove('active');
+          }
+        }
+      }, (err) => {
+        console.error("Error listening to user errorMsg field:", err);
+      });
     } else {
-      if (unsubscribeErrorListener) unsubscribeErrorListener();
+      if (unsubscribeUserError) unsubscribeUserError();
+      userErrorBanner.classList.remove('active');
     }
   });
-
-  function listenForUserErrorMsg(uid) {
-    const userDocRef = doc(db, 'users', uid);
-    
-    unsubscribeErrorListener = onSnapshot(userDocRef, (docSnap) => {
-      const bannerElement = document.getElementById('errorMessageBanner');
-      const textElement = document.getElementById('errorMessageText');
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        
-        // Check if errorMsg field exists and is non-empty
-        if (data.errorMsg && typeof data.errorMsg === 'string' && data.errorMsg.trim() !== '') {
-          textElement.textContent = data.errorMsg;
-          bannerElement.style.display = 'flex';
-        } else {
-          bannerElement.style.display = 'none';
-          textElement.textContent = '';
-        }
-      } else {
-        bannerElement.style.display = 'none';
-      }
-    }, (error) => {
-      console.error('Error fetching user errorMsg:', error);
-    });
-  }
 </script>
+</body>
+</html>
