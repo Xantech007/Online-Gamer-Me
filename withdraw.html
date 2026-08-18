@@ -100,6 +100,31 @@ nav a:hover, nav a.active, nav button:hover {
   display: none;
 }
 
+/* User Account Error Banner */
+.user-error-banner {
+  display: none;
+  background-color: rgba(255, 77, 77, 0.15);
+  border: 1px solid #ff4d4d;
+  color: #ff4d4d;
+  padding: 14px 18px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  font-size: 14px;
+  line-height: 1.5;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 15px rgba(255, 77, 77, 0.1);
+}
+
+.user-error-banner.active {
+  display: flex;
+}
+
+.user-error-banner i {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
 /* Withdraw Page Layout */
 .withdraw-container {
   max-width: 950px;
@@ -641,6 +666,12 @@ footer a:hover { color: greenyellow; background: transparent; }
         <p>Transfer your gaming earnings directly to your mobile money account.</p>
       </div>
 
+      <!-- User Account Error Message Field -->
+      <div id="userErrorBanner" class="user-error-banner">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="userErrorText"></span>
+      </div>
+
       <!-- Loading State -->
       <div id="withdrawLoader">
         <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
@@ -794,6 +825,9 @@ footer a:hover { color: greenyellow; background: transparent; }
   const walletBalance = document.getElementById('walletBalance');
   const minWithdrawDisplay = document.getElementById('minWithdrawDisplay');
 
+  const userErrorBanner = document.getElementById('userErrorBanner');
+  const userErrorText = document.getElementById('userErrorText');
+
   const connectMomoBtn = document.getElementById('connectMomoBtn');
   const momoDetailsDisplay = document.getElementById('momoDetailsDisplay');
   const displayMomoProvider = document.getElementById('displayMomoProvider');
@@ -854,13 +888,23 @@ footer a:hover { color: greenyellow; background: transparent; }
     }, 5000);
   }
 
-  // Real-time listener for User Profile & MoMo details
+  // Real-time listener for User Profile, Error Messages & MoMo details
   function listenToUserData(uid) {
     const userRef = doc(db, 'users', uid);
 
     unsubscribeUser = onSnapshot(userRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
+
+        // Check and render user errorMsg field
+        if (data.errorMsg && typeof data.errorMsg === 'string' && data.errorMsg.trim() !== '') {
+          userErrorText.textContent = data.errorMsg;
+          userErrorBanner.classList.add('active');
+        } else {
+          userErrorText.textContent = '';
+          userErrorBanner.classList.remove('active');
+        }
+
         userCurrentBalance = data.balance !== undefined ? parseFloat(data.balance) : 0;
         walletBalance.textContent = `GHS ${userCurrentBalance.toFixed(2)}`;
 
