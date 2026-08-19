@@ -786,15 +786,17 @@ footer {
     const state = tabState.usersSection;
     const start = (state.page - 1) * PAGE_SIZE;
     const pageItems = state.filtered.slice(start, start + PAGE_SIZE);
-
+  
     if (pageItems.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7">No users found.</td></tr>';
       renderPaginationControls('usersSection', 'usersPagination');
       return;
     }
-
+  
     tbody.innerHTML = pageItems.map(d => {
       const isUpdated = updatedDocIds.has(d.id) ? 'row-updated' : '';
+      const formattedBalance = Number(d.balance || 0).toFixed(2);
+  
       return `
         <tr class="${isUpdated}">
           <td>${d.createdAtFormatted}</td>
@@ -802,7 +804,7 @@ footer {
           <td>${d.name}</td>
           <td>${d.phone}</td>
           <td>${formatSecondsToHMS(d.gameTime)}</td>
-          <td>GHS ${d.balance}</td>
+          <td>GHS ${formattedBalance}</td>
           <td>
             <div class="actions-cell">
               <button class="action-btn btn-small" onclick="openEditUserModal('${d.id}')">Edit</button>
@@ -812,7 +814,7 @@ footer {
         </tr>
       `;
     }).join('');
-
+  
     renderPaginationControls('usersSection', 'usersPagination');
   }
 
